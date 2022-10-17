@@ -1,0 +1,8 @@
+/remix-compiler.config.js
+/artifacts/
+/cache/
+/contracts/artifacts/
+/contracts/mocks/
+/typechain-types/
+/coverage/
+/coverage.json
