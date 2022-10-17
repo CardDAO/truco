@@ -7,10 +7,10 @@
     "@types/react-dom": "^18.0.6",
     "dotenv": "^16.0.3",
     "ethers": "^5.7.1",
+    "p2pt": "^1.5.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.6.0",
-    "react-scripts": "5.0.1",
     "typescript": "^4.8.4"
   },
   "devDependencies": {
