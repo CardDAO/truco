@@ -10,8 +10,8 @@ contract DeckCrypt  {
     constructor () {
         createDeck();
     }
-
-    function getCardAtId(uint id) public view returns (bytes1 card){
+ 
+    function getCardAtId(uint8 id) public view returns (bytes1 card){
         card  =  deck.cards[id];
     }
 
