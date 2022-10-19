@@ -58,10 +58,15 @@ contract DeckCrypt  {
     }
 
     function createDeck() internal {
+
+        bytes1[CardsCount] memory cards = deck.cards; 
+
         // pack  cards into bytes
         for (uint8 i = 0; i < CardsCount; i++) {
-            deck.cards[i] = bytes1(i);
+            cards[i] = bytes1(i);
         }
+
+        deck.cards = cards;
     }
 
     function generateKey(string memory _secret, uint8 _sequence) internal pure returns (bytes32) {
