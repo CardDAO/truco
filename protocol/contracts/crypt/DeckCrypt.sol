@@ -74,6 +74,6 @@ contract DeckCrypt  {
     }
 
     function encryptOrDecryptByte(bytes1 data, bytes1 secret) internal pure returns (bytes1) {
-        return data | secret;
+        return data ^ secret;
     }
 }
