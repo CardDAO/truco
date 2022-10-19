@@ -23,9 +23,13 @@ contract DeckCrypt  {
         // Generate key using key derivation
         bytes1[CardsCount] memory key  = keyDerivation(_secret, CardsCount);
 
+        bytes1[CardsCount] memory cards = deck.cards; 
+
         for (uint8 i = 0; i < CardsCount; i++) {
-            deck.cards[i] = encryptOrDecryptByte(deck.cards[i], key[i]);
+            cards[i] = encryptOrDecryptByte(deck.cards[i], key[i]);
         }
+
+        deck.cards = cards;
     }
 
     // Key derivation function: uses a secret and desired lenght and generates a key for each card
