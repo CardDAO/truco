@@ -14,7 +14,9 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background-image: url("../public/assets/images/background.jpg");
+  background-repeat: repeat;
+  box-shadow: inset 0 0 0 100vw rgba(0,0,0,.5);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
