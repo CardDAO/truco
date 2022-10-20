@@ -3,22 +3,32 @@ pragma solidity 0.8.16;
 
 uint8 constant CardsCount = 40;
 
-library CardsStructs  {
-
+library CardsStructs {
     struct Deck {
         bytes1[CardsCount] cards;
     }
 
     enum Action {
-        PlayCard, Challenge, Response, Resign
+        PlayCard,
+        Challenge,
+        Response,
+        Resign
     }
 
     enum Challenge {
-        Truco, ReTruco, ValeCuatro, Envido, EnvidoEnvido, RealEnvido, FaltaEnvido
+        Truco,
+        ReTruco,
+        ValeCuatro,
+        Envido,
+        EnvidoEnvido,
+        RealEnvido,
+        FaltaEnvido
     }
 
     enum Response {
-        Accept, DontAccept, EnvidoCount
+        Accept,
+        DontAccept,
+        EnvidoCount
     }
 
     struct Move {
@@ -26,4 +36,3 @@ library CardsStructs  {
         bytes1[] parameters;
     }
 }
-
