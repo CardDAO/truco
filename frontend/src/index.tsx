@@ -1,18 +1,49 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import { EthersJS } from './hooks/providers/EthersJS'
 import App from './App';
+import '@rainbow-me/rainbowkit/styles.css';
+import {
+  getDefaultWallets,
+  RainbowKitProvider,
+} from '@rainbow-me/rainbowkit';
+import {
+  chain,
+  configureChains,
+  createClient,
+  WagmiConfig,
+} from 'wagmi';
+import { publicProvider } from 'wagmi/providers/public';
 
-export const EthersJSContext = React.createContext(new EthersJS(window.ethereum));
+const { chains, provider } = configureChains(
+  [chain.mainnet],
+  [
+    //alchemyProvider({ apiKey: process.env.ALCHEMY_ID }),
+    publicProvider()
+  ]
+);
+
+const { connectors } = getDefaultWallets({
+  appName: 'Trucazo',
+  chains
+});
+
+const wagmiClient = createClient({
+  autoConnect: true,
+  connectors,
+  provider
+})
+
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <EthersJSContext.Provider value={new EthersJS(window.ethereum)}>
+    <WagmiConfig client={wagmiClient}>
+      <RainbowKitProvider chains={chains}>
         <App />
-    </EthersJSContext.Provider>
+      </RainbowKitProvider>
+    </WagmiConfig>
   </React.StrictMode>
 );
