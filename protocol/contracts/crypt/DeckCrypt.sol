@@ -35,15 +35,20 @@ contract DeckCrypt  {
     // Key derivation function: uses a secret and desired lenght and generates a key for each card
     function keyDerivation(string memory _secret, uint8 _lenght) internal pure returns (bytes1[CardsCount] memory key)
     {
-        require (bytes(_secret).length > 0, "Secret can't be empty");
+        require (bytes(_secret).length != 0, "Secret can't be empty");
+        require(_length != 0)
 
         uint8 sequence = 0;
         uint8 keyOffSet = 0;
         bytes32 generatedKey = generateKey(_secret, sequence);
+        
+        // We assing this here  to avoid checking special case of division remainder by 0 inside the loop 
+        key[0] = generatedKey[0];
 
-        for (uint8 i = 0; i < _lenght; i++) {
+        // Since we set index 0 above we start from 1
+        for (uint8 i = 1; i < _lenght; i++) {
 
-            if (i > 0 && i % 32 == 0) {
+            if (i % 32 == 0) {
                 sequence++;
                 keyOffSet= sequence * 32;
                 generatedKey = generateKey(_secret, sequence);
