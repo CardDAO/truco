@@ -43,7 +43,7 @@ library CardsStructs {
         Action action;
         bytes1[] parameters;
     }
-    
+
     struct Transaction {
         int8 currentPlayerIndex;
         GameState state;
