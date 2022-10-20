@@ -10,6 +10,10 @@ jobs:
   start-hardhat-node:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ./protocol
+        
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
