@@ -1,0 +1,25 @@
+name: Contract Testing
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  start-hardhat-node:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'npm'
+                  
+      - run: npm install
+               
+      - name: Copy env
+        run: cp .env.example .env
+          
+      - run: npx hardhat test
