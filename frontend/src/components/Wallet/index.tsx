@@ -24,13 +24,17 @@ export const Wallet = () => {
     }, [account, getBalance])
 
     const connect = useCallback(() => {
+        setMessage("Loading...")
         selectedLibrary.connect().then(() => {
             setAccount(selectedLibrary.account)
+            setMessage("")
         }).catch((error: any) => {
             if (error.code > 0) {
-               setMessage("Error - reconnect")
+                setMessage("Error - reconnect")
+                setTimeout(() => {
+                    setMessage("")
+                }, 800)
            }
-           setMessage("Loading...")
            setAccount(undefined)
         })
     }, [setAccount, setMessage, selectedLibrary])
