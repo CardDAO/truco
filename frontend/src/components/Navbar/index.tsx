@@ -4,7 +4,10 @@ import { Wallet } from '../Wallet'
 import { Link, NavLink } from 'react-router-dom'
 
 const activeItem = ({ isActive } : any) => {
-    return isActive ? "Menu-Selected" : "Menu-Item"
+    return isActive ?
+        "Menu-Selected"
+        :
+        "Menu-Item"
 }
 
 export const Navbar = () => {
