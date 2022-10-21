@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 import "./trucoV1/Engine.sol";
 import "./trucoV1/Structs.sol";
 import "./crypt/DeckCrypt.sol";
@@ -16,9 +18,10 @@ contract TrucoMatch  {
 
     CardsEngine trucoEngine;
     DeckCrypt deckCrypt;
+    IERC20 trueCoin;
     Match currentMatch;
 
-    constructor (CardsEngine _trucoEngine, DeckCrypt _deckCrypt, uint256 tokensQty) {
+    constructor (CardsEngine _trucoEngine, DeckCrypt _deckCrypt, IERC20 _truecoin) {
         trucoEngine = _trucoEngine;
         deckCrypt = _deckCrypt;
         currentMatch.players[0] = msg.sender;
