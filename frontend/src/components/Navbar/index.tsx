@@ -3,7 +3,7 @@ import './index.css'
 import { Wallet } from '../Wallet'
 import { Link, NavLink } from 'react-router-dom'
 
-const activeItem = ({isActive, isPending} : any) => {
+const activeItem = ({ isActive } : any) => {
     return isActive ? "Menu-Selected" : "Menu-Item"
 }
 
@@ -13,7 +13,7 @@ export const Navbar = () => {
         <nav className="Navbar">
           <div className="container flex flex-wrap justify-between items-center mx-auto">
           <Link to="/" className="flex items-center">
-              <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Trucazo</span>
+            <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Trucazo</span>
           </Link>
           <div className="flex md:order-2">
               <Wallet />
@@ -25,7 +25,7 @@ export const Navbar = () => {
           <div className={`${mobileMenuHidden ? 'hidden' : ''} justify-between items-center w-full md:flex md:w-auto md:order-1`}>
               <ul className="Menu">
                 <li>
-                    <NavLink to="/" className={activeItem} end>Home</NavLink>
+                  <NavLink to="/" className={activeItem} end>Home</NavLink>
                 </li>
                 <li>
                   <NavLink to="/game" className={activeItem}>Game</NavLink>
