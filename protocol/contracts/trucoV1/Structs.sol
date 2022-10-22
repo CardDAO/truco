@@ -28,8 +28,7 @@ library CardsStructs {
 
     enum Response {
         Accept,
-        DontAccept,
-        Envido
+        DontAccept
     }
 
     struct GameState {
