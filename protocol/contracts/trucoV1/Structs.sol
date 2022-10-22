@@ -10,6 +10,7 @@ library CardsStructs {
 
     enum Action {
         PlayCard,
+        EnvidoCount,
         Challenge,
         Response,
         Resign
@@ -21,7 +22,6 @@ library CardsStructs {
         ReTruco,
         ValeCuatro,
         Envido,
-        EnvidoEnvido,
         RealEnvido,
         FaltaEnvido
     }
@@ -29,13 +29,13 @@ library CardsStructs {
     enum Response {
         Accept,
         DontAccept,
-        EnvidoCount
+        Envido
     }
 
     struct GameState {
         int8 playerTurn; // player index
         int8[] teamPoints; //points indexed by team id (in this case a player is a team)
-        // revealed cards by player
+        bytes1[6] revealed_cards; // 
         Challenge currentChallenge;
     }
 
