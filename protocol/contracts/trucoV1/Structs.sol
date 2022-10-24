@@ -28,23 +28,35 @@ library CardsStructs {
 
     enum Response {
         Accept,
-        DontAccept
+        Refuse
+    }
+
+    struct CurrentChallenge {
+        Challenge challenge;
+        uint8 challenger;
+        uint8 pointsAtStake;
+        bool waitingChallengeResponse;
+        Response response;
     }
 
     struct GameState {
-        int8 playerTurn; // player index
-        int8[] teamPoints; //points indexed by team id (in this case a player is a team)
-        bytes1[6] revealed_cards; // 
-        Challenge currentChallenge;
+        uint8 playerTurn; // player index
+        uint8 playerWhoShuffled;
+        uint8 currentChallenger;
+        uint8 pointsToWin;
+        CurrentChallenge currentChallenge;
+        uint8[][3] revealedCardsByPlayer;
+        uint8[] envidoCountPerPlayer;
+        uint8[] teamPoints; //points indexed by team id (in this case a player is a team)
     }
 
     struct Move {
         Action action;
-        bytes1[] parameters;
+        uint8[] parameters;
     }
 
     struct Transaction {
-        int8 currentPlayerIndex;
+        uint8 playerIdx;
         GameState state;
         Move[] moves;
     }
