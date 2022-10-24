@@ -42,7 +42,6 @@ library CardsStructs {
     struct GameState {
         uint8 playerTurn; // player index
         uint8 playerWhoShuffled;
-        uint8 currentChallenger;
         uint8 pointsToWin;
         CurrentChallenge currentChallenge;
         uint8[][3] revealedCardsByPlayer;
