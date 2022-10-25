@@ -29,7 +29,10 @@ describe("Envido Resolver", function () {
 
       let state = await sut.startGame();
 
-      let move: MoveStruct = { action: BigNumber.from(ChallengeEnum.Envido), parameters: [] };
+      let move: MoveStruct = {
+        action: BigNumber.from(ChallengeEnum.Envido),
+        parameters: [],
+      };
 
       let transaction: TransactionStruct = {
         playerIdx: state.playerTurn,
@@ -38,7 +41,7 @@ describe("Envido Resolver", function () {
       };
 
       await sut.executeTransaction(transaction);
-      
+
       console.log(await sut.gameState());
     });
   });
