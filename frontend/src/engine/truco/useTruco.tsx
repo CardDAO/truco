@@ -5,12 +5,14 @@ import { Join } from "../../engine/truco/commands/Join"
 import { GameInterface } from "../../engine/shared/GameInterface"
 import { useSignMessage } from 'wagmi'
 import { verifyMessage } from 'ethers/lib/utils'
+import { SignatureLike } from "@ethersproject/bytes"
 
 import { trackersURL }  from '../../assets/trackers'
 import P2PT, { Peer } from "p2pt"
 
 type MessageType = {
-    message: String
+    message: String,
+    signature?: SignatureLike
 }
 
 
@@ -25,24 +27,46 @@ export const useTruco = () => {
     const [ messages, setMessages ] = useState([] as MessageType[])
 
 
-   // const { data, error, isLoading, signMessage } = useSignMessage({
-   //   onSuccess(data, variables) {
-   //     // Verify signature when sign message succeeds
-   //     const address = verifyMessage(variables.message, data)
-   //     console.log('verifico', data, variables, address)
-   //     recoveredAddress.current = address
-   //   },
-   // })
+    const { data, error, isLoading, signMessage } = useSignMessage({
+        onSuccess(data, variables) {
+            const address = verifyMessage(variables.message, data)
+            recoveredAddress.current = address
+            console.log('verified message', data, variables, 'Address', address)
 
-    const sendMessageAll = useCallback((message: String) => {
-        if (peers.length > 0) {
-            const miMensaje = {message: p2pt._peerId + ": " + message}
-            setMessages((currentMessages) => [...currentMessages, miMensaje])
+            const messageSourceSigned: MessageType = {
+                message: variables.message as String,
+                signature: data
+            }//JSON.parse(variables.message as string) as MessageType
+            messageSourceSigned.signature = data
+            setMessages((currentMessages) => [...currentMessages, messageSourceSigned])
             peers.forEach((peer: Peer) => {
                 console.log('enviando mensaje')
-                p2pt.send(peer, miMensaje)
+                p2pt.send(peer, messageSourceSigned)
             }) 
+
         }
+    })
+
+    const goToVerifyMessage = useCallback((messageSigned: MessageType) => {
+        if (messageSigned.signature !== undefined) {
+            const sourceAddress = verifyMessage(
+                messageSigned.message as string,
+                messageSigned.signature!!
+            )
+            const jsonMessage = JSON.parse(messageSigned.message as string)
+            if (jsonMessage.address !== undefined && jsonMessage.address === sourceAddress) {
+                console.log("mensaje verificado desde address", sourceAddress, jsonMessage)
+                setMessages((currentMessages) => [...currentMessages, messageSigned])
+            }
+
+        }
+    },[])
+
+    const sendMessageAll = useCallback((message: String) => {
+        //if (peers.length > 0) {
+        const miMensaje = JSON.stringify({ action: message, address })
+        signMessage({message: miMensaje })
+        //}
     }, [p2pt, peers])
 
     const clickConnectToGame = useCallback(() => {
@@ -83,7 +107,7 @@ export const useTruco = () => {
                 removePeer(peer)
             })
             p2pt.on('msg', (peer: Peer, message) => {
-                setMessages((currentMessages) => [...currentMessages, message])
+                goToVerifyMessage(message)
             })
             p2pt.start()
         }
