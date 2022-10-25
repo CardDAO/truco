@@ -25,6 +25,7 @@ export const useTruco = () => {
     const { address, isConnected } : AccountType = useAccountInformation()
     const [ inSession, setInSession ]  = useState(false)
     const [ messages, setMessages ] = useState([] as MessageType[])
+    const [ lastMessageReceived, setLastMessageReceived ] = useState(-1)
 
 
     const { data, error, isLoading, signMessage } = useSignMessage({
@@ -36,7 +37,7 @@ export const useTruco = () => {
             const messageSourceSigned: MessageType = {
                 message: variables.message as String,
                 signature: data
-            }//JSON.parse(variables.message as string) as MessageType
+            }
             messageSourceSigned.signature = data
             setMessages((currentMessages) => [...currentMessages, messageSourceSigned])
             peers.forEach((peer: Peer) => {
@@ -47,7 +48,7 @@ export const useTruco = () => {
         }
     })
 
-    const goToVerifyMessage = useCallback((messageSigned: MessageType) => {
+    const verifyAndAddMessage = useCallback((messageSigned: MessageType) => {
         if (messageSigned.signature !== undefined) {
             const sourceAddress = verifyMessage(
                 messageSigned.message as string,
@@ -107,7 +108,7 @@ export const useTruco = () => {
                 removePeer(peer)
             })
             p2pt.on('msg', (peer: Peer, message) => {
-                goToVerifyMessage(message)
+                verifyAndAddMessage(message)
             })
             p2pt.start()
         }
