@@ -55,7 +55,15 @@ library EnvidoResolver {
             _gameState.currentChallenge.response = CardsStructs.Response.None;
             _gameState.currentChallenge.waitingChallengeResponse = true;
             _gameState.currentChallenge.challenger = _gameState.playerTurn;
-            _gameState.currentChallenge.pointsAtStake += pointsPerChallenge(_gameState.currentChallenge.challenge, _gameState);
+            
+            // When playing "FaltaEnvido" points at stake are equal to challenge derived points. All other points should
+            // be overridden
+            if (newChallenge == CardsStructs.Challenge.FaltaEnvido) {
+                _gameState.currentChallenge.pointsAtStake = pointsPerChallenge(_gameState.currentChallenge.challenge, _gameState);
+            } else {
+                _gameState.currentChallenge.pointsAtStake += pointsPerChallenge(_gameState.currentChallenge.challenge, _gameState);
+
+            }
             
             return _gameState;
         }
@@ -126,6 +134,7 @@ library EnvidoResolver {
         return _player;
     }
 
+    // Return points that should be at stake for a given challenge
     function pointsPerChallenge(CardsStructs.Challenge challenge, CardsStructs.GameState memory _gameState) internal pure returns (uint8) {
        
        if (challenge == CardsStructs.Challenge.Envido || challenge == CardsStructs.Challenge.EnvidoEnvido) {
@@ -137,7 +146,9 @@ library EnvidoResolver {
         }
 
         if (challenge == CardsStructs.Challenge.FaltaEnvido) {
+            
             if (_gameState.teamPoints[0] >= _gameState.teamPoints[1]) {
+                return _gameState.teamPoints[0];
                 return _gameState.pointsToWin - _gameState.teamPoints[0];
              } 
 
