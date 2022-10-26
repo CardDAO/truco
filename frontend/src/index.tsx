@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
 import '@rainbow-me/rainbowkit/styles.css';
+import App from './App';
 import {
   getDefaultWallets,
   RainbowKitProvider,
@@ -15,6 +15,9 @@ import {
 } from 'wagmi';
 import { publicProvider } from 'wagmi/providers/public';
 
+/**
+ * Create config and init client web3
+ */
 const { chains, provider } = configureChains(
   [chain.mainnet, chain.goerli],
   [
@@ -34,14 +37,18 @@ const wagmiClient = createClient({
 })
 
 
+/**
+ * init app
+ */
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
+
 root.render(
   <React.StrictMode>
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider chains={chains}>
-        <App />
+            <App />
       </RainbowKitProvider>
     </WagmiConfig>
   </React.StrictMode>
