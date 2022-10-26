@@ -17,7 +17,7 @@ describe("Envido Resolver", function () {
     const Trucoin = await ethers.getContractFactory("Trucoin");
     const truecoin = await Trucoin.deploy();
 
-    const TrucoEngine = await ethers.getContractFactory("EngineMock");
+    const TrucoEngine = await ethers.getContractFactory("EngineTester");
     const sut = await TrucoEngine.deploy(truecoin.address);
 
     return { sut, truecoin, owner };

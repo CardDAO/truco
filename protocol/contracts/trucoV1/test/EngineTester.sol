@@ -4,7 +4,7 @@ pragma solidity 0.8.16;
 import "../Engine.sol";
 import "../Structs.sol";
 
-contract EngineMock is Engine {
+contract EngineTester is Engine {
     constructor(IERC20 _trucoin) Engine(_trucoin) {}
     CardsStructs.GameState public gameState;
     
