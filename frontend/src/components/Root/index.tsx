@@ -5,7 +5,9 @@ export const Root = () => {
     return (
         <div className="App">
             <Navbar />
-            <Outlet />
+            <div className="flex items-center justify-center h-[calc(100vh-80px)] overflow-auto">
+                <Outlet />
+            </div>
         </div>
     )
 
