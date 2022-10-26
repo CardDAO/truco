@@ -39,7 +39,11 @@ library EnvidoResolver {
             // - No points were previously spoken
             // - Haven't reach maximum challenges spelled
             require( _gameState.currentChallenge.waitingChallengeResponse == false);
-            require( _gameState.playerTurn != _gameState.currentChallenge.challenger);
+            
+            // Check challenger only if it comes from a non non challenge
+            if (_gameState.currentChallenge.challenge != CardsStructs.Challenge.None) {
+                require( _gameState.playerTurn != _gameState.currentChallenge.challenger);
+            } 
             require(
                 _gameState.envidoCountPerPlayer[_gameState.playerTurn] == 0 &&
                 _gameState.envidoCountPerPlayer[reversePlayer(_gameState.playerTurn)] == 0
@@ -100,15 +104,19 @@ library EnvidoResolver {
             require (_gameState.currentChallenge.response == CardsStructs.Response.Accept);
 
             if (_gameState.playerTurn == _gameState.currentChallenge.challenger) {
-                // Current player challenged envido, so we must ensure other player already cast it's envido count_
+                // Current player challenged envido, so we must ensure other player already cast it's envido count
                 require (_gameState.envidoCountPerPlayer[reversePlayer(_gameState.playerTurn)] != 0);
                 require (_gameState.envidoCountPerPlayer[_gameState.playerTurn] == 0);
             }
             
             //Do envido count
+            uint8 envidoCount = _move.parameters[0];
+            _gameState.envidoCountPerPlayer[_gameState.playerTurn] = envidoCount;
+            return _gameState;
         }
 
-        return _gameState;
+        // If we reach this point, it means that the move is not valid
+        revert("Invalid Move");
     }
 
     function canResolve(
@@ -148,7 +156,6 @@ library EnvidoResolver {
         if (challenge == CardsStructs.Challenge.FaltaEnvido) {
             
             if (_gameState.teamPoints[0] >= _gameState.teamPoints[1]) {
-                return _gameState.teamPoints[0];
                 return _gameState.pointsToWin - _gameState.teamPoints[0];
              } 
 
