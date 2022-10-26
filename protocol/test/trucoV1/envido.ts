@@ -155,7 +155,49 @@ describe("Envido Resolver", function () {
     });
   });
 
-  describe("Challenge in place", function () {
+  describe("Challenge in place: Response waiting", function () {
+    it("Invalid response", async function () {
+      const { sut } = await deployContract();
+
+      let state: GameStateStruct = basicGameState();
+
+      // Envido has spelled by other player and accepted, cant respond anymore
+      state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Envido);
+      state.currentChallenge.challenger = BigNumber.from(otherPlayerIdx);
+      state.currentChallenge.waitingChallengeResponse = false;
+      state.currentChallenge.response = BigNumber.from(ResponseEnum.Accept);
+
+      let move: MoveStruct = {
+        action: BigNumber.from(ActionEnum.Response),
+        parameters: [BigNumber.from(ResponseEnum.Accept)],
+      };
+
+      let transaction: TransactionStruct = {
+        playerIdx: state.playerTurn,
+        moves: [move],
+        state: state,
+      };
+
+      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+
+      // Envido has spelled by other player but not yet accepted yet
+      state.currentChallenge.waitingChallengeResponse = true;
+      state.currentChallenge.response = BigNumber.from(ResponseEnum.None);
+
+      // Invalid response
+      move.parameters = [BigNumber.from(ResponseEnum.None)];
+
+      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+
+      // Envido casted by current player and it's not the one who should respond
+      state.currentChallenge.challenger = BigNumber.from(currentPlayerIdx);
+      move.parameters = [BigNumber.from(ResponseEnum.Accept)];
+
+      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+    });
+  });
+
+  describe("Challenge in place: Accepted", function () {
     it("Raise Envido", async function () {
       const { sut } = await deployContract();
 
@@ -180,9 +222,19 @@ describe("Envido Resolver", function () {
 
       await expect(sut.executeTransaction(transaction)).to.be.reverted;
 
-      state.currentChallenge.challenger = BigNumber.from(otherPlayerIdx);
+      // FaltaEnvido can't be raised
+      state.currentChallenge.challenge = BigNumber.from(
+        ChallengeEnum.FaltaEnvido
+      );
+      move.parameters = [BigNumber.from(ChallengeEnum.RealEnvido)];
+
+      await expect(sut.executeTransaction(transaction)).to.be.reverted;
 
       // Challenge raising should go fine
+      state.currentChallenge.challenger = BigNumber.from(otherPlayerIdx);
+      state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Envido);
+      move.parameters = [BigNumber.from(ChallengeEnum.RealEnvido)];
+
       await sut.executeTransaction(transaction);
     });
 

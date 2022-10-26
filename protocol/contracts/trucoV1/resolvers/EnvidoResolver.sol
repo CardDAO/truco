@@ -38,22 +38,24 @@ library EnvidoResolver {
             // - Player is not the challenger
             // - No points were previously spoken
             // - Haven't reach maximum challenges spelled
-            require(
-                _gameState.currentChallenge.response ==
-                    CardsStructs.Response.Accept
-            );
-            require(
-                _gameState.playerTurn != _gameState.currentChallenge.challenger
-            );
+            require( _gameState.currentChallenge.waitingChallengeResponse == false);
+            require( _gameState.playerTurn != _gameState.currentChallenge.challenger);
             require(
                 _gameState.envidoCountPerPlayer[_gameState.playerTurn] == 0 &&
                 _gameState.envidoCountPerPlayer[reversePlayer(_gameState.playerTurn)] == 0
             );
-            //require (no maximium reached);
             
+            require(_gameState.currentChallenge.challenge != CardsStructs.Challenge.FaltaEnvido, "FaltaEnvido can't be rised");
+
+            CardsStructs.Challenge newChallenge = CardsStructs.Challenge(_move.parameters[0]);
+            
+            require(newChallenge > _gameState.currentChallenge.challenge, "Can't rise a challenge with a lower value");
+            
+            _gameState.currentChallenge.challenge = newChallenge;
             _gameState.currentChallenge.response = CardsStructs.Response.None;
             _gameState.currentChallenge.waitingChallengeResponse = true;
             _gameState.currentChallenge.challenger = _gameState.playerTurn;
+            _gameState.currentChallenge.pointsAtStake += pointsPerChallenge(_gameState.currentChallenge.challenge, _gameState);
             
             return _gameState;
         }
@@ -63,6 +65,21 @@ library EnvidoResolver {
             // Preconditions:
             // - Challenge should have no response
             // - Can't be the challenger
+            // - Should be a valid response
+            require(
+                _gameState.currentChallenge.response ==
+                CardsStructs.Response.None
+            );
+
+            CardsStructs.Response response = CardsStructs.Response(_move.parameters[0]);
+            
+            require( response == CardsStructs.Response.Accept || response == CardsStructs.Response.Refuse);
+            
+            require ( _gameState.playerTurn != _gameState.currentChallenge.challenger);
+            
+            _gameState.currentChallenge.response = response;
+            _gameState.currentChallenge.waitingChallengeResponse = false;
+            return _gameState;
         }
 
         // 3) Envido point spell:
@@ -108,4 +125,26 @@ library EnvidoResolver {
         
         return _player;
     }
+
+    function pointsPerChallenge(CardsStructs.Challenge challenge, CardsStructs.GameState memory _gameState) internal pure returns (uint8) {
+       
+       if (challenge == CardsStructs.Challenge.Envido || challenge == CardsStructs.Challenge.EnvidoEnvido) {
+           return 2;
+       }
+
+        if (challenge == CardsStructs.Challenge.RealEnvido) {
+            return 3;
+        }
+
+        if (challenge == CardsStructs.Challenge.FaltaEnvido) {
+            if (_gameState.teamPoints[0] >= _gameState.teamPoints[1]) {
+                return _gameState.pointsToWin - _gameState.teamPoints[0];
+             } 
+
+            return _gameState.pointsToWin - _gameState.teamPoints[1];
+        }
+            
+        revert("Invalid challenge");
+    }
+    
 }
