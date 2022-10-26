@@ -2,7 +2,7 @@ export const Chat = ({ peers, messages, messageInput, setMessageInput, sendMessa
     return (
         <div>
             <h3 className="text-white text-xl">Peers</h3>
-            <div className="w-100 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            <div className="text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white  overscroll-y-scroll overflow-auto h-32 mb-10">
                 { peers.map((peer: any, index: any) => {
                     return (
                         <button key={index} type="button" className="py-2 px-4 w-full font-medium text-left border-b border-gray-200 cursor-pointer hover:bg-gray-100 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
@@ -13,7 +13,150 @@ export const Chat = ({ peers, messages, messageInput, setMessageInput, sendMessa
                 })}
             </div>
                 <h3 className="text-white text-xl">Mensajes</h3>
-                <ul className="max-w-sm divide-y divide-gray-300">
+                <ul className="divide-y divide-gray-300 overscroll-y-scroll overflow-auto h-72 justify-center w-full">
+                       <li  className="pb-3 sm:pb-4">
+                          <div className="flex items-center space-x-3">
+                             <div className="flex-1 min-w-0">
+                                <p className="text-base font-medium truncate text-white font-semibold ">{`Action: ${ 'undefined'}`}</p>
+                                <p className="text-sm truncate text-stone-400">
+                                   { `Sign: ` }
+                                </p>
+                             </div>
+                             <div className="text-xs inline-flex items-center text-green-500">
+                                 { `Nonce: `}
+                             </div>
+                          </div>
+                       </li>
+                       <li  className="pb-3 sm:pb-4">
+                          <div className="flex items-center space-x-3">
+                             <div className="flex-1 min-w-0">
+                                <p className="text-base font-medium truncate text-white font-semibold ">{`Action: ${ 'undefined'}`}</p>
+                                <p className="text-sm truncate text-stone-400">
+                                   { `Sign: ` }
+                                </p>
+                             </div>
+                             <div className="text-xs inline-flex items-center text-green-500">
+                                 { `Nonce: `}
+                             </div>
+                          </div>
+                       </li>
+                       <li  className="pb-3 sm:pb-4">
+                          <div className="flex items-center space-x-3">
+                             <div className="flex-1 min-w-0">
+                                <p className="text-base font-medium truncate text-white font-semibold ">{`Action: ${ 'undefined'}`}</p>
+                                <p className="text-sm truncate text-stone-400">
+                                   { `Sign: ` }
+                                </p>
+                             </div>
+                             <div className="text-xs inline-flex items-center text-green-500">
+                                 { `Nonce: `}
+                             </div>
+                          </div>
+                       </li>
+                       <li  className="pb-3 sm:pb-4">
+                          <div className="flex items-center space-x-3">
+                             <div className="flex-1 min-w-0">
+                                <p className="text-base font-medium truncate text-white font-semibold ">{`Action: ${ 'undefined'}`}</p>
+                                <p className="text-sm truncate text-stone-400">
+                                   { `Sign: ` }
+                                </p>
+                             </div>
+                             <div className="text-xs inline-flex items-center text-green-500">
+                                 { `Nonce: `}
+                             </div>
+                          </div>
+                       </li>
+                       <li  className="pb-3 sm:pb-4">
+                          <div className="flex items-center space-x-3">
+                             <div className="flex-1 min-w-0">
+                                <p className="text-base font-medium truncate text-white font-semibold ">{`Action: ${ 'undefined'}`}</p>
+                                <p className="text-sm truncate text-stone-400">
+                                   { `Sign: ` }
+                                </p>
+                             </div>
+                             <div className="text-xs inline-flex items-center text-green-500">
+                                 { `Nonce: `}
+                             </div>
+                          </div>
+                       </li>
+                       <li  className="pb-3 sm:pb-4">
+                          <div className="flex items-center space-x-3">
+                             <div className="flex-1 min-w-0">
+                                <p className="text-base font-medium truncate text-white font-semibold ">{`Action: ${ 'undefined'}`}</p>
+                                <p className="text-sm truncate text-stone-400">
+                                   { `Sign: ` }
+                                </p>
+                             </div>
+                             <div className="text-xs inline-flex items-center text-green-500">
+                                 { `Nonce: `}
+                             </div>
+                          </div>
+                       </li>
+                       <li  className="pb-3 sm:pb-4">
+                          <div className="flex items-center space-x-3">
+                             <div className="flex-1 min-w-0">
+                                <p className="text-base font-medium truncate text-white font-semibold ">{`Action: ${ 'undefined'}`}</p>
+                                <p className="text-sm truncate text-stone-400">
+                                   { `Sign: ` }
+                                </p>
+                             </div>
+                             <div className="text-xs inline-flex items-center text-green-500">
+                                 { `Nonce: `}
+                             </div>
+                          </div>
+                       </li>
+                       <li  className="pb-3 sm:pb-4">
+                          <div className="flex items-center space-x-3">
+                             <div className="flex-1 min-w-0">
+                                <p className="text-base font-medium truncate text-white font-semibold ">{`Action: ${ 'undefined'}`}</p>
+                                <p className="text-sm truncate text-stone-400">
+                                   { `Sign: ` }
+                                </p>
+                             </div>
+                             <div className="text-xs inline-flex items-center text-green-500">
+                                 { `Nonce: `}
+                             </div>
+                          </div>
+                       </li>
+                       <li  className="pb-3 sm:pb-4">
+                          <div className="flex items-center space-x-3">
+                             <div className="flex-1 min-w-0">
+                                <p className="text-base font-medium truncate text-white font-semibold ">{`Action: ${ 'undefined'}`}</p>
+                                <p className="text-sm truncate text-stone-400">
+                                   { `Sign: ` }
+                                </p>
+                             </div>
+                             <div className="text-xs inline-flex items-center text-green-500">
+                                 { `Nonce: `}
+                             </div>
+                          </div>
+                       </li>
+                       <li  className="pb-3 sm:pb-4">
+                          <div className="flex items-center space-x-3">
+                             <div className="flex-1 min-w-0">
+                                <p className="text-base font-medium truncate text-white font-semibold ">{`Action: ${ 'undefined'}`}</p>
+                                <p className="text-sm truncate text-stone-400">
+                                   { `Sign: ` }
+                                </p>
+                             </div>
+                             <div className="text-xs inline-flex items-center text-green-500">
+                                 { `Nonce: `}
+                             </div>
+                          </div>
+                       </li>
+                       <li  className="pb-3 sm:pb-4">
+                          <div className="flex items-center space-x-3">
+                             <div className="flex-1 min-w-0">
+                                <p className="text-base font-medium truncate text-white font-semibold ">{`Action: ${ 'undefined'}`}</p>
+                                <p className="text-sm truncate text-stone-400">
+                                   { `Sign: ` }
+                                </p>
+                             </div>
+                             <div className="text-xs inline-flex items-center text-green-500">
+                                 { `Nonce: `}
+                             </div>
+                          </div>
+                       </li>
                        <li  className="pb-3 sm:pb-4">
                           <div className="flex items-center space-x-3">
                              <div className="flex-1 min-w-0">
