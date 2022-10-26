@@ -31,7 +31,7 @@ library EnvidoResolver {
 
         // 3 possible cases are handled:
 
-        // 1) Check if action is a challenge "rising" (i.e: Envido -> Real Envido! / Envido -> Falta Envido!)
+        // 1) Check if action is a challenge  "rising" (i.e: Envido -> Real Envido! / Envido -> Falta Envido!) or challenge mismatch
         if (_move.action == CardsStructs.Action.Challenge) {
             // Preconditions:
             // - Previous challenge was accepted
@@ -46,10 +46,16 @@ library EnvidoResolver {
                 _gameState.playerTurn != _gameState.currentChallenge.challenger
             );
             require(
-                _gameState.envidoCountPerPlayer[0] == 0 &&
-                    _gameState.envidoCountPerPlayer[1] == 0
+                _gameState.envidoCountPerPlayer[_gameState.playerTurn] == 0 &&
+                _gameState.envidoCountPerPlayer[reversePlayer(_gameState.playerTurn)] == 0
             );
             //require (no maximium reached);
+            
+            _gameState.currentChallenge.response = CardsStructs.Response.None;
+            _gameState.currentChallenge.waitingChallengeResponse = true;
+            _gameState.currentChallenge.challenger = _gameState.playerTurn;
+            
+            return _gameState;
         }
 
         // 2) Check if action is an envido acceptance or refusal
@@ -64,6 +70,17 @@ library EnvidoResolver {
             // Preconditions:
             // - Challenge should have been accepted by other party
             // - Check if i'm in place for spelling my points (i am "mano") or by contrary it's other players turn
+            require (_gameState.currentChallenge.waitingChallengeResponse == false);
+
+            require (_gameState.currentChallenge.response == CardsStructs.Response.Accept);
+
+            if (_gameState.playerTurn == _gameState.currentChallenge.challenger) {
+                // Current player challenged envido, so we must ensure other player already cast it's envido count_
+                require (_gameState.envidoCountPerPlayer[reversePlayer(_gameState.playerTurn)] != 0);
+                require (_gameState.envidoCountPerPlayer[_gameState.playerTurn] == 0);
+            }
+            
+            //Do envido count
         }
 
         return _gameState;
@@ -82,5 +99,13 @@ library EnvidoResolver {
         }
 
         return false;
+    }
+    
+    function reversePlayer(uint8 _player) internal pure returns (uint8) {
+        if (_player == 0) {
+            return 1;
+        }
+        
+        return _player;
     }
 }

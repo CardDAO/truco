@@ -41,9 +41,8 @@ describe("Engine Main Logic", function () {
       };
 
       await expect(sut.executeTransaction(transaction)).to.be.revertedWith(
-          "Incorrect player turn"
-      );      
-
+        "Incorrect player turn"
+      );
     });
   });
 });
