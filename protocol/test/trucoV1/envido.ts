@@ -23,8 +23,51 @@ describe("Envido Resolver", function () {
     return { sut, truecoin, owner };
   }
 
-  describe("Envido Challenge: Spell Envido / No previous challenge", function () {
-    it("Encrypt a Deck", async function () {
+  describe("Invalid moves", function () {
+    it("Invalid move #1: Incorrect challenge type", async function () {
+      const {sut} = await deployContract();
+
+      let state = await sut.startGame();
+
+      let move: MoveStruct = {
+        action: BigNumber.from(ChallengeEnum.Truco),
+        parameters: [],
+      };
+
+      let transaction: TransactionStruct = {
+        playerIdx: state.playerTurn,
+        moves: [move],
+        state: state,
+      };
+
+      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+
+      move = {
+        action: BigNumber.from(ChallengeEnum.ReTruco),
+        parameters: [],
+      };
+      
+      transaction.moves = [move];
+
+      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+
+
+      move = {
+        action: BigNumber.from(ChallengeEnum.ValeCuatro),
+        parameters: [],
+      };
+
+      transaction.moves = [move];
+
+      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+
+    });
+
+
+  });
+    
+  describe("No previous challenge", function () {
+    it("Spell Envido", async function () {
       const { sut } = await deployContract();
 
       let state = await sut.startGame();
@@ -42,7 +85,6 @@ describe("Envido Resolver", function () {
 
       await sut.executeTransaction(transaction);
 
-      console.log(await sut.gameState());
     });
   });
 });
