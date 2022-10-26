@@ -8,7 +8,7 @@ import MoveStruct = CardsStructs.MoveStruct;
 import TransactionStruct = CardsStructs.TransactionStruct;
 import GameStateStruct = CardsStructs.GameStateStruct;
 
-import { BigNumber, BigNumberish } from "ethers";
+import { BigNumber } from "ethers";
 
 describe("Envido Resolver", function () {
   const currentPlayerIdx = BigNumber.from(0);
@@ -50,7 +50,7 @@ describe("Envido Resolver", function () {
   }
 
   describe("Invalid moves", function () {
-    it("Invalid move #1: Incorrect challenge type on raising challenge", async function () {
+    it("Challenging any Truco derivatives while Envido was spelled shouldn't be allowed", async function () {
       const { sut } = await deployContract();
 
       let state: GameStateStruct = basicGameState();
@@ -94,6 +94,30 @@ describe("Envido Resolver", function () {
       await expect(sut.executeTransaction(transaction)).to.be.reverted;
     });
 
+    it("Challenging a 'None' challenge shouldn't be allowed", async function () {
+      const { sut } = await deployContract();
+
+      let state: GameStateStruct = basicGameState();
+
+      // Set current state to envido challenge
+      state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Envido);
+
+      await sut.setGameState(state);
+
+      let move = {
+        action: BigNumber.from(ActionEnum.Challenge),
+        parameters: [ChallengeEnum.None],
+      };
+
+      let transaction: TransactionStruct = {
+        playerIdx: state.playerTurn,
+        moves: [move],
+        state: state,
+      };
+
+      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+    });
+
     it("Invalid move #2: Spell envido count on invalid situations", async function () {
       const { sut } = await deployContract();
 
@@ -132,13 +156,66 @@ describe("Envido Resolver", function () {
 
       await expect(sut.executeTransaction(transaction)).to.be.reverted;
     });
+
+    it("No envido count should be spelled while the Challenge was refused", async function () {
+      const { sut } = await deployContract();
+
+      let state: GameStateStruct = basicGameState();
+
+      state.playerTurn = currentPlayerIdx;
+
+      // Envido has spelled but not yet accepted
+      state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Envido);
+      state.currentChallenge.challenger = BigNumber.from(otherPlayerIdx);
+      state.currentChallenge.waitingChallengeResponse = false;
+      state.currentChallenge.response = BigNumber.from(ResponseEnum.Refuse);
+
+      let move: MoveStruct = {
+        action: BigNumber.from(ActionEnum.EnvidoCount),
+        parameters: [BigNumber.from(33)],
+      };
+
+      let transaction: TransactionStruct = {
+        playerIdx: state.playerTurn,
+        moves: [move],
+        state: state,
+      };
+
+      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+    });
+
+    it("Can't spell envido count being challenger and other party didn't spell it's count first ", async function () {
+      const { sut } = await deployContract();
+
+      let state: GameStateStruct = basicGameState();
+
+      state.playerTurn = currentPlayerIdx;
+
+      // Envido has spelled but not yet accepted
+      state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Envido);
+      state.currentChallenge.challenger = BigNumber.from(currentPlayerIdx);
+      state.currentChallenge.waitingChallengeResponse = false;
+      state.currentChallenge.response = BigNumber.from(ResponseEnum.Accept);
+
+      let move: MoveStruct = {
+        action: BigNumber.from(ActionEnum.EnvidoCount),
+        parameters: [BigNumber.from(33)],
+      };
+
+      let transaction: TransactionStruct = {
+        playerIdx: state.playerTurn,
+        moves: [move],
+        state: state,
+      };
+
+      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+    });
   });
 
   /**
    * Precondintion: A challenge is in place but is not yet accepted (or raised)
    */
   describe("No previous challenge", function () {
-    
     it("Spell Challenge: Envido", async function () {
       const { sut } = await deployContract();
 
@@ -156,23 +233,21 @@ describe("Envido Resolver", function () {
       };
 
       await sut.executeTransaction(transaction);
-      
+
       let result: GameStateStruct = await sut.gameState();
 
       // Check resulting state
       expect(result.currentChallenge.challenge).to.be.equal(
-          BigNumber.from(ChallengeEnum.Envido)
+        BigNumber.from(ChallengeEnum.Envido)
       );
       expect(result.currentChallenge.waitingChallengeResponse).to.be.true;
       expect(result.currentChallenge.response).to.be.equal(
-          BigNumber.from(ResponseEnum.None)
+        BigNumber.from(ResponseEnum.None)
       );
       expect(result.currentChallenge.pointsAtStake).to.be.equal(
-          BigNumber.from(2)
+        BigNumber.from(2)
       );
-      expect(result.currentChallenge.challenger).to.be.equal(
-          currentPlayerIdx
-      );
+      expect(result.currentChallenge.challenger).to.be.equal(currentPlayerIdx);
     });
 
     it("Spell Challenge: FaltaEnvido", async function () {
@@ -180,12 +255,12 @@ describe("Envido Resolver", function () {
 
       let state: GameStateStruct = basicGameState();
       state.pointsToWin = BigNumber.from(30);
-      
+
       let move: MoveStruct = {
         action: BigNumber.from(ActionEnum.Challenge),
         parameters: [BigNumber.from(ChallengeEnum.FaltaEnvido)],
       };
-      
+
       let transaction: TransactionStruct = {
         playerIdx: state.playerTurn,
         moves: [move],
@@ -198,21 +273,17 @@ describe("Envido Resolver", function () {
 
       // Check resulting state
       expect(result.currentChallenge.challenge).to.be.equal(
-          BigNumber.from(ChallengeEnum.FaltaEnvido)
+        BigNumber.from(ChallengeEnum.FaltaEnvido)
       );
       expect(result.currentChallenge.waitingChallengeResponse).to.be.true;
       expect(result.currentChallenge.response).to.be.equal(
-          BigNumber.from(ResponseEnum.None)
+        BigNumber.from(ResponseEnum.None)
       );
       expect(result.currentChallenge.pointsAtStake).to.be.equal(
-          BigNumber.from(30)
+        BigNumber.from(30)
       );
-      expect(result.currentChallenge.challenger).to.be.equal(
-          currentPlayerIdx
-      );
+      expect(result.currentChallenge.challenger).to.be.equal(currentPlayerIdx);
     });
-    
-    
   });
 
   /**
@@ -232,7 +303,7 @@ describe("Envido Resolver", function () {
 
       return state;
     }
-    
+
     it("Invalid response: 'None'is not accepted as a challenge response", async function () {
       const { sut } = await deployContract();
 
@@ -262,7 +333,6 @@ describe("Envido Resolver", function () {
       let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
       state.currentChallenge.challenger = BigNumber.from(currentPlayerIdx);
 
-
       let move: MoveStruct = {
         action: BigNumber.from(ActionEnum.Response),
         parameters: [BigNumber.from(ResponseEnum.Accept)],
@@ -277,9 +347,8 @@ describe("Envido Resolver", function () {
       await expect(sut.executeTransaction(transaction)).to.be.reverted;
     });
 
-
     it("Refuse challenge", async function () {
-      const {sut} = await deployContract();
+      const { sut } = await deployContract();
 
       let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
 
@@ -294,51 +363,49 @@ describe("Envido Resolver", function () {
         state: state,
       };
 
-      await sut.executeTransaction(transaction)
+      await sut.executeTransaction(transaction);
 
       let result: GameStateStruct = await sut.gameState();
 
       // Check resulting state
       expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
       expect(result.currentChallenge.response).to.be.equal(
-          BigNumber.from(ResponseEnum.Refuse)
+        BigNumber.from(ResponseEnum.Refuse)
       );
       expect(result.currentChallenge.pointsAtStake).to.be.equal(
-          BigNumber.from(2)
+        BigNumber.from(2)
       );
-    })
+    });
 
-      it("Accept challenge", async function () {
-        const { sut } = await deployContract();
+    it("Accept challenge", async function () {
+      const { sut } = await deployContract();
 
-        let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
+      let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
 
-        let move: MoveStruct = {
-          action: BigNumber.from(ActionEnum.Response),
-          parameters: [BigNumber.from(ResponseEnum.Accept)],
-        };
+      let move: MoveStruct = {
+        action: BigNumber.from(ActionEnum.Response),
+        parameters: [BigNumber.from(ResponseEnum.Accept)],
+      };
 
-        let transaction: TransactionStruct = {
-          playerIdx: state.playerTurn,
-          moves: [move],
-          state: state,
-        };
+      let transaction: TransactionStruct = {
+        playerIdx: state.playerTurn,
+        moves: [move],
+        state: state,
+      };
 
-        await sut.executeTransaction(transaction)
+      await sut.executeTransaction(transaction);
 
-        let result: GameStateStruct = await sut.gameState();
+      let result: GameStateStruct = await sut.gameState();
 
-        // Check resulting state
-        expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
-        expect(result.currentChallenge.response).to.be.equal(
-            BigNumber.from(ResponseEnum.Accept)
-        );
-        expect(result.currentChallenge.pointsAtStake).to.be.equal(
-            BigNumber.from(2)
-        );
-        expect(result.currentChallenge.challenger).to.be.equal(
-            otherPlayerIdx
-        );
+      // Check resulting state
+      expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
+      expect(result.currentChallenge.response).to.be.equal(
+        BigNumber.from(ResponseEnum.Accept)
+      );
+      expect(result.currentChallenge.pointsAtStake).to.be.equal(
+        BigNumber.from(2)
+      );
+      expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx);
     });
   });
 
@@ -361,9 +428,9 @@ describe("Envido Resolver", function () {
     }
     it("Issue a Response an accept on an already accepted challenge", async function () {
       const { sut } = await deployContract();
-      
+
       let state: GameStateStruct = basicGameStateWithEnvidoSpell();
-      
+
       let move: MoveStruct = {
         action: BigNumber.from(ActionEnum.Response),
         parameters: [BigNumber.from(ResponseEnum.Accept)],
@@ -377,7 +444,7 @@ describe("Envido Resolver", function () {
 
       await expect(sut.executeTransaction(transaction)).to.be.reverted;
     });
-    
+
     describe("Raising the challenge", function () {
       it("Raise Envido shouldn't be possible when raiser is the challenger", async function () {
         const { sut } = await deployContract();
@@ -587,12 +654,11 @@ describe("Envido Resolver", function () {
 
         // This is a workaround to get envido points for player, since fetching current game state and accessing envidoCountPerPlayer is not working
         let result: BigNumber[] = await sut.getEnvidoPoints();
-        
-        // Check resulting state
-        expect(
-          result[currentPlayerIdx.toNumber()]
-        ).to.be.equal(move.parameters[0]);
 
+        // Check resulting state
+        expect(result[currentPlayerIdx.toNumber()]).to.be.equal(
+          move.parameters[0]
+        );
       });
     });
   });
