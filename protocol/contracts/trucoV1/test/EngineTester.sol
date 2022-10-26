@@ -26,4 +26,8 @@ contract EngineTester is Engine {
     function executeTransaction(CardsStructs.Transaction memory transaction) public {
         gameState = this.transact(transaction);
     }
+    
+    function getEnvidoWinner() public view returns (uint8) {
+        return EnvidoResolver.getWinner(gameState);
+    }
 }

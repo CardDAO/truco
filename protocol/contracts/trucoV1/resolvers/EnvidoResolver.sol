@@ -144,12 +144,56 @@ library EnvidoResolver {
         return false;
     }
     
+    function isFinal(CardsStructs.GameState memory _gameState) internal pure returns (bool) {
+
+        // Check if it's waiting for a response
+        if (_gameState.currentChallenge.waitingChallengeResponse == true) {
+            return false;
+        }
+
+        // Check challenge acceptance or refusal (redundant, i know)
+        if (_gameState.currentChallenge.response == CardsStructs.Response.None) {
+            return false;
+        }
+
+        // Check that both players have spoken their envido count
+        if (_gameState.envidoCountPerPlayer[_gameState.playerTurn] < 0 || _gameState.envidoCountPerPlayer[reversePlayer(_gameState.playerTurn)] < 0) {
+            return false;
+        }
+
+        return true;
+    }
+    
+    function getWinner(CardsStructs.GameState memory _gameState) internal pure returns (uint8) {
+
+        require(isFinal(_gameState));
+        
+        // If challenge was refused, the challenger won
+        if (_gameState.currentChallenge.response == CardsStructs.Response.Refuse) {
+            return _gameState.currentChallenge.challenger;
+        }
+
+        // At this point we can assume challenge was accepted 
+        
+        // If the same points for envido were spoken by all players, "mano" won (the opponent of the deck shuffler)  
+        if (_gameState.envidoCountPerPlayer[_gameState.playerTurn] == _gameState.envidoCountPerPlayer[reversePlayer(_gameState.playerTurn)]) {
+            return reversePlayer(_gameState.playerWhoShuffled);
+        }
+
+        // Last but not least: the player with the highest envido count wins   
+        if (_gameState.envidoCountPerPlayer[_gameState.playerTurn] > _gameState.envidoCountPerPlayer[reversePlayer(_gameState.playerTurn)]) {
+            return _gameState.playerTurn;
+        }
+        
+        return reversePlayer(_gameState.playerTurn);
+    }
+    
     function reversePlayer(uint8 _player) internal pure returns (uint8) {
         if (_player == 0) {
             return 1;
         }
         
-        return _player;
+        return 0;
     }
 
     // Return points that should be at stake for a given challenge

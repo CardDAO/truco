@@ -704,4 +704,91 @@ describe("Envido Resolver", function () {
       });
     });
   });
+  /**
+   * Precondition: A challenge is finished (all players have cast their envido count)
+   */
+  describe("Challenge is finished", function () {
+    // Envido has spelled by current player and accepted by other party
+    function basicGameStateWithEnvidoSpellFinished(): GameStateStruct {
+      let state: GameStateStruct = basicGameState();
+
+      // Envido has spelled by other player and accepted, cant respond anymore
+      state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Envido);
+      state.currentChallenge.challenger = BigNumber.from(otherPlayerIdx);
+      state.currentChallenge.waitingChallengeResponse = false;
+      state.currentChallenge.pointsAtStake = BigNumber.from(2);
+      state.currentChallenge.response = BigNumber.from(ResponseEnum.Accept);
+
+      return state;
+    }
+
+    describe("Invalid moves", function () {});
+
+    describe("Compute the winner", function () {
+      it("Envido refused, challenger is the winner", async function () {
+        const { sut } = await deployContract();
+
+        let state: GameStateStruct = basicGameStateWithEnvidoSpellFinished();
+
+        state.currentChallenge.response = BigNumber.from(ResponseEnum.Refuse);
+        state.currentChallenge.challenger = otherPlayerIdx;
+
+        sut.setGameState(state);
+
+        let result: BigNumber = await sut.getEnvidoWinner();
+
+        // Check resulting state
+        expect(result).to.be.equal(otherPlayerIdx);
+
+        state.currentChallenge.challenger = currentPlayerIdx;
+
+        sut.setGameState(state);
+
+        result = await sut.getEnvidoWinner();
+
+        // Check resulting state
+        expect(result).to.be.equal(currentPlayerIdx);
+      });
+
+      it("Both player have same envido count, current player shuffled", async function () {
+        const { sut } = await deployContract();
+
+        let state: GameStateStruct = basicGameStateWithEnvidoSpellFinished();
+
+        state.envidoCountPerPlayer[currentPlayerIdx.toNumber()] =
+          BigNumber.from(33);
+        state.envidoCountPerPlayer[otherPlayerIdx.toNumber()] =
+          BigNumber.from(33);
+
+        state.playerWhoShuffled = currentPlayerIdx;
+
+        sut.setGameState(state);
+
+        let result: BigNumber = await sut.getEnvidoWinner();
+
+        // Check resulting state
+        expect(result).to.be.equal(otherPlayerIdx);
+      });
+
+      it("Both player have same envido count, other player shuffled", async function () {
+        const { sut } = await deployContract();
+
+        let state: GameStateStruct = basicGameStateWithEnvidoSpellFinished();
+
+        state.envidoCountPerPlayer[currentPlayerIdx.toNumber()] =
+          BigNumber.from(33);
+        state.envidoCountPerPlayer[otherPlayerIdx.toNumber()] =
+          BigNumber.from(33);
+
+        state.playerWhoShuffled = otherPlayerIdx;
+
+        sut.setGameState(state);
+
+        let result: BigNumber = await sut.getEnvidoWinner();
+
+        // Check resulting state
+        expect(result).to.be.equal(currentPlayerIdx);
+      });
+    });
+  });
 });
