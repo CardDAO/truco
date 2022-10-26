@@ -29,6 +29,16 @@ library EnvidoResolver {
                 _move.action == CardsStructs.Action.EnvidoCount
         );
 
+        // When current challenge is at a refusal state, no new moves can be processed        
+        if (
+            _gameState.currentChallenge.challenge !=  CardsStructs.Challenge.None &&
+             _gameState.currentChallenge.response == CardsStructs.Response.Refuse
+        ) {
+            revert('No new moves can be processed while current challenge is at refusal state');
+        }
+
+        // ---------------------------------------------------------------------------------------------------------
+        // Main Logic:
         // 3 possible cases are handled:
 
         // 1) Check if action is a challenge  "rising" (i.e: Envido -> Real Envido! / Envido -> Falta Envido!) or challenge mismatch
