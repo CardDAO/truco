@@ -12,9 +12,47 @@ export const Chat = ({ peers, messages, messageInput, setMessageInput, sendMessa
 
                 })}
             </div>
-            <div className="w-25">
                 <h3 className="text-white text-xl">Mensajes</h3>
                 <ul className="max-w-sm divide-y divide-gray-300">
+                       <li  className="pb-3 sm:pb-4">
+                          <div className="flex items-center space-x-3">
+                             <div className="flex-1 min-w-0">
+                                <p className="text-base font-medium truncate text-white font-semibold ">{`Action: ${ 'undefined'}`}</p>
+                                <p className="text-sm truncate text-stone-400">
+                                   { `Sign: ` }
+                                </p>
+                             </div>
+                             <div className="text-xs inline-flex items-center text-green-500">
+                                 { `Nonce: `}
+                             </div>
+                          </div>
+                       </li>
+                       <li  className="pb-3 sm:pb-4">
+                          <div className="flex items-center space-x-3">
+                             <div className="flex-1 min-w-0">
+                                <p className="text-base font-medium truncate text-white font-semibold ">{`Action: ${ 'undefined'}`}</p>
+                                <p className="text-sm truncate text-stone-400">
+                                   { `Sign: ` }
+                                </p>
+                             </div>
+                             <div className="text-xs inline-flex items-center text-green-500">
+                                 { `Nonce: `}
+                             </div>
+                          </div>
+                       </li>
+                       <li  className="pb-3 sm:pb-4">
+                          <div className="flex items-center space-x-3">
+                             <div className="flex-1 min-w-0">
+                                <p className="text-base font-medium truncate text-white font-semibold ">{`Action: ${ 'undefined'}`}</p>
+                                <p className="text-sm truncate text-stone-400">
+                                   { `Sign: ` }
+                                </p>
+                             </div>
+                             <div className="text-xs inline-flex items-center text-green-500">
+                                 { `Nonce: `}
+                             </div>
+                          </div>
+                       </li>
                     { messages.map((messageObject: any, index: any) => {
                     return (
                        <li key={index} className="pb-3 sm:pb-4">
@@ -35,7 +73,7 @@ export const Chat = ({ peers, messages, messageInput, setMessageInput, sendMessa
                 </ul>
                 <input 
                     type="text"
-                    className="bg-gray-50 border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                    className="bg-gray-50 border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 mt-5"
                     placeholder="Message"
                     required
                     value={messageInput}
@@ -49,7 +87,7 @@ export const Chat = ({ peers, messages, messageInput, setMessageInput, sendMessa
                 />
                 <button
                     type="button"
-                    className="text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+                    className="text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 mt-5"
                     onClick={() => {
                         if (messageInput.length > 0) {
                             sendMessageAll(messageInput)
@@ -59,7 +97,6 @@ export const Chat = ({ peers, messages, messageInput, setMessageInput, sendMessa
                 >
                     Send message
                 </button>
-            </div>
         </div>
     )
 }
