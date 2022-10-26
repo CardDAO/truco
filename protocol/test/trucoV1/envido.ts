@@ -789,6 +789,40 @@ describe("Envido Resolver", function () {
         // Check resulting state
         expect(result).to.be.equal(currentPlayerIdx);
       });
+
+      it("One player has more points than other and vice-versa", async function () {
+        const { sut } = await deployContract();
+
+        let state: GameStateStruct = basicGameStateWithEnvidoSpellFinished();
+
+        state.envidoCountPerPlayer[currentPlayerIdx.toNumber()] =
+            BigNumber.from(30);
+        state.envidoCountPerPlayer[otherPlayerIdx.toNumber()] =
+            BigNumber.from(20);
+
+        state.playerWhoShuffled = otherPlayerIdx;
+
+        sut.setGameState(state);
+
+        let result: BigNumber = await sut.getEnvidoWinner();
+
+        // Check resulting state
+        expect(result).to.be.equal(currentPlayerIdx);
+
+        state.envidoCountPerPlayer[currentPlayerIdx.toNumber()] =
+            BigNumber.from(20);
+        state.envidoCountPerPlayer[otherPlayerIdx.toNumber()] =
+            BigNumber.from(30);
+
+        state.playerWhoShuffled = otherPlayerIdx;
+
+        sut.setGameState(state);
+
+        result = await sut.getEnvidoWinner();
+
+        // Check resulting state
+        expect(result).to.be.equal(otherPlayerIdx);
+      });
     });
   });
 });
