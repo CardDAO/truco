@@ -234,7 +234,7 @@ describe("Envido Resolver", function () {
       await expect(sut.executeTransaction(transaction)).to.be.reverted;
     });
 
-    it("Spell envido count shouldn't be allowed withour a valid response first", async function () {
+    it("Spell envido count shouldn't be allowed without a valid response first", async function () {
       const { sut } = await deployContract();
 
       let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
@@ -253,7 +253,7 @@ describe("Envido Resolver", function () {
       await expect(sut.executeTransaction(transaction)).to.be.reverted;
     });
 
-    it(" Envido casted by current player and it's not the one who should respond", async function () {
+    it("Envido casted by current player and it's not the one who should respond", async function () {
       const { sut } = await deployContract();
 
       let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
