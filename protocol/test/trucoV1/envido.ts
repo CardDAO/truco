@@ -563,7 +563,37 @@ describe("Envido Resolver", function () {
         await expect(sut.executeTransaction(transaction)).to.be.reverted;
       });
 
+      it("Spell envido count ok", async function () {
+        const { sut } = await deployContract();
 
+        let state: GameStateStruct = basicGameStateWithEnvidoSpell();
+
+        let move: MoveStruct = {
+          action: BigNumber.from(ActionEnum.EnvidoCount),
+          parameters: [BigNumber.from(15)],
+        };
+
+        let transaction: TransactionStruct = {
+          playerIdx: state.playerTurn,
+          moves: [move],
+          state: state,
+        };
+
+        state.envidoCountPerPlayer[otherPlayerIdx.toNumber()] =
+          BigNumber.from(33);
+
+        // Spell envido count should go fine
+        await sut.executeTransaction(transaction);
+
+        // This is a workaround to get envido points for player, since fetching current game state and accessing envidoCountPerPlayer is not working
+        let result: BigNumber[] = await sut.getEnvidoPoints();
+        
+        // Check resulting state
+        expect(
+          result[currentPlayerIdx.toNumber()]
+        ).to.be.equal(move.parameters[0]);
+
+      });
     });
   });
 });

@@ -13,6 +13,16 @@ contract EngineTester is Engine {
         gameState = _gameState;
     }
     
+    // This functions are an aide for testing since hardhat return structure for these properties are not present
+    // on gameState getter result (don't know why)
+    function getEnvidoPoints() public view returns (uint8[] memory) {
+        return gameState.envidoCountPerPlayer;
+    }
+
+    function getTeamPoints() public view returns (uint8[] memory) {
+        return gameState.teamPoints;
+    }
+    
     function executeTransaction(CardsStructs.Transaction memory transaction) public {
         gameState = this.transact(transaction);
     }
