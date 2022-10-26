@@ -15,6 +15,10 @@ import "../Structs.sol";
 *        CardsStructs.Challenge _challenge
 *    ) internal pure returns (bool);
 *
+*    function isFinal(CardsStructs.GameState memory _gameState) internal pure returns (bool) 
+*    
+*    function getWinner(CardsStructs.GameState memory _gameState) internal pure returns (uint8) 
+*
 * Attention: Only internal functions should be used in this library
 */
 library EnvidoResolver {

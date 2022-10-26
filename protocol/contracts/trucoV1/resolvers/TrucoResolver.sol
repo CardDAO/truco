@@ -16,6 +16,10 @@ import "../Structs.sol";
 *        CardsStructs.Challenge _challenge
 *    ) internal pure returns (bool);
 *
+*    function isFinal(CardsStructs.GameState memory _gameState) internal pure returns (bool) 
+*    
+*    function getWinner(CardsStructs.GameState memory _gameState) internal pure returns (uint8) 
+*
 * Attention: Only internal functions should be used in this library
 */
 library TrucoResolver {
@@ -48,5 +52,15 @@ library TrucoResolver {
         }
 
         return false;
+    }
+    
+    function isFinal(CardsStructs.GameState memory _gameState) internal pure returns (bool) {
+        // TODO: Implement this
+        return false;
+    }
+
+    function getWinner(CardsStructs.GameState memory _gameState) internal pure returns (uint8) {
+        // TODO: Implement this
+        return _gameState.playerTurn;
     }
 }
