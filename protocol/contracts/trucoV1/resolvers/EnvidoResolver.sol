@@ -65,7 +65,7 @@ library EnvidoResolver {
                 _gameState.currentChallenge.waitingChallengeResponse == false
             );
 
-            // Check challenger only if it comes from a non non challenge
+            // Check challenger only if it's a raise (comes from a state of no current challenge)
             if (
                 _gameState.currentChallenge.challenge !=
                 CardsStructs.Challenge.None

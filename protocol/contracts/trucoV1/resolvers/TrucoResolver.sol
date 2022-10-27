@@ -54,6 +54,52 @@ library TrucoResolver {
         // Main Logic:
         // 3 possible cases are handled:
 
+        // 1) Check if action is a challenge  "rising" (i.e: Envido -> Real Envido! / Envido -> Falta Envido!) or challenge mismatch
+        if (_move.action == CardsStructs.Action.Challenge) {
+            // Preconditions:
+            // - Previous challenge was accepted
+            // - Player is not the challenger
+            // - Haven't reach maximum challenges spelled
+            require(
+                _gameState.currentChallenge.waitingChallengeResponse == false
+            );
+
+            // Check challenger only if it's a raise (comes from a state of no current challenge)
+            if (
+                _gameState.currentChallenge.challenge !=
+                CardsStructs.Challenge.None
+            ) {
+                require(
+                    _gameState.playerTurn !=
+                        _gameState.currentChallenge.challenger
+                );
+            }
+
+            // Check if the challenge can't be raised
+            require(
+                _gameState.currentChallenge.challenge !=
+                    CardsStructs.Challenge.ValeCuatro,
+                "ValeCuatro can't be rised"
+            );
+
+            CardsStructs.Challenge newChallenge = CardsStructs.Challenge(
+                _move.parameters[0]
+            );
+
+            // Check if the challenge is a valid raise, being the next in the chain
+            require(
+                uint8(newChallenge) ==
+                    uint8(_gameState.currentChallenge.challenge) + 1
+            );
+
+            _gameState.currentChallenge.challenge = newChallenge;
+            _gameState.currentChallenge.response = CardsStructs.Response.None;
+            _gameState.currentChallenge.waitingChallengeResponse = true;
+            _gameState.currentChallenge.challenger = _gameState.playerTurn;
+
+            return _gameState;
+        }
+
         // 2) Check if action is an envido acceptance or refusal
         if (_move.action == CardsStructs.Action.Response) {
             // Preconditions:
