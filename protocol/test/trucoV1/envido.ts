@@ -767,7 +767,7 @@ describe("Envido Resolver", function () {
       it("Can't spell envido count being challenger and other party didn't spell it's count first ", async function () {
         const { sut } = await deployContract();
 
-        let state: GameStateStruct = basicGameState();
+        let state: GameStateStruct = gameStateWithEnvidoSpell();
 
         let move: MoveStruct = {
           action: BigNumber.from(ActionEnum.EnvidoCount),
