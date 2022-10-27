@@ -130,7 +130,7 @@ describe("Envido Resolver", function () {
 
       // Point at stake checkpoint
       const pointAtStake: BigNumber = state.currentChallenge.pointsAtStake;
-      
+
       let move: MoveStruct = {
         action: BigNumber.from(ActionEnum.Challenge),
         parameters: [BigNumber.from(ChallengeEnum.Envido)],
@@ -155,9 +155,7 @@ describe("Envido Resolver", function () {
         BigNumber.from(ResponseEnum.None)
       );
       // Check that point at stake didn't change on challenge, they should change on acceptance
-      expect(result.currentChallenge.pointsAtStake).to.be.equal(
-          pointAtStake
-      );
+      expect(result.currentChallenge.pointsAtStake).to.be.equal(pointAtStake);
       expect(result.currentChallenge.challenger).to.be.equal(currentPlayerIdx);
     });
 
@@ -166,7 +164,7 @@ describe("Envido Resolver", function () {
 
       let state: GameStateStruct = basicGameState();
       state.pointsToWin = BigNumber.from(30);
-      
+
       // Point at stake checkpoint
       const pointAtStake: BigNumber = state.currentChallenge.pointsAtStake;
 
@@ -193,11 +191,9 @@ describe("Envido Resolver", function () {
       expect(result.currentChallenge.response).to.be.equal(
         BigNumber.from(ResponseEnum.None)
       );
-      
+
       // Check that point at stake didn't change on challenge, they should change on acceptance
-      expect(result.currentChallenge.pointsAtStake).to.be.equal(
-          pointAtStake
-      );
+      expect(result.currentChallenge.pointsAtStake).to.be.equal(pointAtStake);
       expect(result.currentChallenge.challenger).to.be.equal(currentPlayerIdx);
     });
   });
@@ -211,7 +207,7 @@ describe("Envido Resolver", function () {
       let state: GameStateStruct = basicGameState();
 
       state.pointsToWin = BigNumber.from(30);
-      
+
       // Envido has spelled by other player and accepted, cant respond anymore
       state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Envido);
       state.currentChallenge.challenger = BigNumber.from(otherPlayerIdx);
@@ -309,16 +305,14 @@ describe("Envido Resolver", function () {
       expect(result.currentChallenge.response).to.be.equal(
         BigNumber.from(ResponseEnum.Refuse)
       );
-      
+
       // Points at stake shouldn't change on refusal
       expect(result.currentChallenge.pointsAtStake).to.be.equal(
         BigNumber.from(1)
       );
     });
 
-
     describe("Challenge Accepted: Points at stake changing on acceptance", function () {
-
       it("No challenge to Envido", async function () {
         const { sut } = await deployContract();
 
@@ -342,10 +336,10 @@ describe("Envido Resolver", function () {
         // Check resulting state
         expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
         expect(result.currentChallenge.response).to.be.equal(
-            BigNumber.from(ResponseEnum.Accept)
+          BigNumber.from(ResponseEnum.Accept)
         );
         expect(result.currentChallenge.pointsAtStake).to.be.equal(
-            BigNumber.from(2)
+          BigNumber.from(2)
         );
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx);
       });
@@ -355,7 +349,9 @@ describe("Envido Resolver", function () {
 
         let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
 
-        state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.RealEnvido);
+        state.currentChallenge.challenge = BigNumber.from(
+          ChallengeEnum.RealEnvido
+        );
 
         let move: MoveStruct = {
           action: BigNumber.from(ActionEnum.Response),
@@ -375,10 +371,10 @@ describe("Envido Resolver", function () {
         // Check resulting state
         expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
         expect(result.currentChallenge.response).to.be.equal(
-            BigNumber.from(ResponseEnum.Accept)
+          BigNumber.from(ResponseEnum.Accept)
         );
         expect(result.currentChallenge.pointsAtStake).to.be.equal(
-            BigNumber.from(3)
+          BigNumber.from(3)
         );
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx);
       });
@@ -388,7 +384,9 @@ describe("Envido Resolver", function () {
 
         let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
 
-        state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.FaltaEnvido);
+        state.currentChallenge.challenge = BigNumber.from(
+          ChallengeEnum.FaltaEnvido
+        );
 
         let move: MoveStruct = {
           action: BigNumber.from(ActionEnum.Response),
@@ -408,21 +406,23 @@ describe("Envido Resolver", function () {
         // Check resulting state
         expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
         expect(result.currentChallenge.response).to.be.equal(
-            BigNumber.from(ResponseEnum.Accept)
+          BigNumber.from(ResponseEnum.Accept)
         );
         expect(result.currentChallenge.pointsAtStake).to.be.equal(
-            BigNumber.from(30)
+          BigNumber.from(30)
         );
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx);
       });
 
       it("RealEnvido from None", async function () {
-        const {sut} = await deployContract();
+        const { sut } = await deployContract();
 
         let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
 
-        state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.RealEnvido);
-  
+        state.currentChallenge.challenge = BigNumber.from(
+          ChallengeEnum.RealEnvido
+        );
+
         let move: MoveStruct = {
           action: BigNumber.from(ActionEnum.Response),
           parameters: [BigNumber.from(ResponseEnum.Accept)],
@@ -441,21 +441,22 @@ describe("Envido Resolver", function () {
         // Check resulting state
         expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
         expect(result.currentChallenge.response).to.be.equal(
-            BigNumber.from(ResponseEnum.Accept)
+          BigNumber.from(ResponseEnum.Accept)
         );
         expect(result.currentChallenge.pointsAtStake).to.be.equal(
-            BigNumber.from(3)
+          BigNumber.from(3)
         );
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx);
       });
-
 
       it("FaltaEnvido from None", async function () {
-        const {sut} = await deployContract();
+        const { sut } = await deployContract();
 
         let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
 
-        state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.RealEnvido);
+        state.currentChallenge.challenge = BigNumber.from(
+          ChallengeEnum.RealEnvido
+        );
 
         let move: MoveStruct = {
           action: BigNumber.from(ActionEnum.Response),
@@ -475,22 +476,24 @@ describe("Envido Resolver", function () {
         // Check resulting state
         expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
         expect(result.currentChallenge.response).to.be.equal(
-            BigNumber.from(ResponseEnum.Accept)
+          BigNumber.from(ResponseEnum.Accept)
         );
         expect(result.currentChallenge.pointsAtStake).to.be.equal(
-            BigNumber.from(3)
+          BigNumber.from(3)
         );
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx);
       });
-      
+
       it("RealEnvido from Envido", async function () {
-        const {sut} = await deployContract();
+        const { sut } = await deployContract();
 
         let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
 
-        state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.RealEnvido);
+        state.currentChallenge.challenge = BigNumber.from(
+          ChallengeEnum.RealEnvido
+        );
         state.currentChallenge.pointsAtStake = BigNumber.from(2);
-        
+
         let move: MoveStruct = {
           action: BigNumber.from(ActionEnum.Response),
           parameters: [BigNumber.from(ResponseEnum.Accept)],
@@ -509,20 +512,22 @@ describe("Envido Resolver", function () {
         // Check resulting state
         expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
         expect(result.currentChallenge.response).to.be.equal(
-            BigNumber.from(ResponseEnum.Accept)
+          BigNumber.from(ResponseEnum.Accept)
         );
         expect(result.currentChallenge.pointsAtStake).to.be.equal(
-            BigNumber.from(5)
+          BigNumber.from(5)
         );
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx);
       });
-      
+
       it("EnvidoEnvido from Envido", async function () {
-        const {sut} = await deployContract();
+        const { sut } = await deployContract();
 
         let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
 
-        state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.EnvidoEnvido);
+        state.currentChallenge.challenge = BigNumber.from(
+          ChallengeEnum.EnvidoEnvido
+        );
         state.currentChallenge.pointsAtStake = BigNumber.from(2);
 
         let move: MoveStruct = {
@@ -543,21 +548,23 @@ describe("Envido Resolver", function () {
         // Check resulting state
         expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
         expect(result.currentChallenge.response).to.be.equal(
-            BigNumber.from(ResponseEnum.Accept)
+          BigNumber.from(ResponseEnum.Accept)
         );
         // Should be the points left to win the game
         expect(result.currentChallenge.pointsAtStake).to.be.equal(
-            BigNumber.from(4)
+          BigNumber.from(4)
         );
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx);
-      })
+      });
 
       it("FaltaEnvido from Envido", async function () {
-        const {sut} = await deployContract();
+        const { sut } = await deployContract();
 
         let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
 
-        state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.FaltaEnvido);
+        state.currentChallenge.challenge = BigNumber.from(
+          ChallengeEnum.FaltaEnvido
+        );
         state.currentChallenge.pointsAtStake = BigNumber.from(2);
 
         let move: MoveStruct = {
@@ -578,21 +585,23 @@ describe("Envido Resolver", function () {
         // Check resulting state
         expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
         expect(result.currentChallenge.response).to.be.equal(
-            BigNumber.from(ResponseEnum.Accept)
+          BigNumber.from(ResponseEnum.Accept)
         );
         // Should be the points left to win the game
         expect(result.currentChallenge.pointsAtStake).to.be.equal(
-            BigNumber.from(30)
+          BigNumber.from(30)
         );
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx);
       });
 
       it("RealEnvido from EnvidoEnvido", async function () {
-        const {sut} = await deployContract();
+        const { sut } = await deployContract();
 
         let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
 
-        state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.RealEnvido);
+        state.currentChallenge.challenge = BigNumber.from(
+          ChallengeEnum.RealEnvido
+        );
         state.currentChallenge.pointsAtStake = BigNumber.from(4);
 
         let move: MoveStruct = {
@@ -613,15 +622,14 @@ describe("Envido Resolver", function () {
         // Check resulting state
         expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
         expect(result.currentChallenge.response).to.be.equal(
-            BigNumber.from(ResponseEnum.Accept)
+          BigNumber.from(ResponseEnum.Accept)
         );
         expect(result.currentChallenge.pointsAtStake).to.be.equal(
-            BigNumber.from(7)
+          BigNumber.from(7)
         );
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx);
       });
-
-    })
+    });
   });
 
   /**
@@ -800,8 +808,9 @@ describe("Envido Resolver", function () {
         const { sut } = await deployContract();
 
         let state: GameStateStruct = gameStateWithEnvidoSpell();
-        state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.RealEnvido);
-
+        state.currentChallenge.challenge = BigNumber.from(
+          ChallengeEnum.RealEnvido
+        );
 
         let move: MoveStruct = {
           action: BigNumber.from(ActionEnum.Challenge),

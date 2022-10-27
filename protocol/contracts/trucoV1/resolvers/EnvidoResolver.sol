@@ -129,17 +129,16 @@ library EnvidoResolver {
             require(
                 _gameState.playerTurn != _gameState.currentChallenge.challenger
             );
-            
+
             _gameState.currentChallenge.response = response;
             _gameState.currentChallenge.waitingChallengeResponse = false;
-            
-            // If response is a refusal, the challenge is over 
+
+            // If response is a refusal, the challenge is over
             if (response == CardsStructs.Response.Refuse) {
                 return _gameState;
             }
-            
-            // At this point we assume response is an acceptance 
 
+            // At this point we assume response is an acceptance
 
             // If current points at stake is equal to 1, it means that no previous challenge was accepted. In this case
             // we should override the points at stake with the new challenge points
@@ -147,23 +146,23 @@ library EnvidoResolver {
             // be overridden
             if (
                 _gameState.currentChallenge.pointsAtStake == 1 ||
-                _gameState.currentChallenge.challenge == CardsStructs.Challenge.FaltaEnvido 
-            
+                _gameState.currentChallenge.challenge ==
+                CardsStructs.Challenge.FaltaEnvido
             ) {
                 _gameState.currentChallenge.pointsAtStake = pointsPerChallenge(
                     _gameState.currentChallenge.challenge,
                     _gameState
                 );
-                
+
                 return _gameState;
-            } 
-            
+            }
+
             // Previous challenge was accepted, so we should add the new challenge points to the current points at stake
             _gameState.currentChallenge.pointsAtStake += pointsPerChallenge(
-                    _gameState.currentChallenge.challenge,
-                    _gameState
+                _gameState.currentChallenge.challenge,
+                _gameState
             );
-            
+
             return _gameState;
         }
 
@@ -328,7 +327,6 @@ library EnvidoResolver {
         }
 
         if (challenge == CardsStructs.Challenge.FaltaEnvido) {
-            
             if (_gameState.teamPoints[0] >= _gameState.teamPoints[1]) {
                 return _gameState.pointsToWin - _gameState.teamPoints[0];
             }
