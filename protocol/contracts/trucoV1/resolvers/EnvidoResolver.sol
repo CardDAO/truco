@@ -41,6 +41,11 @@ library EnvidoResolver {
             revert('No new moves can be processed while current challenge is at refusal state');
         }
 
+        // Check whether the game is at a final state and should not accept any new moves
+        if (isFinal(_gameState)) {
+            revert('Game is in final state');
+        }
+        
         // ---------------------------------------------------------------------------------------------------------
         // Main Logic:
         // 3 possible cases are handled:
@@ -155,13 +160,13 @@ library EnvidoResolver {
             return false;
         }
 
-        // Check challenge acceptance or refusal (redundant, i know)
-        if (_gameState.currentChallenge.response == CardsStructs.Response.None) {
-            return false;
+        // Check challenge for refusal
+        if (_gameState.currentChallenge.response == CardsStructs.Response.Refuse) {
+            return true;
         }
-
+        
         // Check that both players have spoken their envido count
-        if (_gameState.envidoCountPerPlayer[_gameState.playerTurn] < 0 || _gameState.envidoCountPerPlayer[reversePlayer(_gameState.playerTurn)] < 0) {
+        if (_gameState.envidoCountPerPlayer[_gameState.playerTurn] == 0 || _gameState.envidoCountPerPlayer[reversePlayer(_gameState.playerTurn)] == 0) {
             return false;
         }
 

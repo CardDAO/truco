@@ -120,7 +120,7 @@ describe("Envido Resolver", function () {
   });
 
   /**
-   * Precondintion: A challenge is in place but is not yet accepted (or raised)
+   * Precondintion: No challenge in place
    */
   describe("No previous challenge", function () {
     it("Spell Challenge: Envido", async function () {
@@ -194,7 +194,7 @@ describe("Envido Resolver", function () {
   });
 
   /**
-   * Precondintion: A challenge is in place but is not yet accepted (or raised)
+   * Precondintion: A challenge is in place and waiting for a response
    */
   describe("Challenge in place: waiting for a response", function () {
     // Envido has spelled by current player and accepted by other party
@@ -719,10 +719,65 @@ describe("Envido Resolver", function () {
       state.currentChallenge.pointsAtStake = BigNumber.from(2);
       state.currentChallenge.response = BigNumber.from(ResponseEnum.Accept);
 
+      state.envidoCountPerPlayer[currentPlayerIdx.toNumber()] = BigNumber.from(10);
+      state.envidoCountPerPlayer[currentPlayerIdx.toNumber()] = BigNumber.from(20);
+
       return state;
     }
 
-    describe("Invalid moves", function () {});
+    describe("Invalid moves", function () {
+      
+      it("Spell a new envido type challenge when challenge is in final state", async function () {
+        const { sut } = await deployContract();
+
+        let state: GameStateStruct = basicGameStateWithEnvidoSpellFinished();
+        
+        let move: MoveStruct = {
+          action: BigNumber.from(ActionEnum.Challenge),
+          parameters: [BigNumber.from(ChallengeEnum.Envido)],
+        };
+
+        let transaction: TransactionStruct = {
+          playerIdx: state.playerTurn,
+          moves: [move],
+          state: state,
+        };
+        
+        // Spell envido count should fail because game is at a final state
+        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+
+        move.parameters = [BigNumber.from(ChallengeEnum.EnvidoEnvido)];
+        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+        
+        move.parameters = [BigNumber.from(ChallengeEnum.RealEnvido)];
+        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+
+        move.parameters = [BigNumber.from(ChallengeEnum.FaltaEnvido)];
+        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      });
+
+      it("Spell a new envido type challenge when challenge is in final state", async function () {
+        const { sut } = await deployContract();
+
+        let state: GameStateStruct = basicGameStateWithEnvidoSpellFinished();
+
+        let move: MoveStruct = {
+          action: BigNumber.from(ActionEnum.Challenge),
+          parameters: [BigNumber.from(ChallengeEnum.Envido)],
+        };
+
+        let transaction: TransactionStruct = {
+          playerIdx: state.playerTurn,
+          moves: [move],
+          state: state,
+        };
+
+
+        // Spell envido count should fail because game is at a final state
+        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      });
+      
+    });
 
     describe("Compute the winner", function () {
       it("Envido refused, challenger is the winner", async function () {
