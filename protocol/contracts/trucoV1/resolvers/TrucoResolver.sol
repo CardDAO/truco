@@ -141,6 +141,36 @@ library TrucoResolver {
             return _gameState;
         }
 
+        // 3) Play a card
+        if (_move.action == CardsStructs.Action.PlayCard) {
+            // Preconditions:
+            // - There should be no Challenge spelled or a Challenge should have been accepted by other party
+            require(
+                _gameState.currentChallenge.waitingChallengeResponse == false
+            );
+
+            // Card should be valid
+            require(isValidCard(_move.parameters[0]));
+
+            uint8 slot = findRoundIdOrFail(
+                _gameState.revealedCardsByPlayer[_gameState.playerTurn]
+            );
+
+            // Check card is not repeated
+            require(
+                cardNotRepeated(
+                    _gameState.revealedCardsByPlayer,
+                    _move.parameters[0]
+                )
+            );
+
+            _gameState.revealedCardsByPlayer[_gameState.playerTurn][
+                slot
+            ] = _move.parameters[0];
+
+            return _gameState;
+        }
+
         // If we reach this point, it means that the move is not valid
         revert("Invalid Move");
     }
@@ -180,6 +210,44 @@ library TrucoResolver {
         return _gameState.playerTurn;
     }
 
+    // Check if card is not repeated in the array
+    function cardNotRepeated(uint8[3][] memory _revealedCards, uint8 _card)
+        internal
+        pure
+        returns (bool)
+    {
+        for (uint8 i = 0; i < _revealedCards.length; i++) {
+            for (uint8 j = 0; j < _revealedCards[i].length; j++) {
+                if (_revealedCards[i][j] == _card) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    // Get current round id at play
+    function roundAtPlay(CardsStructs.GameState memory _gameState)
+        internal
+        pure
+        returns (uint8)
+    {
+        uint8 i = 0;
+
+        while (i < 3) {
+            if (
+                _gameState.revealedCardsByPlayer[0][i] == 0 ||
+                _gameState.revealedCardsByPlayer[1][i] == 0
+            ) {
+                return 3;
+            }
+
+            i++;
+        }
+        return i;
+    }
+
     // Return points that should be at stake for a given challenge
     function pointsPerChallenge(
         CardsStructs.Challenge challenge,
@@ -198,5 +266,102 @@ library TrucoResolver {
         }
 
         revert("Invalid challenge");
+    }
+
+    // Check if it's a valid card representation
+    function isValidCard(uint8 _card) internal pure returns (bool) {
+        return _card >= 1 && _card <= 41;
+    }
+
+    // Find first round slot available for a player to play a card
+    function findRoundIdOrFail(uint8[3] memory _playerRounds)
+        internal
+        pure
+        returns (uint8)
+    {
+        uint8 i = 0;
+
+        while (i < 3 && _playerRounds[i] != 0) {
+            i++;
+        }
+
+        if (i == 3) {
+            revert("No rounds available");
+        }
+
+        return i;
+    }
+
+    function getCardsHierarchy() internal pure returns (uint8[41] memory) {
+        /*****************************************************************
+        Card Hierarchy for Castillian Suited Card Deck
+         
+        See: https://en.wikipedia.org/wiki/Spanish-suited_playing_cards#Castilian_pattern
+        
+        Deck definition:
+                
+        Coins: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+        Cups: 11, 12, 13, 14, 15, 16, 17, 18, 19, 20
+        Swords: 21, 22, 23, 24, 25, 26, 27, 28, 29, 30
+        Clubs: 31, 32, 33, 34, 35, 36, 37, 38, 39, 40
+        
+        Last three cards of each suit are 'Knave', 'Knight', 'King'.
+
+        ID 0 is reserved for masked cards
+                 
+        Example: 
+          - Card ID 8 is Knave of Coins
+          - Card ID 19 is Knight of Cups
+          - Card ID 21 is Ace of Swords 
+          
+        Code:
+ 
+        uint8[41] memory hierarchy;
+        
+        hierarchy[21] = 1; // Ace of Swords
+        hierarchy[31] = 2; // Ace of Clubs
+        hierarchy[27] = 3; // 7 of Swords
+        hierarchy[7] = 4; // 7 of Coins
+
+        // 3 of all suits
+        hierarchy[3] = hierarchy[13] = hierarchy[23] = hierarchy[33]  = 5;
+
+        // 2 of all suits
+        hierarchy[2] = hierarchy[12] = hierarchy[22] = hierarchy[32]  = 6;
+        
+        // Aces of Cups and Coins
+        hierarchy[1] = hierarchy[11] = 7;
+        
+        // All Kings
+        hierarchy[10] = hierarchy[20] = hierarchy[30] = hierarchy[40] = 8;
+        
+        // All Knights
+        hierarchy[9] = hierarchy[19] = hierarchy[29] = hierarchy[39] = 9;
+        
+        // All Knave
+        hierarchy[8] = hierarchy[18] = hierarchy[28] = hierarchy[38] = 10;
+        
+        // 7 of Cups and Clubs
+        hierarchy[17] = hierarchy[37] = 11;
+        
+        // All 6s
+        hierarchy[6] = hierarchy[16] = hierarchy[26] = hierarchy[36] = 12;
+        
+        // All 5s 
+        hierarchy[5] = hierarchy[15] = hierarchy[25] = hierarchy[35] = 13;
+        
+        // All 4s 
+        hierarchy[4] = hierarchy[14] = hierarchy[24] = hierarchy[34] = 14;
+
+        *****************************************************************/
+
+        // This array was created using previously described code and pre-calculated to avoid memory expansion and gas costs
+        return [
+        0,
+        7, 6, 5, 14, 13, 12,  4, 10, 9, 8,
+        7, 6, 5, 14, 13, 12, 11, 10, 9, 8,
+        1, 6, 5, 14, 13, 12,  3, 10, 9, 8,
+        2, 6, 5, 14, 13, 12, 11, 10, 9, 8
+        ];
     }
 }

@@ -24,6 +24,14 @@ contract EngineTester is Engine {
         return gameState.teamPoints;
     }
 
+    function getRevealedCardsByPlayer()
+        public
+        view
+        returns (uint8[3][] memory)
+    {
+        return gameState.revealedCardsByPlayer;
+    }
+
     function executeTransaction(CardsStructs.Transaction memory transaction)
         public
     {

@@ -166,7 +166,7 @@ library EnvidoResolver {
             return _gameState;
         }
 
-        // 3) Envido point spell:
+        // 3) Envido point count:
         if (_move.action == CardsStructs.Action.EnvidoCount) {
             // Preconditions:
             // - Challenge should have been accepted by other party
