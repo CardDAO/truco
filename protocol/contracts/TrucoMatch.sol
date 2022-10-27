@@ -21,31 +21,88 @@ contract TrucoMatch  {
     IERC20 trueCoin;
     Match currentMatch;
 
-    constructor (CardsEngine _trucoEngine, DeckCrypt _deckCrypt, IERC20 _truecoin) {
+    // Events
+    event MatchCreated(address player, uint256 tokensAtStake);
+    event MatchStarted(address[2] players, uint256 tokensAtStake);
+    event DealStarted(address shuffler);
+    event DealEnded();
+
+
+    constructor (CardsEngine _trucoEngine, DeckCrypt _deckCrypt, IERC20 _truecoin, uint256 _tokensAtStake) {
         trucoEngine = _trucoEngine;
         deckCrypt = _deckCrypt;
-        currentMatch.players[0] = msg.sender;
+        trueCoin = _truecoin;
 
         //Transfer Trucoins from owner to contract
-        //Mint Sould Bound Token 
+        trueCoin.transferFrom(msg.sender, address(this), _tokensAtStake);
+        currentMatch.tokensAtStake = _tokensAtStake;
+
+        currentMatch.players[0] = msg.sender;
+
+        //Mint Sould Bound Token
+
+        emit MatchCreated(msg.sender, _tokensAtStake);
     }
     
         
     // Method for joining the match 
     function join() public {
-        // Check match state
+        require(currentMatch.players[1] == address(0), "Match is full");
+        require(msg.sender != currentMatch.players[0], "You can't join your own match");
+        require(trueCoin.balanceOf(msg.sender) >= currentMatch.tokensAtStake, "You don't have enough Trucoins to join this match");
+
         // Check invitations if any
-        // Transfer tokens
-        // Close game for new joins
-        // Emit an event
+
+        // Transfer Trucoins from player to contract
+        trueCoin.transferFrom(msg.sender, address(this), currentMatch.tokensAtStake);
+        currentMatch.tokensAtStake += currentMatch.tokensAtStake;
+
+        currentMatch.players[1] = msg.sender;
+
+        // Start match
+        currentMatch.gameState = trucoEngine.startMatch();
+        emit MatchStarted(currentMatch.players, currentMatch.tokensAtStake);
     }
 
-    function newDeal(CardsStructs.Deck memory _deck) public {
+    function newDeal(CardsStructs.Deck memory _deck) {
         // Check if current game state enables new card shufflings
-        // Check for player authorization to shuffle
+        require(!currentMatch.gameState.isDealOpen, "Deal is already open");
+
+        // Determine the new shuffler and check that corresponds to the current player
+        uint8 new_shuffler = currentMatch.playerWhoShuffled ^ 1;
+        require(msg.sender == currentMatch.players[new_shuffler], "You are not the shuffler");
+
         currentMatch.deck = _deck; // encrypted deck using 2 secrets
+
         // Assign cards for each player interleaving one for each other, i.e player1: 0,2,4 player2: 1,3,5
+        for (uint8 i = 0; i < 3; i++) {
+            currentMatch.gameState.playerCards[0][i] = i*2;
+            currentMatch.gameState.playerCards[1][i] = i*2 + 1;
+        }
+        
+        // Assign new shuffler
+        currentMatch.playerWhoShuffled = new_shuffler;
+
+        // Assign turn to player not shuffling
+        currentMatch.gameState.playerTurn = currentMatch.playerWhoShuffled ^ 1;
+
+        // Unset current challenge from previous deal
+        currentMatch.gameState.currentChallenge.challenge = CardsStructs.Challenge.None;
+
+        // Clean revealed cards
+        currentMatch.gameState.revealedCardsByPlayer[0] = new uint8[3](0);
+        currentMatch.gameState.revealedCardsByPlayer[1] = new uint8[3](0);
+
+        // Clean envido count
+        currentMatch.gameState.envidoCountPerPlayer[0] = 0;
+        currentMatch.gameState.envidoCountPerPlayer[1] = 0;
+
+        // Set deal as open
+        currentMatch.gameState.isDealOpen = true;
+
+        emit DealStarted(msg.sender, currentMatch.tokensAtStake);
     }
+
 
     // [Test Functions] --------------------------------------------------------------
     
