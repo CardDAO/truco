@@ -135,11 +135,11 @@ describe("Truco Resolver", function () {
    * Precondition: A challenge is in place but is not yet accepted (or raised)
    */
   describe("Challenge in place: waiting for a response", function () {
-    // Envido has spelled by current player and accepted by other party
+    // Truco has spelled by current player and accepted by other party
     function basicGameStateWithTrucoSpellWaiting(): GameStateStruct {
       let state: GameStateStruct = basicGameState();
 
-      // Envido has spelled by other player and accepted, cant respond anymore
+      // Truco has spelled by other player and accepted, cant respond anymore
       state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Truco);
       state.currentChallenge.challenger = BigNumber.from(otherPlayerIdx);
       state.currentChallenge.waitingChallengeResponse = true;
@@ -370,8 +370,8 @@ describe("Truco Resolver", function () {
    * Precondintion: A challenge was REFUSED
    */
   describe("Challenge in place: Refused", function () {
-    // Envido has spelled by current player and accepted by other party
-    function basicGameStateWithEnvidoSpellRefused(): GameStateStruct {
+    // Truco has spelled by current player and accepted by other party
+    function basicGameStateWithTrucoSpellRefused(): GameStateStruct {
       let state: GameStateStruct = basicGameState();
 
       state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Truco);
@@ -385,7 +385,7 @@ describe("Truco Resolver", function () {
     it("No PlayCard  should be spelled", async function () {
       const { sut } = await deployContract();
 
-      let state: GameStateStruct = basicGameStateWithEnvidoSpellRefused();
+      let state: GameStateStruct = basicGameStateWithTrucoSpellRefused();
 
       state.playerTurn = currentPlayerIdx;
 
@@ -406,7 +406,7 @@ describe("Truco Resolver", function () {
     it("No raising challenge should be spelled", async function () {
       const { sut } = await deployContract();
 
-      let state: GameStateStruct = basicGameStateWithEnvidoSpellRefused();
+      let state: GameStateStruct = basicGameStateWithTrucoSpellRefused();
 
       state.playerTurn = currentPlayerIdx;
 
@@ -430,7 +430,7 @@ describe("Truco Resolver", function () {
     it("No response should be spelled", async function () {
       const { sut } = await deployContract();
 
-      let state: GameStateStruct = basicGameStateWithEnvidoSpellRefused();
+      let state: GameStateStruct = basicGameStateWithTrucoSpellRefused();
 
       state.playerTurn = currentPlayerIdx;
 
@@ -458,7 +458,7 @@ describe("Truco Resolver", function () {
    * Precondintion: A challenge was ACCEPTED
    */
   describe("Challenge in place: Accepted", function () {
-    // Envido has spelled by current player and accepted by other party
+    // Truco has spelled by current player and accepted by other party
     function basicGameStateWithTrucoSpelled(): GameStateStruct {
       let state: GameStateStruct = basicGameState();
 
@@ -622,15 +622,15 @@ describe("Truco Resolver", function () {
     });
   });
   /**
-   * Precondition: A challenge is finished (all players have cast their envido count)
+   * Precondition: A challenge is finished (cards at play are revealed and winner is determined)
    */
   describe("Challenge is finished", function () {
-    // Envido has spelled by current player and accepted by other party
-    function basicGameStateWithEnvidoSpellFinished(): GameStateStruct {
+    // Truco has spelled by current player and accepted by other party
+    function basicGameStateWithTrucoSpellFinished(): GameStateStruct {
       let state: GameStateStruct = basicGameState();
 
-      // Envido has spelled by other player and accepted, cant respond anymore
-      state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Envido);
+      // Truco has spelled by other player and accepted, cant respond anymore
+      state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Truco);
       state.currentChallenge.challenger = BigNumber.from(otherPlayerIdx);
       state.currentChallenge.waitingChallengeResponse = false;
       state.currentChallenge.pointsAtStake = BigNumber.from(2);
