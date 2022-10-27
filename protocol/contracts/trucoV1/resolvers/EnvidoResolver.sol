@@ -128,6 +128,9 @@ library EnvidoResolver {
                 require (_gameState.envidoCountPerPlayer[_gameState.playerTurn] == 0);
             }
             
+            // Check envido count is valid
+            require (_move.parameters[0] > 0 && _move.parameters[0] <= 33, "Invalid envido count");
+            
             //Do envido count
             uint8 envidoCount = _move.parameters[0];
             _gameState.envidoCountPerPlayer[_gameState.playerTurn] = envidoCount;
@@ -164,12 +167,15 @@ library EnvidoResolver {
         if (_gameState.currentChallenge.response == CardsStructs.Response.Refuse) {
             return true;
         }
-        
-        // Check that both players have spoken their envido count
+
+        // At this point we can assume challenge was accepted
+
+        // Check if any of the players remain to spell their envido count
         if (_gameState.envidoCountPerPlayer[_gameState.playerTurn] == 0 || _gameState.envidoCountPerPlayer[reversePlayer(_gameState.playerTurn)] == 0) {
             return false;
         }
-
+        
+        // All other cases are final
         return true;
     }
     
