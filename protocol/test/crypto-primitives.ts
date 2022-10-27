@@ -1,7 +1,7 @@
 import { expect } from "chai";
 const { ethers } = require("hardhat");
 
-import { CardsStructs } from "../typechain-types/crypt/DeckCrypt";
+import { CardsStructs } from "../typechain-types/contracts/crypt/DeckCrypt";
 import DeckStruct = CardsStructs.DeckStruct;
 
 // Deck encrytion and decryption routing mirrors the one in the contract DeckCrypt.sol

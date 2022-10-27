@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
-import { CardsStructs } from "../typechain-types/crypt/DeckCrypt";
+import { CardsStructs } from "../typechain-types/contracts/crypt/DeckCrypt";
 import DeckStruct = CardsStructs.DeckStruct;
 
 import { encryptUsingOTP, generateKeyUsingSecret } from "./crypto-primitives";
