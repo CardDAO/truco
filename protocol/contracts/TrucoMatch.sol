@@ -99,7 +99,7 @@ contract TrucoMatch  {
         }
     }
 
-    function newDeal(CardsStructs.Deck memory _deck) public {
+    function newDeal(CardsStructs.Deck memory _deck) {
         // Check if current game state enables new card shufflings
         require(!currentMatch.gameState.isDealOpen, "Deal is already open");
 
@@ -136,6 +136,7 @@ contract TrucoMatch  {
     function getPlayers() public view returns (address[2] memory) {
         return [currentMatch.players[0].playerAddress, currentMatch.players[1].playerAddress];
     }
+
 
     // [Test Functions] --------------------------------------------------------------
     
