@@ -19,12 +19,12 @@ describe("Envido Resolver", function () {
     const [owner] = await ethers.getSigners()
 
     const Trucoin = await ethers.getContractFactory("Trucoin")
-    const truecoin = await Trucoin.deploy()
+    const trucoin = await Trucoin.deploy()
 
     const TrucoEngine = await ethers.getContractFactory("EngineTester")
-    const sut = await TrucoEngine.deploy(truecoin.address)
+    const sut = await TrucoEngine.deploy(trucoin.address)
 
-    return { sut, truecoin, owner }
+    return { sut, trucoin, owner }
   }
 
   function basicGameState(): GameStateStruct {

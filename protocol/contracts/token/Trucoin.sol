@@ -16,7 +16,7 @@ contract Trucoin is
     ERC20Permit,
     ERC20FlashMint
 {
-    constructor() ERC20("Truecoin", "TC") ERC20Permit("Truecoin") {}
+    constructor() ERC20("Trucoin", "TC") ERC20Permit("Trucoin") {}
 
     function pause() public onlyOwner {
         _pause();
