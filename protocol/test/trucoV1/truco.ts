@@ -98,11 +98,6 @@ describe("Truco Resolver", function () {
 
       let state: GameStateStruct = basicGameState();
 
-      state.playerTurn = currentPlayerIdx;
-
-      // Point at stake checkpoint
-      const pointAtStake: BigNumber = state.currentChallenge.pointsAtStake;
-
       let move: MoveStruct = {
         action: BigNumber.from(ActionEnum.Challenge),
         parameters: [BigNumber.from(ChallengeEnum.ReTruco)],
@@ -121,11 +116,6 @@ describe("Truco Resolver", function () {
       const { sut } = await deployContract();
 
       let state: GameStateStruct = basicGameState();
-
-      state.playerTurn = currentPlayerIdx;
-
-      // Point at stake checkpoint
-      const pointAtStake: BigNumber = state.currentChallenge.pointsAtStake;
 
       let move: MoveStruct = {
         action: BigNumber.from(ActionEnum.Challenge),
@@ -385,14 +375,85 @@ describe("Truco Resolver", function () {
     function basicGameStateWithEnvidoSpellRefused(): GameStateStruct {
       let state: GameStateStruct = basicGameState();
 
-      state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Envido);
+      state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Truco);
       state.currentChallenge.challenger = BigNumber.from(otherPlayerIdx);
       state.currentChallenge.waitingChallengeResponse = false;
       state.currentChallenge.response = BigNumber.from(ResponseEnum.Refuse);
-      state.currentChallenge.pointsAtStake = BigNumber.from(2);
+      state.currentChallenge.pointsAtStake = BigNumber.from(1);
 
       return state;
     }
+    it("No PlayCard  should be spelled", async function () {
+      const { sut } = await deployContract();
+
+      let state: GameStateStruct = basicGameStateWithEnvidoSpellRefused();
+
+      state.playerTurn = currentPlayerIdx;
+
+      let move: MoveStruct = {
+        action: BigNumber.from(ActionEnum.PlayCard),
+        parameters: [BigNumber.from(0)],
+      };
+
+      let transaction: TransactionStruct = {
+        playerIdx: state.playerTurn,
+        moves: [move],
+        state: state,
+      };
+
+      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+    });
+
+    it("No raising challenge should be spelled", async function () {
+      const { sut } = await deployContract();
+
+      let state: GameStateStruct = basicGameStateWithEnvidoSpellRefused();
+
+      state.playerTurn = currentPlayerIdx;
+
+      let move: MoveStruct = {
+        action: BigNumber.from(ActionEnum.Challenge),
+        parameters: [BigNumber.from(ChallengeEnum.ReTruco)],
+      };
+
+      let transaction: TransactionStruct = {
+        playerIdx: state.playerTurn,
+        moves: [move],
+        state: state,
+      };
+
+      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+
+      move.parameters = [BigNumber.from(ChallengeEnum.ValeCuatro)];
+      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+    });
+
+    it("No response should be spelled", async function () {
+      const { sut } = await deployContract();
+
+      let state: GameStateStruct = basicGameStateWithEnvidoSpellRefused();
+
+      state.playerTurn = currentPlayerIdx;
+
+      let move: MoveStruct = {
+        action: BigNumber.from(ActionEnum.Response),
+        parameters: [BigNumber.from(ResponseEnum.Accept)],
+      };
+
+      let transaction: TransactionStruct = {
+        playerIdx: state.playerTurn,
+        moves: [move],
+        state: state,
+      };
+
+      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+
+      move.parameters = [BigNumber.from(ResponseEnum.Refuse)];
+      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+
+      move.parameters = [BigNumber.from(ResponseEnum.None)];
+      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+    });
   });
   /**
    * Precondintion: A challenge was ACCEPTED
