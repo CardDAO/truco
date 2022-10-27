@@ -201,7 +201,8 @@ contract Engine is Ownable {
 
         if (
             challenge == CardsStructs.Challenge.Envido ||
-            challenge == CardsStructs.Challenge.RealEnvido
+            challenge == CardsStructs.Challenge.RealEnvido ||
+            challenge == CardsStructs.Challenge.EnvidoEnvido
         ) {
             return
                 move.action == CardsStructs.Action.Response ||
