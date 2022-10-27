@@ -58,7 +58,7 @@ library CardsStructs {
         uint8 playerWhoShuffled;
         uint8 pointsToWin;
         CurrentChallenge currentChallenge;
-        uint8[][3] revealedCardsByPlayer;
+        uint8[3][] revealedCardsByPlayer;
         uint8[] envidoCountPerPlayer;
         uint8[] teamPoints; //points indexed by team id (in this case a player is a team)
     }

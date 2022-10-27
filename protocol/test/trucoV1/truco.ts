@@ -40,9 +40,8 @@ describe("Truco Resolver", function () {
         response: BigNumber.from(ResponseEnum.None),
       },
       revealedCardsByPlayer: [
-        [BigNumber.from(0), BigNumber.from(0)],
-        [BigNumber.from(0), BigNumber.from(0)],
-        [BigNumber.from(0), BigNumber.from(0)],
+        [BigNumber.from(0), BigNumber.from(0), BigNumber.from(0)],
+        [BigNumber.from(0), BigNumber.from(0), BigNumber.from(0)],
       ],
       envidoCountPerPlayer: [BigNumber.from(0), BigNumber.from(0)],
       teamPoints: [BigNumber.from(0), BigNumber.from(0)],
@@ -133,7 +132,7 @@ describe("Truco Resolver", function () {
   });
 
   /**
-   * Precondintion: A challenge is in place but is not yet accepted (or raised)
+   * Precondition: A challenge is in place but is not yet accepted (or raised)
    */
   describe("Challenge in place: waiting for a response", function () {
     // Envido has spelled by current player and accepted by other party
@@ -460,11 +459,11 @@ describe("Truco Resolver", function () {
    */
   describe("Challenge in place: Accepted", function () {
     // Envido has spelled by current player and accepted by other party
-    function basicGameStateWithEnvidoSpell(): GameStateStruct {
+    function basicGameStateWithTrucoSpelled(): GameStateStruct {
       let state: GameStateStruct = basicGameState();
 
       state.playerWhoShuffled = otherPlayerIdx;
-      state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Envido);
+      state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Truco);
       state.currentChallenge.challenger = BigNumber.from(currentPlayerIdx);
       state.currentChallenge.waitingChallengeResponse = false;
       state.currentChallenge.response = BigNumber.from(ResponseEnum.Accept);
@@ -472,11 +471,155 @@ describe("Truco Resolver", function () {
 
       return state;
     }
-    describe("Out of order moves", function () {});
+    describe("Out of order moves", function () {
+      it("Issue a response to an already accepted challenge", async function () {
+        const { sut } = await deployContract();
 
+        let state: GameStateStruct = basicGameStateWithTrucoSpelled();
+
+        let move: MoveStruct = {
+          action: BigNumber.from(ActionEnum.Response),
+          parameters: [BigNumber.from(ResponseEnum.Accept)],
+        };
+
+        let transaction: TransactionStruct = {
+          playerIdx: state.playerTurn,
+          moves: [move],
+          state: state,
+        };
+
+        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+
+        move.parameters = [BigNumber.from(ResponseEnum.Refuse)];
+        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      });
+
+      it("Can't PlayCard if it's not my turn", async function () {
+        const { sut } = await deployContract();
+
+        let state: GameStateStruct = basicGameStateWithTrucoSpelled();
+
+        let move: MoveStruct = {
+          action: BigNumber.from(ActionEnum.PlayCard),
+          parameters: [BigNumber.from(0)],
+        };
+
+        let transaction: TransactionStruct = {
+          playerIdx: state.playerTurn,
+          moves: [move],
+          state: state,
+        };
+
+        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      });
+    });
     describe("Raising the challenge", function () {});
 
-    describe("Points count stage", function () {});
+    describe("Card play dynamic", function () {
+      it("Invalid Card", async function () {
+        const { sut } = await deployContract();
+
+        let state: GameStateStruct = basicGameStateWithTrucoSpelled();
+
+        let cardToPlay: BigNumber = await sut.CARD_NOT_REVEALED_RESERVED_IDX(); // Idx is reserved for masked card
+
+        let move: MoveStruct = {
+          action: BigNumber.from(ActionEnum.PlayCard),
+          parameters: [cardToPlay],
+        };
+
+        let transaction: TransactionStruct = {
+          playerIdx: state.playerTurn,
+          moves: [move],
+          state: state,
+        };
+
+        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      });
+
+      it("Play a card, slot available", async function () {
+        const { sut } = await deployContract();
+
+        let state: GameStateStruct = basicGameStateWithTrucoSpelled();
+
+        let cardToPlay: BigNumber = BigNumber.from(21); // Ace of swords
+
+        let move: MoveStruct = {
+          action: BigNumber.from(ActionEnum.PlayCard),
+          parameters: [cardToPlay],
+        };
+
+        let transaction: TransactionStruct = {
+          playerIdx: state.playerTurn,
+          moves: [move],
+          state: state,
+        };
+
+        await sut.executeTransaction(transaction);
+
+        let revealedCards: GameStateStruct =
+          await sut.getRevealedCardsByPlayer();
+
+        // Check resulting state
+        expect(revealedCards[currentPlayerIdx.toNumber()][0]).to.be.equal(
+          cardToPlay
+        );
+      });
+
+      it("Play a card, slot unavailable", async function () {
+        const { sut } = await deployContract();
+
+        let state: GameStateStruct = basicGameStateWithTrucoSpelled();
+
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
+          BigNumber.from(21); // Ace of swords
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][1] =
+          BigNumber.from(22); // 2 of swords
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][2] =
+          BigNumber.from(23); // 3 of swords
+
+        let cardToPlay: BigNumber = BigNumber.from(24); // 4 of swords
+
+        let move: MoveStruct = {
+          action: BigNumber.from(ActionEnum.PlayCard),
+          parameters: [cardToPlay],
+        };
+
+        let transaction: TransactionStruct = {
+          playerIdx: state.playerTurn,
+          moves: [move],
+          state: state,
+        };
+
+        await expect(sut.executeTransaction(transaction)).to.be.revertedWith(
+          "No rounds available"
+        );
+      });
+
+      it("Play a card already played", async function () {
+        const { sut } = await deployContract();
+
+        let state: GameStateStruct = basicGameStateWithTrucoSpelled();
+
+        let repeatedCard: BigNumber = BigNumber.from(21); // Ace of swords
+
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
+          repeatedCard; // Ace of swords
+
+        let move: MoveStruct = {
+          action: BigNumber.from(ActionEnum.PlayCard),
+          parameters: [repeatedCard],
+        };
+
+        let transaction: TransactionStruct = {
+          playerIdx: state.playerTurn,
+          moves: [move],
+          state: state,
+        };
+
+        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      });
+    });
   });
   /**
    * Precondition: A challenge is finished (all players have cast their envido count)

@@ -40,9 +40,8 @@ describe("Envido Resolver", function () {
         response: BigNumber.from(ResponseEnum.None),
       },
       revealedCardsByPlayer: [
-        [BigNumber.from(0), BigNumber.from(0)],
-        [BigNumber.from(0), BigNumber.from(0)],
-        [BigNumber.from(0), BigNumber.from(0)],
+        [BigNumber.from(0), BigNumber.from(0), BigNumber.from(0)],
+        [BigNumber.from(0), BigNumber.from(0), BigNumber.from(0)],
       ],
       envidoCountPerPlayer: [BigNumber.from(0), BigNumber.from(0)],
       teamPoints: [BigNumber.from(0), BigNumber.from(0)],

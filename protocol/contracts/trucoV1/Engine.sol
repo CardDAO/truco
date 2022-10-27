@@ -83,7 +83,7 @@ contract Engine is Ownable {
             _gameState.currentChallenge.challenge == CardsStructs.Challenge.None
         ) {
             if (_move.action == CardsStructs.Action.PlayCard) {
-                // Player is reveling card
+                return TrucoResolver.resolve(_gameState, _move);
             }
         }
 
@@ -150,11 +150,14 @@ contract Engine is Ownable {
         returns (bool)
     {}
 
+    // Check if envido can be spelled at rhis game 
     function canEnvidoBeSpelled(CardsStructs.GameState memory gameState)
         internal
         returns (bool)
     {
-        return true;
+        return 
+            ! EnvidoResolver.isFinal(gameState) && 
+            TrucoResolver.roundAtPlay(gameState) == 0;
     }
 
     function isMoveValid(
@@ -180,14 +183,11 @@ contract Engine is Ownable {
             challenge == CardsStructs.Challenge.ReTruco ||
             challenge == CardsStructs.Challenge.ValeCuatro
         ) {
-            // Player is same as challenger, it only can raise current challenge
-            if (gameState.currentChallenge.challenger == gameState.playerTurn) {
-                return (move.action == CardsStructs.Action.Challenge);
-            }
-
-            // Current player is not challemger, check if there's a response to enforce
+            // Current player is not challenger, check if there's a response to enforce
             if (gameState.currentChallenge.waitingChallengeResponse) {
-                if (canEnvidoBeSpelled(gameState)) {}
+                if (canEnvidoBeSpelled(gameState)) {
+                    // Check if envido can be spelled
+                }
                 return
                     move.action == CardsStructs.Action.Challenge ||
                     move.action == CardsStructs.Action.Response;
