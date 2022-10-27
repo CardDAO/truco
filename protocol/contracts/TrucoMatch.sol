@@ -16,7 +16,7 @@ contract TrucoMatch  {
         uint256 tokensAtStake; 
     }
 
-    CardsEngine trucoEngine;
+    Engine trucoEngine;
     DeckCrypt deckCrypt;
     IERC20 trueCoin;
     Match currentMatch;
@@ -28,7 +28,7 @@ contract TrucoMatch  {
     event DealEnded();
 
 
-    constructor (CardsEngine _trucoEngine, DeckCrypt _deckCrypt, IERC20 _truecoin, uint256 _tokensAtStake) {
+    constructor (Engine _trucoEngine, DeckCrypt _deckCrypt, IERC20 _truecoin, uint256 _tokensAtStake) {
         trucoEngine = _trucoEngine;
         deckCrypt = _deckCrypt;
         trueCoin = _truecoin;
