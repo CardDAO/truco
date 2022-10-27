@@ -209,6 +209,10 @@ library TrucoResolver {
         // TODO: Implement this
         return _gameState.playerTurn;
     }
+    // ---------------------------------------------------------------------------------------------------------
+    // END: IFace impl 
+    // ---------------------------------------------------------------------------------------------------------
+
 
     // Check if card is not repeated in the array
     function cardNotRepeated(uint8[3][] memory _revealedCards, uint8 _card)
