@@ -139,10 +139,7 @@ contract Engine is IERC3333, Ownable {
     function processMoveNoActiveChallenge(
         CardsStructs.GameState memory _gameState,
         CardsStructs.Move memory _move
-    ) internal returns (CardsStructs.GameState memory) {
-
-
-    }
+    ) internal returns (CardsStructs.GameState memory) {}
 
     // [Owner] Transfer gained fees to an arbitrary address
     function transferFeesTo(address _recipient, uint256 _amount)
