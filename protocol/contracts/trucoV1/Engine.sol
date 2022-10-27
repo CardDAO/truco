@@ -26,7 +26,7 @@ contract Engine is IERC3333, Ownable {
     function startGame() external pure returns (CardsStructs.GameState memory) {
         // Check that consumer contract has not already payed for game
 
-        // If not, transfer 1% of caller contract balance on Truecoins
+        // If not, transfer 1% of caller contract balance on Trucoins
 
         // Init game state
         return initialGameState();
