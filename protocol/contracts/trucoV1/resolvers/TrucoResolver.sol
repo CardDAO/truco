@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-import "../Structs.sol";
+import "../interfaces/ChallengeResolver.sol";
 
 /**
  * TrucoResolver:
@@ -22,11 +22,11 @@ import "../Structs.sol";
  *
  * Attention: Only internal functions should be used in this library
  */
-library TrucoResolver {
+contract TrucoResolver {
     function resolve(
         CardsStructs.GameState memory _gameState,
         CardsStructs.Move memory _move
-    ) internal returns (CardsStructs.GameState memory) {
+    ) external returns (CardsStructs.GameState memory) {
         // Valid moves up to this point are enforced before any logic
         require(
             _move.action == CardsStructs.Action.Challenge ||
@@ -46,7 +46,7 @@ library TrucoResolver {
         }
 
         // Check whether the game is at a final state and should not accept any new moves
-        if (isFinal(_gameState)) {
+        if (this.isFinal(_gameState)) {
             revert("Game is in final state");
         }
 
@@ -176,8 +176,7 @@ library TrucoResolver {
     }
 
     function canResolve(CardsStructs.Challenge _challenge)
-        internal
-        pure
+        external
         returns (bool)
     {
         if (
@@ -193,7 +192,7 @@ library TrucoResolver {
     }
 
     function isFinal(CardsStructs.GameState memory _gameState)
-        internal
+        external
         pure
         returns (bool)
     {
@@ -214,11 +213,11 @@ library TrucoResolver {
     }
 
     function getWinner(CardsStructs.GameState memory _gameState)
-        internal
-        pure
+        external
+        view
         returns (uint8)
     {
-        require(isFinal(_gameState));
+        require(this.isFinal(_gameState));
 
         int8 winner = roundWinner(_gameState.revealedCardsByPlayer, 0);
         if (winner >= 0) {

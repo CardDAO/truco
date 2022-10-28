@@ -21,8 +21,18 @@ describe("Envido Resolver", function () {
     const Trucoin = await ethers.getContractFactory("Trucoin");
     const truecoin = await Trucoin.deploy();
 
+    const TrucoResolver = await ethers.getContractFactory("TrucoResolver");
+    const trucoResolver = await TrucoResolver.deploy();
+
+    const EnvidoResolver = await ethers.getContractFactory("EnvidoResolver");
+    const envidoResolver = await EnvidoResolver.deploy();
+
     const TrucoEngine = await ethers.getContractFactory("EngineTester");
-    const sut = await TrucoEngine.deploy(truecoin.address);
+    const sut = await TrucoEngine.deploy(
+      truecoin.address,
+      trucoResolver.address,
+      envidoResolver.address
+    );
 
     return { sut, truecoin, owner };
   }

@@ -21,8 +21,18 @@ describe("Truco Resolver", function () {
     const Trucoin = await ethers.getContractFactory("Trucoin");
     const trucoin = await Trucoin.deploy();
 
+    const TrucoResolver = await ethers.getContractFactory("TrucoResolver");
+    const trucoResolver = await TrucoResolver.deploy();
+
+    const EnvidoResolver = await ethers.getContractFactory("EnvidoResolver");
+    const envidoResolver = await EnvidoResolver.deploy();
+
     const TrucoEngine = await ethers.getContractFactory("EngineTester");
-    const sut = await TrucoEngine.deploy(trucoin.address);
+    const sut = await TrucoEngine.deploy(
+      trucoin.address,
+      trucoResolver.address,
+      envidoResolver.address
+    );
 
     return { sut, trucoin, owner };
   }
@@ -640,7 +650,5 @@ describe("Truco Resolver", function () {
 
       return state;
     }
-
-    describe("Compute the winner", function () {})
-  })
-})
+  });
+});

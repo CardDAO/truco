@@ -3,21 +3,24 @@ pragma solidity 0.8.16;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./Structs.sol";
+import "./interfaces/Structs.sol";
+import "./interfaces/IERC3333.sol";
 
-import "./resolvers/EnvidoResolver.sol";
-import "./resolvers/TrucoResolver.sol";
-import "./IERC3333.sol";
+import "./interfaces/ChallengeResolver.sol";
 
 contract Engine is IERC3333, Ownable {
-    IERC20 trucoin;
+    IERC20 internal trucoin;
+    IChallengeResolver internal envidoResolver;
+    IChallengeResolver internal trucoResolver;
 
     uint8 internal constant POINTS_NO_CHALLENGE = 1;
 
     uint8 public constant CARD_NOT_REVEALED_RESERVED_IDX = 0;
 
-    constructor(IERC20 _trucoin) {
+    constructor(IERC20 _trucoin, IChallengeResolver _trucoResolver, IChallengeResolver _envidoResolver) {
         trucoin = _trucoin;
+        envidoResolver = _envidoResolver;
+        trucoResolver = _trucoResolver;
     }
 
     function startGame() external pure returns (CardsStructs.GameState memory) {
@@ -84,22 +87,22 @@ contract Engine is IERC3333, Ownable {
             _gameState.currentChallenge.challenge == CardsStructs.Challenge.None
         ) {
             if (_move.action == CardsStructs.Action.PlayCard) {
-                return TrucoResolver.resolve(_gameState, _move);
+                return trucoResolver.resolve(_gameState, _move);
             }
         }
 
         if (
-            EnvidoResolver.canResolve(_gameState.currentChallenge.challenge) ||
+            envidoResolver.canResolve(_gameState.currentChallenge.challenge) ||
             isMoveAChallengeForEnvido(_move)
         ) {
-            return EnvidoResolver.resolve(_gameState, _move);
+            return envidoResolver.resolve(_gameState, _move);
         }
 
         if (
-            TrucoResolver.canResolve(_gameState.currentChallenge.challenge) ||
+            trucoResolver.canResolve(_gameState.currentChallenge.challenge) ||
             isMoveAChallengeForTruco(_move)
         ) {
-            return TrucoResolver.resolve(_gameState, _move);
+            return trucoResolver.resolve(_gameState, _move);
         }
 
         revert("Invalid move for given game state");
@@ -107,28 +110,26 @@ contract Engine is IERC3333, Ownable {
 
     function isMoveAChallengeForEnvido(CardsStructs.Move memory _move)
         internal
-        pure
         returns (bool)
     {
         if (_move.action != CardsStructs.Action.Challenge) {
             return false;
         }
         return
-            EnvidoResolver.canResolve(
+            envidoResolver.canResolve(
                 CardsStructs.Challenge(_move.parameters[0])
             );
     }
 
     function isMoveAChallengeForTruco(CardsStructs.Move memory _move)
         internal
-        pure
         returns (bool)
     {
         if (_move.action != CardsStructs.Action.Challenge) {
             return false;
         }
         return
-            TrucoResolver.canResolve(
+            trucoResolver.canResolve(
                 CardsStructs.Challenge(_move.parameters[0])
             );
     }
@@ -160,9 +161,10 @@ contract Engine is IERC3333, Ownable {
         returns (bool)
     {
         return 
-            ! EnvidoResolver.isFinal(gameState) && 
-            TrucoResolver.roundAtPlay(gameState) == 0;
+            ! envidoResolver.isFinal(gameState) &&
+            ( gameState.revealedCardsByPlayer[0][0]== 0 || gameState.revealedCardsByPlayer[1][0]== 0);
     }
+    
 
     function isMoveValid(
         CardsStructs.GameState memory gameState,
