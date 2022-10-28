@@ -18,10 +18,10 @@ contract TrucoMatch  {
 
     Engine trucoEngine;
     DeckCrypt deckCrypt;
-    IERC20 trueCoin;
+    IERC20 trucoin;
     Match currentMatch;
 
-    constructor (Engine _trucoEngine, DeckCrypt _deckCrypt, IERC20 _truecoin) {
+    constructor (Engine _trucoEngine, DeckCrypt _deckCrypt, IERC20 _trucoin) {
         trucoEngine = _trucoEngine;
         deckCrypt = _deckCrypt;
         currentMatch.players[0] = msg.sender;
