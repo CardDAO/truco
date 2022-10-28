@@ -7,8 +7,7 @@ import "./Structs.sol";
  * @title ERC3333 interface for turn based card games
  * @dev see ERC-3333 proposal
  */
-interface IERC3333  {
-  
+interface IERC3333 {
     function startGame() external pure returns (CardsStructs.GameState memory);
 
     function transact(CardsStructs.Transaction calldata transaction)

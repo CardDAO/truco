@@ -3,8 +3,8 @@ pragma solidity 0.8.16;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+import "./trucoV1/interfaces/Structs.sol";
 import "./trucoV1/Engine.sol";
-import "./trucoV1/Structs.sol";
 import "./crypt/DeckCrypt.sol";
 
 contract TrucoMatch  {
