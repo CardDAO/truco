@@ -1,8 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
-import { Truco } from "../../engine/truco/Truco"
 import {  useAccountInformation, AccountType, useCreateRoom, Player, Message, sendMessage } from '../../hooks/providers/Wagmi'
-import { Join } from "../../engine/truco/commands/Join"
-import { GameInterface } from "../../engine/shared/GameInterface"
 import { useSignMessage } from 'wagmi'
 import { verifyMessage } from 'ethers/lib/utils'
 import { SignatureLike } from "@ethersproject/bytes"
@@ -39,7 +36,6 @@ const sendToPeers = (p2pt:P2PT, peers: Peer[], messageSourceSigned: MessageType)
 }
 
 export const useTruco = () => {
-    //const [ game, setGame ] = useState(new Truco())
     const [p2pt, setP2PT] = useState(new P2PT<MessageType>(trackersURL, 'UNIQUE_KEY_GAME'))
 
     const [ peers, setPeers ] = useState([] as Peer[])
@@ -150,8 +146,4 @@ export const useTruco = () => {
         errorSendMessage,
         messages
     }
-}
-
-const createMessage = (address:String, action?: String) => {
-
 }
