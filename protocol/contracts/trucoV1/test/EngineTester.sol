@@ -41,4 +41,8 @@ contract EngineTester is Engine {
     function getEnvidoWinner() public view returns (uint8) {
         return EnvidoResolver.getWinner(gameState);
     }
+
+    function getTrucoWinner() public view returns (uint8) {
+        return TrucoResolver.getWinner(gameState);
+    }
 }

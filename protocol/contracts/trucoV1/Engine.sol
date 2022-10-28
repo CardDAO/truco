@@ -7,8 +7,9 @@ import "./Structs.sol";
 
 import "./resolvers/EnvidoResolver.sol";
 import "./resolvers/TrucoResolver.sol";
+import "./IERC3333.sol";
 
-contract Engine is Ownable {
+contract Engine is IERC3333, Ownable {
     IERC20 trucoin;
 
     uint8 internal constant POINTS_NO_CHALLENGE = 1;
@@ -19,7 +20,7 @@ contract Engine is Ownable {
         trucoin = _trucoin;
     }
 
-    function startGame() public pure returns (CardsStructs.GameState memory) {
+    function startGame() external pure returns (CardsStructs.GameState memory) {
         // Check that consumer contract has not already payed for game
 
         // If not, transfer 1% of caller contract balance on Truecoins
@@ -145,8 +146,8 @@ contract Engine is Ownable {
         trucoin.transfer(_recipient, _amount);
     }
 
-    function doesGameEnded(CardsStructs.GameState memory gameState)
-        internal
+    function isGameEnded(CardsStructs.GameState memory gameState)
+        external
         returns (bool)
     {}
 

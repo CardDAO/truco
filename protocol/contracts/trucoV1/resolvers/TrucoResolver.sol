@@ -197,6 +197,18 @@ library TrucoResolver {
         pure
         returns (bool)
     {
+        if (
+            _gameState.currentChallenge.response == CardsStructs.Response.Refuse
+        ) {
+            return true;
+        }
+
+        if (
+            _gameState.currentChallenge.challenge == CardsStructs.Challenge.None
+        ) {
+            return false;
+        }
+
         // TODO: Implement this
         return false;
     }
@@ -206,13 +218,51 @@ library TrucoResolver {
         pure
         returns (uint8)
     {
-        // TODO: Implement this
-        return _gameState.playerTurn;
+        require(isFinal(_gameState));
+
+        int8 winner = roundWinner(_gameState.revealedCardsByPlayer, 0);
+        if (winner >= 0) {
+            return _gameState.playerTurn;
+        }
+
+        revert("Implement ME");
     }
+
     // ---------------------------------------------------------------------------------------------------------
-    // END: IFace impl 
+    // END: IFace impl
     // ---------------------------------------------------------------------------------------------------------
 
+    // Checks if round is considered finished
+    function roundFinished(uint8[3][] memory _revealedCards, uint8 round)
+        internal
+        pure
+        returns (bool)
+    {
+        for (uint8 i = 0; i < _revealedCards.length; i++) {
+            if (_revealedCards[i][round] == 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // Returns -1 on draw or the winner player idx
+    function roundWinner(uint8[3][] memory _revealedCards, uint8 round)
+        internal
+        pure
+        returns (int8)
+    {
+        int8 winner = -1;
+
+        for (uint8 i = 0; i < _revealedCards.length - 1; i++) {
+            if (_revealedCards[i][round] < _revealedCards[i + 1][round]) {
+                winner = int8(i);
+            }
+        }
+
+        return winner;
+    }
 
     // Check if card is not repeated in the array
     function cardNotRepeated(uint8[3][] memory _revealedCards, uint8 _card)
