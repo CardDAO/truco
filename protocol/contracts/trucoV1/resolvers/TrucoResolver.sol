@@ -1,27 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-import "../interfaces/ChallengeResolver.sol";
+import "../interfaces/IChallengeResolver.sol";
 
-/**
- * TrucoResolver:
- * Solidity can't apply interfaces on libraries, but all resolvers should follow the following interface:
- *
- *    function resolve(
- *       CardsStructs.GameState memory _gameState,
- *        CardsStructs.Move memory _move
- *    ) internal returns (CardsStructs.GameState memory);
- *
- *    function canResolve(
- *        CardsStructs.Challenge _challenge
- *    ) internal pure returns (bool);
- *
- *    function isFinal(CardsStructs.GameState memory _gameState) internal pure returns (bool)
- *
- *    function getWinner(CardsStructs.GameState memory _gameState) internal pure returns (uint8)
- *
- * Attention: Only internal functions should be used in this library
- */
 contract TrucoResolver {
     function resolve(
         CardsStructs.GameState memory _gameState,
