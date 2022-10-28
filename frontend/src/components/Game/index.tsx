@@ -9,11 +9,11 @@ export const Game = () => {
     const { 
         address,
         isConnected,
-        recoveredAddress,
         clickConnectToGame,
         inSession,
         peers,
         sendMessageAll,
+        isLoading,
         messages
     } = useTruco()
 
@@ -36,6 +36,7 @@ export const Game = () => {
                             messageInput={messageInput}
                             setMessageInput={setMessageInput}
                             sendMessageAll={sendMessageAll}
+                            isLoading={isLoading}
                         />
             }
         </>

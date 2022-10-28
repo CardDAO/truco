@@ -55,14 +55,14 @@ export const useTruco = () => {
         onSuccess(signature, variables) {
             const signer = verifyMessage(variables.message, signature)
             console.log('verified message', signature, variables, 'Address', address)
-            if (signer === address) {
-                const messageSourceSigned: MessageType = {
-                    message: JSON.parse(variables.message as string),
-                    signature: signature
-                }
-                addToMessageList(messageSourceSigned, setMessages, setLastNonceReceived)
-                sendToPeers(p2pt, peers, messageSourceSigned)
-            }
+            //if (signer === address) {
+            //    const messageSourceSigned: MessageType = {
+            //        message: JSON.parse(variables.message as string),
+            //        signature: signature
+            //    }
+            //    addToMessageList(messageSourceSigned, setMessages, setLastNonceReceived)
+            //    sendToPeers(p2pt, peers, messageSourceSigned)
+            //}
         }
     })
 
@@ -138,14 +138,15 @@ export const useTruco = () => {
         return () => { p2pt.destroy() }
     }, [p2pt, isConnected, inSession])
 
+
     return {
         address,
         isConnected,
-        recoveredAddress,
         clickConnectToGame,
         inSession,
         peers,
         sendMessageAll,
+        isLoading,
         messages
     }
 }
