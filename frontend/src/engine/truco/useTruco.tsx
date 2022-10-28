@@ -22,12 +22,27 @@ type MessageType = {
 }
 
 
+const addToMessageList = (
+    messageSigned: MessageType,
+    setMessages: (currentMessages: any) => any,
+    setLastNonceReceived: (nonce: any) => any 
+) => {
+    setMessages((currentMessages: MessageType[]) => [...currentMessages,messageSigned])
+    setLastNonceReceived(messageSigned.message.nonce as number)
+}
+
+const sendToPeers = (p2pt:P2PT, peers: Peer[], messageSourceSigned: MessageType) => {
+    peers.forEach((peer: Peer) => {
+        console.log('enviando mensaje')
+        p2pt.send(peer, messageSourceSigned)
+    }) 
+}
+
 export const useTruco = () => {
     //const [ game, setGame ] = useState(new Truco())
     const [p2pt, setP2PT] = useState(new P2PT<MessageType>(trackersURL, 'UNIQUE_KEY_GAME'))
 
     const [ peers, setPeers ] = useState([] as Peer[])
-    const recoveredAddress = useRef<String>()
     const { address, isConnected } : AccountType = useAccountInformation()
     const [ inSession, setInSession ]  = useState(false)
     const [ messages, setMessages ] = useState([] as MessageType[])
@@ -37,22 +52,16 @@ export const useTruco = () => {
 
 
     const { data, error, isLoading, signMessage } = useSignMessage({
-        onSuccess(data, variables) {
-            const signer = verifyMessage(variables.message, data)
-
-            recoveredAddress.current = signer 
-            console.log('verified message', data, variables, 'Address', address)
-
-            if (recoveredAddress.current === address) {
+        onSuccess(signature, variables) {
+            const signer = verifyMessage(variables.message, signature)
+            console.log('verified message', signature, variables, 'Address', address)
+            if (signer === address) {
                 const messageSourceSigned: MessageType = {
                     message: JSON.parse(variables.message as string),
-                    signature: data
+                    signature: signature
                 }
-                setMessages((currentMessages) => [...currentMessages, messageSourceSigned])
-                peers.forEach((peer: Peer) => {
-                    console.log('enviando mensaje')
-                    p2pt.send(peer, messageSourceSigned)
-                }) 
+                addToMessageList(messageSourceSigned, setMessages, setLastNonceReceived)
+                sendToPeers(p2pt, peers, messageSourceSigned)
             }
         }
     })
@@ -63,19 +72,17 @@ export const useTruco = () => {
                 JSON.stringify(messageSigned.message),
                 messageSigned.signature!!
             )
-            const receivedNonce = messageSigned.message.nonce
             const jsonMessage = messageSigned.message
             if (sourceAddress !== undefined) {
-                setLastNonceReceived(receivedNonce as number)
                 console.log("mensaje verificado desde address", sourceAddress, jsonMessage)
-                setMessages((currentMessages) => [...currentMessages, messageSigned])
+                addToMessageList(messageSigned, setMessages, setLastNonceReceived)
             }
 
         }
     },[])
 
     const sendMessageAll = useCallback((message: String) => {
-        //if (peers.length > 0) {
+        //if (peers.length > 0) { // TODO: temporal commented
         const currentNonce = lastNonceReceived + 1
         setLastNonceSended(currentNonce)
         const sent = {
