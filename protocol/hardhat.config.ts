@@ -15,7 +15,11 @@ const config: HardhatUserConfig = {
       },
     ],
   },
-  paths: {
+  networks: {
+    hardhat: {
+      allowUnlimitedContractSize: true
+    }
+  },  paths: {
     sources: "./contracts",
     tests: "./test",
     cache: "./cache",
