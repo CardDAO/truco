@@ -1,4 +1,4 @@
-export const Chat = ({ peers, messages, messageInput, setMessageInput, isLoading, sendMessageAll }: any) => {
+export const Chat = ({ peers, messages, messageInput, setMessageInput, isLoading, sendMessageAll, errorSendMessage }: any) => {
     return (
         <div>
             <h3 className="text-white text-xl">Peers</h3>
@@ -57,17 +57,20 @@ export const Chat = ({ peers, messages, messageInput, setMessageInput, isLoading
                          </div>
 
                     :
-                        <button
-                            type="button"
-                            className="text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 mt-5"
-                            onClick={() => {
-                                if (messageInput.length > 0) {
-                                    sendMessageAll(messageInput)
-                                    setMessageInput("")
-                                }
-                            }}>
-                                Send message
-                        </button>
+                        <div className="flex justify-center mt-5 flex-wrap flex-col">
+                            <button
+                                type="button"
+                                className="text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 mt-5"
+                                onClick={() => {
+                                    if (messageInput.length > 0) {
+                                        sendMessageAll(messageInput)
+                                        setMessageInput("")
+                                    }
+                                }}>
+                                    Send message
+                            </button>
+                            <p className="text-red-600 text-xs">{errorSendMessage ? "Message no sended" : ""}</p>
+                        </div>
                 }
         </div>
     )

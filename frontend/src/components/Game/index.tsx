@@ -14,6 +14,7 @@ export const Game = () => {
         peers,
         sendMessageAll,
         isLoading,
+        errorSendMessage,
         messages
     } = useTruco()
 
@@ -37,6 +38,7 @@ export const Game = () => {
                             setMessageInput={setMessageInput}
                             sendMessageAll={sendMessageAll}
                             isLoading={isLoading}
+                            errorSendMessage={errorSendMessage}
                         />
             }
         </>

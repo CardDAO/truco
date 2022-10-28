@@ -51,18 +51,18 @@ export const useTruco = () => {
     const [ lastNonceReceived, setLastNonceReceived ] = useState(-1)
 
 
-    const { data, error, isLoading, signMessage } = useSignMessage({
+    const { data, error: errorSendMessage, isLoading, signMessage } = useSignMessage({
         onSuccess(signature, variables) {
             const signer = verifyMessage(variables.message, signature)
             console.log('verified message', signature, variables, 'Address', address)
-            //if (signer === address) {
-            //    const messageSourceSigned: MessageType = {
-            //        message: JSON.parse(variables.message as string),
-            //        signature: signature
-            //    }
-            //    addToMessageList(messageSourceSigned, setMessages, setLastNonceReceived)
-            //    sendToPeers(p2pt, peers, messageSourceSigned)
-            //}
+            if (signer === address) {
+                const messageSourceSigned: MessageType = {
+                    message: JSON.parse(variables.message as string),
+                    signature: signature
+                }
+                addToMessageList(messageSourceSigned, setMessages, setLastNonceReceived)
+                sendToPeers(p2pt, peers, messageSourceSigned)
+            }
         }
     })
 
@@ -147,6 +147,7 @@ export const useTruco = () => {
         peers,
         sendMessageAll,
         isLoading,
+        errorSendMessage,
         messages
     }
 }
