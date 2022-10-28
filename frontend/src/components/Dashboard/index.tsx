@@ -1,9 +1,10 @@
 import { Chat } from "../Chat"
+import './index.css'
 
 export const Dashboard = ({ peers, messages, messageInput, setMessageInput, isLoading, sendMessageAll, errorSendMessage}: any) => {
     return (
-        <div className="grid grid-cols-1 grid-rows-2 md:grid-rows-none md:grid-cols-3 gap-4 w-screen">
-            <div className="text-center align-middle mx-4 order-2 md:order-1 col-auto">
+        <div className="Dashboard-Grid">
+            <div className="Chat-Column">
                 <Chat
                     peers={peers}
                     messages={messages}
@@ -14,15 +15,8 @@ export const Dashboard = ({ peers, messages, messageInput, setMessageInput, isLo
                     errorSendMessage={errorSendMessage}
                 />
             </div>
-            <div className="bg-gray-800/50 order-1 md:order-2 md:col-span-2 mx-4">
+            <div className="Game-View">
                 <div className="m-2">
-                    <p>qweqwe</p>
-                    <p>qweqwe</p>
-                    <p>qweqwe</p>
-                    <p>qweqwe</p>
-                    <p>qwe</p>
-                    <p></p>
-                    <p></p>
                 </div>
             </div>
         </div>

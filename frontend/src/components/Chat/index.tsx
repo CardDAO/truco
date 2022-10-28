@@ -1,25 +1,26 @@
+import './index.css'
 export const Chat = ({ peers, messages, messageInput, setMessageInput, isLoading, sendMessageAll, errorSendMessage }: any) => {
     return (
         <div>
             <h3 className="text-white text-xl">Peers</h3>
-            <div className="text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white  overscroll-y-scroll overflow-auto h-32 mb-10">
+            <div className="peers-list">
                 { peers.map((peer: any, index: any) => {
                     return (
-                        <button key={index} type="button" className="py-2 px-4 w-full font-medium text-left border-b border-gray-200 cursor-pointer hover:bg-gray-100 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
+                        <p key={index} className="peer-item">
                             {peer.id ?? "undefined"}
-                        </button>
+                        </p>
                     )
 
                 })}
             </div>
                 <h3 className="text-white text-xl">Mensajes</h3>
-                <ul className="divide-y divide-gray-300 overscroll-y-scroll overflow-auto h-72 justify-center w-full">
+                <ul className="message-list">
                     { messages.map((messageObject: any, index: any) => {
                     return (
                        <li key={index} className="pb-3 sm:pb-4">
                           <div className="flex items-center space-x-3">
                              <div className="flex-1 min-w-0">
-                                <p className="text-base font-medium truncate text-white font-semibold ">{`Action: ${messageObject.message.action ?? 'undefined'}`}</p>
+                                <p className="text-base font-medium truncate text-white font-semibold">{`Action: ${messageObject.message.action ?? 'undefined'}`}</p>
                                 <p className="text-sm truncate text-stone-400">
                                    { `Sign: ${messageObject.signature}` }
                                 </p>
@@ -57,10 +58,10 @@ export const Chat = ({ peers, messages, messageInput, setMessageInput, isLoading
                          </div>
 
                     :
-                        <div className="flex justify-center mt-5 flex-wrap flex-col">
+                        <div className="text-center">
                             <button
                                 type="button"
-                                className="text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 mt-5"
+                                className="button-send-message"
                                 onClick={() => {
                                     if (messageInput.length > 0) {
                                         sendMessageAll(messageInput)
