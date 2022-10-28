@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./interfaces/Structs.sol";
 import "./interfaces/IERC3333.sol";
 
-import "./interfaces/ChallengeResolver.sol";
+import "./interfaces/IChallengeResolver.sol";
 
 contract Engine is IERC3333, Ownable {
     IERC20 internal trucoin;
