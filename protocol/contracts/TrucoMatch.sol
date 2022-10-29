@@ -77,4 +77,30 @@ contract TrucoMatch  {
 
         currentMatch.deck.cards = cards;
     }
+    
+    // View example to exemplify how an interface that serves the frontend 
+    // but exposes zero knowledge of internal structs
+    function canISpellTruco() external view returns (bool) {
+        
+        CardsStructs.Move memory move;
+        move.action = CardsStructs.Action.Challenge;
+        move.parameters = new uint8[](1);
+        move.parameters[0] = uint8(CardsStructs.Challenge.Truco);
+        
+        CardsStructs.Transaction memory transaction;
+        transaction.playerIdx = 1;
+        transaction.state = currentMatch.gameState;
+        transaction.moves = new CardsStructs.Move[](1);
+        transaction.moves[0] = move;
+        
+        try trucoEngine.transact(transaction) returns (CardsStructs.GameState memory _gameState) {
+            // discard result
+        }
+        catch {
+            return false;
+        }
+        
+        return true;
+    }
+    
 }

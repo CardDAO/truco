@@ -650,5 +650,30 @@ describe("Truco Resolver", function () {
 
       return state;
     }
+
+    describe("Compute the winner", function () {
+      it("Play a card already played", async function () {
+        const { sut } = await deployContract();
+
+        let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
+
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
+          BigNumber.from(21); // Ace of swords
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][1] =
+          BigNumber.from(7); // 7 of Coins
+
+        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][0] =
+          BigNumber.from(4); // 4 of Coins
+        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][1] =
+          BigNumber.from(6); // 6 of Coins
+
+        sut.setGameState(state);
+
+        let result: BigNumber = await sut.getTrucoWinner();
+
+        // Check resulting state
+        expect(result).to.be.equal(currentPlayerIdx);
+      });
+    });
   });
 });
