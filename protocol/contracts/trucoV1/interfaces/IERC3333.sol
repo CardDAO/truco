@@ -12,7 +12,6 @@ interface IERC3333 {
 
     function transact(CardsStructs.Transaction calldata transaction)
         external
-        view
         returns (CardsStructs.GameState memory gameState);
 
     function isGameEnded(CardsStructs.GameState memory gameState)

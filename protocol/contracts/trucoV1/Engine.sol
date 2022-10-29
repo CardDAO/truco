@@ -45,7 +45,6 @@ contract Engine is IERC3333, Ownable {
 
     function transact(CardsStructs.Transaction calldata transaction)
         external
-        view
         returns (CardsStructs.GameState memory gameState)
     {
         // check if game is started for current call
