@@ -7,15 +7,16 @@ interface IChallengeResolver {
     function resolve(
         CardsStructs.GameState memory _gameState,
         CardsStructs.Move memory _move
-    ) external returns (CardsStructs.GameState memory);
+    ) external view returns (CardsStructs.GameState memory);
 
     function canResolve(CardsStructs.Challenge _challenge)
         external
+        view
         returns (bool);
 
     function isFinal(CardsStructs.GameState memory _gameState)
         external
-        pure
+        view
         returns (bool);
 
     function getWinner(CardsStructs.GameState memory _gameState)

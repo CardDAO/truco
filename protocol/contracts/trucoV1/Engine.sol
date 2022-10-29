@@ -45,6 +45,7 @@ contract Engine is IERC3333, Ownable {
 
     function transact(CardsStructs.Transaction calldata transaction)
         external
+        view
         returns (CardsStructs.GameState memory gameState)
     {
         // check if game is started for current call
@@ -75,7 +76,7 @@ contract Engine is IERC3333, Ownable {
     function resolveMove(
         CardsStructs.GameState memory _gameState,
         CardsStructs.Move memory _move
-    ) internal returns (CardsStructs.GameState memory) {
+    ) internal view returns (CardsStructs.GameState memory) {
         // Verify if it's a valid move
         require(isMoveValid(_gameState, _move), "Move is invalid");
 
@@ -110,6 +111,7 @@ contract Engine is IERC3333, Ownable {
 
     function isMoveAChallengeForEnvido(CardsStructs.Move memory _move)
         internal
+        view
         returns (bool)
     {
         if (_move.action != CardsStructs.Action.Challenge) {
@@ -123,6 +125,7 @@ contract Engine is IERC3333, Ownable {
 
     function isMoveAChallengeForTruco(CardsStructs.Move memory _move)
         internal
+        view
         returns (bool)
     {
         if (_move.action != CardsStructs.Action.Challenge) {
@@ -152,12 +155,14 @@ contract Engine is IERC3333, Ownable {
 
     function isGameEnded(CardsStructs.GameState memory gameState)
         external
+        view
         returns (bool)
     {}
 
     // Check if envido can be spelled at rhis game 
     function canEnvidoBeSpelled(CardsStructs.GameState memory gameState)
         internal
+        view
         returns (bool)
     {
         return 
@@ -169,7 +174,7 @@ contract Engine is IERC3333, Ownable {
     function isMoveValid(
         CardsStructs.GameState memory gameState,
         CardsStructs.Move memory move
-    ) internal returns (bool) {
+    ) internal view returns (bool) {
         CardsStructs.Challenge challenge = gameState.currentChallenge.challenge;
 
         // Poors man Finite State Machine (FSM) on Solidity times...
