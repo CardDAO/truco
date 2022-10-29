@@ -78,8 +78,8 @@ contract TrucoMatch  {
         currentMatch.deck.cards = cards;
     }
     
-    // View example to exemplify how an interface that serves the frontend 
-    // but exposes zero knowledge of internal structs
+    // View that works as an example of how an interface can serve the frontend while at the same time 
+    //the consumer has zero knowledge of internal structs
     function canISpellTruco() external view returns (bool) {
         
         CardsStructs.Move memory move;
