@@ -4,7 +4,8 @@ pragma solidity 0.8.16;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "./trucoV1/interfaces/Structs.sol";
-import "./trucoV1/Engine.sol";
+import "./trucoV1/interfaces/IERC3333.sol";
+
 import "./crypt/DeckCrypt.sol";
 
 contract TrucoMatch  {
@@ -16,12 +17,12 @@ contract TrucoMatch  {
         uint256 tokensAtStake; 
     }
 
-    Engine trucoEngine;
+    IERC3333 trucoEngine;
     DeckCrypt deckCrypt;
     IERC20 trucoin;
     Match currentMatch;
 
-    constructor (Engine _trucoEngine, DeckCrypt _deckCrypt, IERC20 _trucoin) {
+    constructor (IERC3333 _trucoEngine, DeckCrypt _deckCrypt, IERC20 _trucoin) {
         trucoEngine = _trucoEngine;
         deckCrypt = _deckCrypt;
         currentMatch.players[0] = msg.sender;

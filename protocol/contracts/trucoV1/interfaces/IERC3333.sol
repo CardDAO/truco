@@ -8,13 +8,15 @@ import "./Structs.sol";
  * @dev see ERC-3333 proposal
  */
 interface IERC3333 {
-    function startGame() external pure returns (CardsStructs.GameState memory);
+    function startGame() external returns (CardsStructs.GameState memory);
 
     function transact(CardsStructs.Transaction calldata transaction)
         external
+        view
         returns (CardsStructs.GameState memory gameState);
 
     function isGameEnded(CardsStructs.GameState memory gameState)
         external
+        view
         returns (bool);
 }

@@ -7,7 +7,7 @@ contract EnvidoResolver is IChallengeResolver {
     function resolve(
         CardsStructs.GameState memory _gameState,
         CardsStructs.Move memory _move
-    ) external returns (CardsStructs.GameState memory) {
+    ) external view returns (CardsStructs.GameState memory) {
         // Valid moves up to this point are enforced before any logic
         require(
             _move.action == CardsStructs.Action.Challenge ||
@@ -195,6 +195,7 @@ contract EnvidoResolver is IChallengeResolver {
 
     function canResolve(CardsStructs.Challenge _challenge)
         external
+        view
         returns (bool)
     {
         if (
@@ -211,7 +212,7 @@ contract EnvidoResolver is IChallengeResolver {
 
     function isFinal(CardsStructs.GameState memory _gameState)
         external
-        pure
+        view
         returns (bool)
     {
         // Check if it's waiting for a response
