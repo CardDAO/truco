@@ -37,6 +37,7 @@ contract TrucoMatch  {
 
 
     constructor (IERC3333 _trucoEngine, DeckCrypt _deckCrypt, IERC20 _truCoin, uint256 _tokensAtStake) {
+
         trucoEngine = _trucoEngine;
         deckCrypt = _deckCrypt;
         truCoin = _truCoin;
