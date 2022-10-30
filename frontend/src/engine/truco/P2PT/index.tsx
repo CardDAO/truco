@@ -1,27 +1,20 @@
 import { trackersURL }  from '../../../assets/trackers'
 import { useEffect, useState, useRef, useCallback } from 'react'
 import P2PT, { Peer } from "p2pt"
-import { MessageType } from "../useTruco"
 
 export const useP2PT = (inSession: Boolean, sessionKey : String, sendMessage: any) => {
     console.log('go use p2pt')
     const p2pt: any = useRef()
     const [ peers, setPeers ] = useState([] as Peer[])
 
-    console.log('peeers es', peers)
     const addPeer : any = useRef()
     const removePeer: any = useRef()
     const trackingConnection: any = useRef()
     const messageReceive: any = useRef()
-    const removeds = useRef([] as Peer[])
-
-    console.log('removed peers', removeds)
     // define callbacks for p2pt
     const removePeerCallback = useCallback((disconnectedPeer: Peer) => {
-        removeds.current.push(disconnectedPeer)
         setPeers((currentPeers) => currentPeers.filter((peer) => peer !== disconnectedPeer))
         console.log('remove peer', disconnectedPeer.id)
-        console.log('removed peers', removeds)
     }, [])
     const verifyAndAddMessageCallback = useCallback((disconnectedPeer: Peer, message: any) => {
         console.log('dale gask', disconnectedPeer, message)

@@ -2,33 +2,18 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import {  useAccountInformation, AccountType, useCreateRoom, Player, Message, sendMessage } from '../../hooks/providers/Wagmi'
 import { useSignMessage } from 'wagmi'
 import { verifyMessage } from 'ethers/lib/utils'
-import { SignatureLike } from "@ethersproject/bytes"
-import { trackersURL }  from '../../assets/trackers'
 import P2PT, { Peer } from "p2pt"
 import { utils, BytesLike } from 'ethers'
-import { generateKeyUsingSecret, encryptUsingOTP, PromiseOrValue } from '../shared/cryptoprimitives'
+import { generateKeyUsingSecret, encryptUsingOTP, encryptAllUsingOTP, encryptCard } from '../shared/cryptoprimitives'
 import { useP2PT } from './P2PT'
 
 
-type Card = PromiseOrValue<BytesLike>
-
-const cards: Card[] = [
+const CASTILLAN_CARDS: Card[] = [
     "0x00", "0x01", "0x02", "0x03", "0x04", "0x05", "0x06", "0x07", "0x08", "0x09", "0x0a", "0x0b",
     "0x0c", "0x0d", "0x0e", "0x0f", "0x10", "0x11", "0x12", "0x13", "0x14", "0x15", "0x16", "0x17",
     "0x18", "0x19", "0x1a", "0x1b", "0x1c", "0x1d", "0x1e", "0x1f", "0x20", "0x21", "0x22", "0x23",
     "0x24", "0x25", "0x26", "0x27",
 ];
-
-type Request = {
-    action?: String, //json
-    nonce: Number
-}
-
-export type MessageType = {
-    message: Request,
-    signature?: SignatureLike
-}
-
 
 const addToMessageList = (
     messageSigned: MessageType,
@@ -46,35 +31,106 @@ const sendToPeers = (p2pt: P2PT, peers: Peer[], messageSourceSigned: MessageType
     }) 
 }
 
-const selectCardsForOpponent = (cards: Card[]): number[] => {
+/**
+ * process for select shuffled cards to opponent
+ */
+const selectCardsForOpponent = (encryptedCards: Card[], myDictionary: BytesLike[]): ExposeCard[] => {
+    // TODO check length encryptedCards === myKeys
     // shuffle cards (without encrypt)
-    const shuffledCards = utils.shuffled(cards).slice(0, 3)
-
+    const shuffledCards = utils.shuffled(encryptedCards).slice(0, 3)
+    const assignedCards: ExposeCard[] = []
     // determine indexes from original array
-    const indexes: number[] = []
     shuffledCards.forEach(value => {
-       indexes.push(cards.indexOf(value))
+       const indexCard = encryptedCards.indexOf(value)
+       assignedCards.push({
+           index: indexCard,
+           keys: [myDictionary[indexCard]],
+           card: encryptedCards[indexCard]
+       })
     })
 
-    return indexes
+    // asigned cards ExposeCard[]
+    return assignedCards 
 }
 
 const broadcastDeck = (deck: any) => {
     // TODO: send deck p2pt (MessageType)
 }
 
+const broadcastCards = (cards: any) => {
+    // TODO: send cards p2pt (MessageType)
+}
+
 const encryptDeck = (cards: Card[], password: string) => {
     return encryptUsingOTP(cards, generateKeyUsingSecret(password, cards.length))
 }
 
-const initShuffling = (cards: Card[], password: String) => {
+const encryptAllOnePasswordDeck = (cards: Card[], password: string) => {
+    return encryptAllUsingOTP(cards, password)
+}
+
+const processShufflingAllDeck = (cards: Card[], password: string)  => {
     // deck shuffled
     const shuffled = utils.shuffled(cards)
-    // encrypt
-    const encryptedDeck = encryptDeck(shuffled, "una clave como 123456")
+    // encrypt deck first shuffling
+    let encryptedDeck = encryptAllOnePasswordDeck(cards, password);
+    //encryptedDeck = encryptDeck(shuffled, "0x01")
     //send
     broadcastDeck(encryptDeck)
-    
+}
+
+const initShuffling = (cards: Card[], password: string) => {
+    processShufflingAllDeck(cards, "01")
+    // set my state waiting first_shuffling_waiting_others
+}
+
+const receiveAndEncryptDeck = (cards: Card[]) => {
+    processShufflingAllDeck(cards, "02")
+    // set my state waiting init_second_shuffling_round
+}
+
+const receiveAndEncryptCards = (cards: Card[], password: string) => {
+    const decryptedDeck = encryptAllOnePasswordDeck(cards, password)
+
+    // no shuffle in second round
+    //const shuffledCards = utils.shuffled(decryptedDeck)
+
+    const encryptedCards = encryptDeck(decryptedDeck, password)
+
+    broadcastDeck(encryptedCards)
+    // set state to waiting_other_player encrypt each of the cards if my state is -> first_shuffling_waiting_others
+    // else -> set state -> waiting_my_cards
+}
+
+
+/**
+ * send cards to opponent
+ */
+const selectOpponentCardsAndSend = (cards: Card[], myKeys: BytesLike[]) => {
+
+    const selectedCards = selectCardsForOpponent(cards, myKeys)
+    // TODO mark used cards
+    broadcastCards(selectedCards)
+}
+
+const receiveMyCards = (receivedCards: ExposeCard[], encryptedCards: Card[], myDictionary: BytesLike[]): Card[] => {
+
+    const myCards:any = []
+    receivedCards.forEach((exposedCard: ExposeCard) => {
+        // add my key to keys for decrypt card
+        exposedCard.keys.push(myDictionary[exposedCard.index])
+        // decrypt card
+        myCards.push(exposedCard.keys.reduce((toCleanCard, current) => {
+            if (toCleanCard === undefined)
+                return encryptCard(encryptedCards[exposedCard.index], current)
+            return encryptCard(toCleanCard, current)
+        }, undefined))
+    })
+
+    // TODO verify cards (valid 0-39 and isnt used)
+    // TODO mark used cards
+
+    return myCards
 }
 
 export const useTruco = () => {
@@ -124,11 +180,9 @@ export const useTruco = () => {
 
     const requestPeers = () => {
         if (inSession) {
-            console.log('require peers')
             p2pt.current.requestMorePeers()
         }
     }
-
 
     const sendMessageAll = useCallback((message: String) => {
         //if (peers.length > 0) { // TODO: temporal commented

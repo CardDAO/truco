@@ -1,6 +1,36 @@
 import { utils, BytesLike } from "ethers"
 
-export type PromiseOrValue<BytesLike> = BytesLike | Promise<BytesLike>;
+export function encryptAllUsingOTP(
+  cards: PromiseOrValue<BytesLike>[],
+  key: string
+): PromiseOrValue<BytesLike>[] {
+
+  const encryptedCards = [] as PromiseOrValue<BytesLike>[]
+
+  for (let i = 0; i < cards.length; i++) {
+    let card = cards[i]
+
+    // Do XOR byte by byte
+    let xored : number = parseInt(card.toString(), 10) ^ parseInt("0x" + key, 16)
+
+    // Add padding zeroes to the left to make sure the length is 2.
+    // Use substring, subs deprecated
+    let sanitizedXored = ("0" + xored.toString(16)).substring(-2)
+
+    encryptedCards[i] = "0x" + sanitizedXored;
+  }
+  return encryptedCards;
+}
+
+export function encryptCard(card: PromiseOrValue<BytesLike>, key: string): PromiseOrValue<BytesLike> {
+    // Do XOR byte by byte
+    let xored : number = parseInt(card.toString(), 10) ^ parseInt("0x" + key, 16)
+
+    // Add padding zeroes to the left to make sure the length is 2.
+    // Use substring, subs deprecated
+    // 0x + sanitized xor
+    return "0x" + ("0" + xored.toString(16)).substring(-2)
+}
 
 export function encryptUsingOTP(
   cards: PromiseOrValue<BytesLike>[],
@@ -11,16 +41,9 @@ export function encryptUsingOTP(
 
   for (let i = 0; i < cards.length; i++) {
     let card = cards[i]
-
-    // Do XOR byte by byte
-    let xored : number = parseInt(card.toString(), 10) ^ parseInt("0x" + key[i], 16)
-
-    // Add padding zeroes to the left to make sure the length is 2.
-    // Use substring, subs deprecated
-    let sanitizedXored = ("0" + xored.toString(16)).substring(-2)
-
-    encryptedCards[i] = "0x" + sanitizedXored;
+    encryptedCards[i] = encryptCard(card, key[i])
   }
+
   return encryptedCards;
 }
 
