@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback, KeyboardEventHandler} from 'react'
-import P2PT from "p2pt"
 import { useTruco } from "../../engine/truco/useTruco"
 import { Dashboard } from "../Dashboard"
 
@@ -15,7 +14,8 @@ export const Game = () => {
         sendMessageAll,
         isLoading,
         errorSendMessage,
-        messages
+        messages,
+        requestPeers
     } = useTruco()
 
 
@@ -39,6 +39,7 @@ export const Game = () => {
                             sendMessageAll={sendMessageAll}
                             isLoading={isLoading}
                             errorSendMessage={errorSendMessage}
+                            requestPeers={requestPeers}
                         />
             }
         </>

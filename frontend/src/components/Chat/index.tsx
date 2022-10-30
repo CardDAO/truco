@@ -1,8 +1,15 @@
+import { MdWavingHand } from "react-icons/md"
 import './index.css'
-export const Chat = ({ peers, messages, messageInput, setMessageInput, isLoading, sendMessageAll, errorSendMessage }: any) => {
+export const Chat = ({ peers, messages, messageInput, setMessageInput, isLoading, sendMessageAll, errorSendMessage, requestPeers}: any) => {
+    
     return (
         <div>
-            <h3 className="text-white text-xl">Peers</h3>
+            <h3 className="text-white text-xl">
+                Peers
+                <button className="mx-2 hover:text-gray-300" title="Announce myself" onClick={() => requestPeers()}>
+                    <MdWavingHand />
+                </button>
+            </h3>
             <div className="peers-list">
                 { peers.map((peer: any, index: any) => {
                     return (
@@ -10,7 +17,6 @@ export const Chat = ({ peers, messages, messageInput, setMessageInput, isLoading
                             {peer.id ?? "undefined"}
                         </p>
                     )
-
                 })}
             </div>
                 <h3 className="text-white text-xl">Mensajes</h3>

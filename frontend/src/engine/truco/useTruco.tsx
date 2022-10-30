@@ -7,6 +7,7 @@ import { trackersURL }  from '../../assets/trackers'
 import P2PT, { Peer } from "p2pt"
 import { utils, BytesLike } from 'ethers'
 import { generateKeyUsingSecret, encryptUsingOTP, PromiseOrValue } from '../shared/cryptoprimitives'
+import { useP2PT } from './P2PT'
 
 
 type Card = PromiseOrValue<BytesLike>
@@ -23,7 +24,7 @@ type Request = {
     nonce: Number
 }
 
-type MessageType = {
+export type MessageType = {
     message: Request,
     signature?: SignatureLike
 }
@@ -38,7 +39,7 @@ const addToMessageList = (
     setLastNonceReceived(messageSigned.message.nonce as number)
 }
 
-const sendToPeers = (p2pt:P2PT, peers: Peer[], messageSourceSigned: MessageType) => {
+const sendToPeers = (p2pt: P2PT, peers: Peer[], messageSourceSigned: MessageType) => {
     peers.forEach((peer: Peer) => {
         console.log('enviando mensaje')
         p2pt.send(peer, messageSourceSigned)
@@ -77,11 +78,11 @@ const initShuffling = (cards: Card[], password: String) => {
 }
 
 export const useTruco = () => {
-    const [p2pt, setP2PT] = useState(new P2PT<MessageType>(trackersURL, 'UNIQUE_KEY_GAME'))
+    //const p2pt = useRef(new P2PT<MessageType>(trackersURL, 'UNIQUE_KEY_GAME'))
 
     const [ deck, setDeck ] = useState({cards: []})
 
-    const [ peers, setPeers ] = useState([] as Peer[])
+    //const [ peers, setPeers ] = useState([] as Peer[])
     const { address, isConnected } : AccountType = useAccountInformation()
     const [ inSession, setInSession ]  = useState(false)
     const [ messages, setMessages ] = useState([] as MessageType[])
@@ -89,6 +90,22 @@ export const useTruco = () => {
     const [ lastNonceSended, setLastNonceSended ] = useState(-1)
     const [ lastNonceReceived, setLastNonceReceived ] = useState(-1)
 
+    const verifyAndAddMessage = useCallback((messageSigned: MessageType) => {
+        console.log('verify executed', messageSigned)
+        if (messageSigned.signature !== undefined && messageSigned.message !== undefined && messageSigned.message.nonce > lastNonceReceived) {
+            const sourceAddress = verifyMessage(
+                JSON.stringify(messageSigned.message),
+                messageSigned.signature!!
+            )
+            const jsonMessage = messageSigned.message
+            if (sourceAddress !== undefined) {
+                console.log("mensaje verificado desde address", sourceAddress, jsonMessage)
+                addToMessageList(messageSigned, setMessages, setLastNonceReceived)
+            }
+        }
+    }, [])
+
+    const {p2pt, peers, setPeers} = useP2PT(inSession, 'UNIQUE_KEY_GAME', verifyAndAddMessage)
 
     const { data, error: errorSendMessage, isLoading, signMessage } = useSignMessage({
         onSuccess(signature, variables) {
@@ -100,25 +117,18 @@ export const useTruco = () => {
                     signature: signature
                 }
                 addToMessageList(messageSourceSigned, setMessages, setLastNonceReceived)
-                sendToPeers(p2pt, peers, messageSourceSigned)
+                sendToPeers(p2pt.current, peers, messageSourceSigned)
             }
         }
     })
 
-    const verifyAndAddMessage = useCallback((messageSigned: MessageType) => {
-        if (messageSigned.signature !== undefined && messageSigned.message !== undefined && messageSigned.message.nonce > lastNonceReceived) {
-            const sourceAddress = verifyMessage(
-                JSON.stringify(messageSigned.message),
-                messageSigned.signature!!
-            )
-            const jsonMessage = messageSigned.message
-            if (sourceAddress !== undefined) {
-                console.log("mensaje verificado desde address", sourceAddress, jsonMessage)
-                addToMessageList(messageSigned, setMessages, setLastNonceReceived)
-            }
-
+    const requestPeers = () => {
+        if (inSession) {
+            console.log('require peers')
+            p2pt.current.requestMorePeers()
         }
-    }, [])
+    }
+
 
     const sendMessageAll = useCallback((message: String) => {
         //if (peers.length > 0) { // TODO: temporal commented
@@ -142,40 +152,21 @@ export const useTruco = () => {
         
     }, [address, isConnected])
 
-
-    const removePeer = useCallback((disconnectedPeer: Peer) => {
-        setPeers((currentPeers) => currentPeers.filter((peer) => peer === disconnectedPeer))
-        console.log('remove peer', disconnectedPeer)
-    }, [])
-
-    const addPeer = useCallback((newPeer: Peer) => {
-        setPeers((currentPeers) => [...currentPeers, newPeer])
-        console.log('new peer added', newPeer)
-    }, [])
-
-    const trackingConnection = useCallback((tracker:any, stats:any) => {
-        console.log('Connected to tracker : ' + tracker.announceUrl)
-        console.log('Tracker stats : ' + JSON.stringify(stats))
-        console.log('My identifier ', p2pt._peerId)
-    }, [p2pt])
-
-    useEffect(() => {
-        if (p2pt && isConnected && inSession) {
-            console.log('go, p2p define')
-            p2pt.on('trackerconnect', (tracker, stats) => {
-                trackingConnection(tracker, stats)
-            })
-            p2pt.on('peerconnect', addPeer)
-            p2pt.on('peerclose', (peer) => {
-                removePeer(peer)
-            })
-            p2pt.on('msg', (peer: Peer, message) => {
-                verifyAndAddMessage(message)
-            })
-            p2pt.start()
-        }
-        return () => { p2pt.destroy() }
-    }, [p2pt, isConnected, inSession])
+    //useEffect(() => {
+    //    //if (p2pt.current && isConnected && inSession) {
+    //    //    console.log('go, p2p define')
+    //    //    p2pt.current.on('trackerconnect', (tracker, stats) => {
+    //    //        trackingConnection(tracker, stats)
+    //    //    })
+    //    //    p2pt.current.on('peerconnect', callAddPeer)
+    //    //    p2pt.current.on('peerclose', callRemovePeer)
+    //    //    p2pt.current.on('msg', (peer: Peer, message) => {
+    //    //        verifyAndAddMessage(message)
+    //    //    })
+    //    //    p2pt.current.start()
+    //    //}
+    //    //return () => { p2pt.current.destroy() }
+    //}, [p2pt, isConnected, inSession])
 
 
     return {
@@ -187,6 +178,7 @@ export const useTruco = () => {
         sendMessageAll,
         isLoading,
         errorSendMessage,
-        messages
+        messages,
+        requestPeers
     }
 }
