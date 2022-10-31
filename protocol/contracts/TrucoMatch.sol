@@ -108,23 +108,21 @@ contract TrucoMatch  {
         require(msg.sender == currentMatch.players[new_shuffler].playerAddress, "You are not the shuffler");
 
         currentMatch.deck = _deck; // encrypted deck using 2 secrets
+
+        // Grab the current points
+        uint8[] memory current_points = currentMatch.gameState.teamPoints;
+
+        // Reset the game state
+        currentMatch.gameState = trucoEngine.initialGameState();
+
+        // Set the current points
+        currentMatch.gameState.teamPoints = current_points;
         
         // Assign new shuffler
         currentMatch.gameState.playerWhoShuffled = new_shuffler;
 
         // Assign turn to player not shuffling
-        currentMatch.gameState.playerTurn = currentMatch.gameState.playerWhoShuffled ^ 1;
-
-        // Unset current challenge from previous deal
-        currentMatch.gameState.currentChallenge.challenge = CardsStructs.Challenge.None;
-
-        // Clean revealed cards
-        currentMatch.gameState.revealedCardsByPlayer[0] = [0,0,0];
-        currentMatch.gameState.revealedCardsByPlayer[1] = [0,0,0];
-
-        // Clean envido count
-        currentMatch.gameState.envidoCountPerPlayer[0] = 0;
-        currentMatch.gameState.envidoCountPerPlayer[1] = 0;
+        currentMatch.gameState.playerTurn = new_shuffler ^ 1;
 
         // Set deal as open
         isDealOpen = true;
