@@ -61,8 +61,6 @@ library CardsStructs {
         uint8[3][] revealedCardsByPlayer;
         uint8[] envidoCountPerPlayer;
         uint8[] teamPoints; //points indexed by team id (in this case a player is a team)
-        bool isDealOpen;
-
     }
 
     // Represents a transaction (defined as a series of moves) which is meant to be applied to the given game state

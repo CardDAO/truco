@@ -27,6 +27,7 @@ contract TrucoMatch  {
     DeckCrypt deckCrypt;
     IERC20 truCoin;
     Match currentMatch;
+    bool isDealOpen;
 
     // Events
     event MatchCreated(address match_address);
@@ -53,8 +54,6 @@ contract TrucoMatch  {
     function join() public {
         require(currentMatch.players[0].playerAddress != msg.sender, "Match creator is already joined");
         require(currentMatch.players[1].playerAddress == address(0), "Match is full");
-        require(truCoin.balanceOf(msg.sender) >= currentMatch.tokensAtStake, "You don't have enough Trucoins to join this match");
-        require(truCoin.allowance(msg.sender, address(this)) >= currentMatch.tokensAtStake, "Not enough trucoins transfer approved");
 
         // Check invitations if any
 
@@ -102,7 +101,7 @@ contract TrucoMatch  {
 
     function newDeal(CardsStructs.Deck memory _deck) public {
         // Check if current game state enables new card shufflings
-        require(!currentMatch.gameState.isDealOpen, "Deal is already open");
+        require(!isDealOpen, "Deal is already open");
 
         // Determine the new shuffler and check that corresponds to the current player
         uint8 new_shuffler = currentMatch.gameState.playerWhoShuffled ^ 1;
@@ -128,7 +127,7 @@ contract TrucoMatch  {
         currentMatch.gameState.envidoCountPerPlayer[1] = 0;
 
         // Set deal as open
-        currentMatch.gameState.isDealOpen = true;
+        isDealOpen = true;
 
         emit DealStarted(msg.sender);
     }
