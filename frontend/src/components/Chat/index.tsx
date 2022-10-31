@@ -26,7 +26,7 @@ export const Chat = ({ peers, messages, messageInput, setMessageInput, isLoading
                        <li key={index} className="pb-3 sm:pb-4">
                           <div className="flex items-center space-x-3">
                              <div className="flex-1 min-w-0">
-                                <p className="text-base font-medium truncate text-white font-semibold">{`Action: ${messageObject.message.action ?? 'undefined'}`}</p>
+                                <p className="text-base font-medium truncate text-white font-semibold">{`Action: ${messageObject.message.data ?? 'undefined'}`}</p>
                                 <p className="text-sm truncate text-stone-400">
                                    { `Sign: ${messageObject.signature}` }
                                 </p>

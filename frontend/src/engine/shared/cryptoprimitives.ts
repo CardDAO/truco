@@ -5,19 +5,15 @@ export function encryptAllUsingOTP(
   key: string
 ): PromiseOrValue<BytesLike>[] {
 
+    console.log('key',key)
   const encryptedCards = [] as PromiseOrValue<BytesLike>[]
 
   for (let i = 0; i < cards.length; i++) {
     let card = cards[i]
+    console.log('get card', card)
 
-    // Do XOR byte by byte
-    let xored : number = parseInt(card.toString(), 10) ^ parseInt("0x" + key, 16)
-
-    // Add padding zeroes to the left to make sure the length is 2.
-    // Use substring, subs deprecated
-    let sanitizedXored = ("0" + xored.toString(16)).substring(-2)
-
-    encryptedCards[i] = "0x" + sanitizedXored;
+    encryptedCards[i] = encryptCard(card, key)
+    console.log('status encrypted', encryptedCards)
   }
   return encryptedCards;
 }

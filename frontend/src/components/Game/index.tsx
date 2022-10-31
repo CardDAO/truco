@@ -5,6 +5,7 @@ import { Dashboard } from "../Dashboard"
 export const Game = () => {
 
     const [messageInput, setMessageInput] = useState("")
+    const [playerNumber, setPlayerNumber] = useState(1)
     const { 
         address,
         isConnected,
@@ -15,7 +16,8 @@ export const Game = () => {
         isLoading,
         errorSendMessage,
         messages,
-        requestPeers
+        requestPeers,
+        goToShuffling
     } = useTruco()
 
 
@@ -28,7 +30,8 @@ export const Game = () => {
                     !inSession ? 
                     <div className="text-center align-middle">
                         <h2 className="text-white text-xl py-5 text-center align-middle">Start game {address?.toString()}</h2>
-                        <button type="button" className="text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2" onClick={() => { clickConnectToGame() }}>Join game</button>
+                        <input type="text" onChange={() => setPlayerNumber(playerNumber)}/>
+                        <button type="button" className="text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2" onClick={() => { clickConnectToGame(playerNumber) }}>Join game</button>
                     </div>
                     :
                         <Dashboard
@@ -40,6 +43,7 @@ export const Game = () => {
                             isLoading={isLoading}
                             errorSendMessage={errorSendMessage}
                             requestPeers={requestPeers}
+                            goToShuffling={goToShuffling}
                         />
             }
         </>
