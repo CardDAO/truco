@@ -2,10 +2,7 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 
-import { ActionEnum, ChallengeEnum, ResponseEnum } from "./trucoV1/struct-enums";
-
 import { BigNumber } from "ethers";
-import { Trucoin__factory } from "../typechain-types";
 
 describe("Truco Match", function () {
     const currentPlayerIdx = BigNumber.from(0);
