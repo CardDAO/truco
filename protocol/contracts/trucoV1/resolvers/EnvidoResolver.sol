@@ -1,32 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-import "../Structs.sol";
+import "../interfaces/IChallengeResolver.sol";
 
-/**
- * EnvidoResolver:
- * Solidity can't apply interfaces on libraries, but all resolvers should follow the following interface:
- *
- *    function resolve(
- *       CardsStructs.GameState memory _gameState,
- *        CardsStructs.Move memory _move
- *    ) internal returns (CardsStructs.GameState memory);
- *
- *    function canResolve(
- *        CardsStructs.Challenge _challenge
- *    ) internal pure returns (bool);
- *
- *    function isFinal(CardsStructs.GameState memory _gameState) internal pure returns (bool)
- *
- *    function getWinner(CardsStructs.GameState memory _gameState) internal pure returns (uint8)
- *
- * Attention: Only internal functions should be used in this library
- */
-library EnvidoResolver {
+contract EnvidoResolver is IChallengeResolver {
     function resolve(
         CardsStructs.GameState memory _gameState,
         CardsStructs.Move memory _move
-    ) internal returns (CardsStructs.GameState memory) {
+    ) external view returns (CardsStructs.GameState memory) {
         // Valid moves up to this point are enforced before any logic
         require(
             _move.action == CardsStructs.Action.Challenge ||
@@ -46,7 +27,7 @@ library EnvidoResolver {
         }
 
         // Check whether the game is at a final state and should not accept any new moves
-        if (isFinal(_gameState)) {
+        if (this.isFinal(_gameState)) {
             revert("Game is in final state");
         }
 
@@ -65,7 +46,7 @@ library EnvidoResolver {
                 _gameState.currentChallenge.waitingChallengeResponse == false
             );
 
-            // Check challenger only if it comes from a non non challenge
+            // Check challenger only if it's a raise (comes from a state of no current challenge)
             if (
                 _gameState.currentChallenge.challenge !=
                 CardsStructs.Challenge.None
@@ -166,7 +147,7 @@ library EnvidoResolver {
             return _gameState;
         }
 
-        // 3) Envido point spell:
+        // 3) Envido point count:
         if (_move.action == CardsStructs.Action.EnvidoCount) {
             // Preconditions:
             // - Challenge should have been accepted by other party
@@ -213,8 +194,8 @@ library EnvidoResolver {
     }
 
     function canResolve(CardsStructs.Challenge _challenge)
-        internal
-        pure
+        external
+        view
         returns (bool)
     {
         if (
@@ -230,8 +211,8 @@ library EnvidoResolver {
     }
 
     function isFinal(CardsStructs.GameState memory _gameState)
-        internal
-        pure
+        external
+        view
         returns (bool)
     {
         // Check if it's waiting for a response
@@ -264,11 +245,11 @@ library EnvidoResolver {
     }
 
     function getWinner(CardsStructs.GameState memory _gameState)
-        internal
-        pure
+        external
+        view
         returns (uint8)
     {
-        require(isFinal(_gameState));
+        require(this.isFinal(_gameState));
 
         // If challenge was refused, the challenger won
         if (

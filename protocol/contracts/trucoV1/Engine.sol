@@ -3,34 +3,38 @@ pragma solidity 0.8.16;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./Structs.sol";
+import "./interfaces/Structs.sol";
+import "./interfaces/IERC3333.sol";
 
-import "./resolvers/EnvidoResolver.sol";
-import "./resolvers/TrucoResolver.sol";
+import "./interfaces/IChallengeResolver.sol";
 
-contract Engine is Ownable {
-    IERC20 trucoin;
+contract Engine is IERC3333, Ownable {
+    IERC20 internal trucoin;
+    IChallengeResolver internal envidoResolver;
+    IChallengeResolver internal trucoResolver;
 
     uint8 internal constant POINTS_NO_CHALLENGE = 1;
 
     uint8 public constant CARD_NOT_REVEALED_RESERVED_IDX = 0;
 
-    constructor(IERC20 _trucoin) {
+    constructor(IERC20 _trucoin, IChallengeResolver _trucoResolver, IChallengeResolver _envidoResolver) {
         trucoin = _trucoin;
+        envidoResolver = _envidoResolver;
+        trucoResolver = _trucoResolver;
     }
 
-    function startGame() public pure returns (CardsStructs.GameState memory) {
+    function startGame() external returns (CardsStructs.GameState memory) {
         // Check that consumer contract has not already payed for game
 
         // If not, transfer 1% of caller contract balance on Trucoins
 
         // Init game state
-        return initialGameState();
+        return this.initialGameState();
     }
 
     // Returns an initial Game State with default values
     function initialGameState()
-        internal
+        external
         pure
         returns (CardsStructs.GameState memory _gameState)
     {
@@ -44,7 +48,7 @@ contract Engine is Ownable {
         returns (CardsStructs.GameState memory gameState)
     {
         // check if game is started for current call
-
+        
         // Check correct turn
         require(
             transaction.state.playerTurn == transaction.playerIdx,
@@ -71,7 +75,7 @@ contract Engine is Ownable {
     function resolveMove(
         CardsStructs.GameState memory _gameState,
         CardsStructs.Move memory _move
-    ) internal returns (CardsStructs.GameState memory) {
+    ) internal view returns (CardsStructs.GameState memory) {
         // Verify if it's a valid move
         require(isMoveValid(_gameState, _move), "Move is invalid");
 
@@ -83,22 +87,22 @@ contract Engine is Ownable {
             _gameState.currentChallenge.challenge == CardsStructs.Challenge.None
         ) {
             if (_move.action == CardsStructs.Action.PlayCard) {
-                // Player is reveling card
+                return trucoResolver.resolve(_gameState, _move);
             }
         }
 
         if (
-            EnvidoResolver.canResolve(_gameState.currentChallenge.challenge) ||
+            envidoResolver.canResolve(_gameState.currentChallenge.challenge) ||
             isMoveAChallengeForEnvido(_move)
         ) {
-            return EnvidoResolver.resolve(_gameState, _move);
+            return envidoResolver.resolve(_gameState, _move);
         }
 
         if (
-            TrucoResolver.canResolve(_gameState.currentChallenge.challenge) ||
+            trucoResolver.canResolve(_gameState.currentChallenge.challenge) ||
             isMoveAChallengeForTruco(_move)
         ) {
-            return TrucoResolver.resolve(_gameState, _move);
+            return trucoResolver.resolve(_gameState, _move);
         }
 
         revert("Invalid move for given game state");
@@ -106,28 +110,28 @@ contract Engine is Ownable {
 
     function isMoveAChallengeForEnvido(CardsStructs.Move memory _move)
         internal
-        pure
+        view
         returns (bool)
     {
         if (_move.action != CardsStructs.Action.Challenge) {
             return false;
         }
         return
-            EnvidoResolver.canResolve(
+            envidoResolver.canResolve(
                 CardsStructs.Challenge(_move.parameters[0])
             );
     }
 
     function isMoveAChallengeForTruco(CardsStructs.Move memory _move)
         internal
-        pure
+        view
         returns (bool)
     {
         if (_move.action != CardsStructs.Action.Challenge) {
             return false;
         }
         return
-            TrucoResolver.canResolve(
+            trucoResolver.canResolve(
                 CardsStructs.Challenge(_move.parameters[0])
             );
     }
@@ -145,22 +149,28 @@ contract Engine is Ownable {
         trucoin.transfer(_recipient, _amount);
     }
 
-    function doesGameEnded(CardsStructs.GameState memory gameState)
-        internal
+    function isGameEnded(CardsStructs.GameState memory gameState)
+        external
+        view
         returns (bool)
     {}
 
+    // Check if envido can be spelled at rhis game 
     function canEnvidoBeSpelled(CardsStructs.GameState memory gameState)
         internal
+        view
         returns (bool)
     {
-        return true;
+        return 
+            ! envidoResolver.isFinal(gameState) &&
+            ( gameState.revealedCardsByPlayer[0][0]== 0 || gameState.revealedCardsByPlayer[1][0]== 0);
     }
+    
 
     function isMoveValid(
         CardsStructs.GameState memory gameState,
         CardsStructs.Move memory move
-    ) internal returns (bool) {
+    ) internal view returns (bool) {
         CardsStructs.Challenge challenge = gameState.currentChallenge.challenge;
 
         // Poors man Finite State Machine (FSM) on Solidity times...
@@ -180,14 +190,11 @@ contract Engine is Ownable {
             challenge == CardsStructs.Challenge.ReTruco ||
             challenge == CardsStructs.Challenge.ValeCuatro
         ) {
-            // Player is same as challenger, it only can raise current challenge
-            if (gameState.currentChallenge.challenger == gameState.playerTurn) {
-                return (move.action == CardsStructs.Action.Challenge);
-            }
-
-            // Current player is not challemger, check if there's a response to enforce
+            // Current player is not challenger, check if there's a response to enforce
             if (gameState.currentChallenge.waitingChallengeResponse) {
-                if (canEnvidoBeSpelled(gameState)) {}
+                if (canEnvidoBeSpelled(gameState)) {
+                    // Check if envido can be spelled
+                }
                 return
                     move.action == CardsStructs.Action.Challenge ||
                     move.action == CardsStructs.Action.Response;

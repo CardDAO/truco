@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 
 import { CardsStructs } from "../../typechain-types/contracts/trucoV1/Engine";
-import { ActionEnum, ChallengeEnum, ResponseEnum } from "./struct-enums";
+import { ChallengeEnum } from "./struct-enums";
 
 import MoveStruct = CardsStructs.MoveStruct;
 import TransactionStruct = CardsStructs.TransactionStruct;
@@ -17,8 +17,18 @@ describe("Engine Main Logic", function () {
     const Trucoin = await ethers.getContractFactory("Trucoin");
     const trucoin = await Trucoin.deploy();
 
+    const TrucoResolver = await ethers.getContractFactory("TrucoResolver");
+    const trucoResolver = await TrucoResolver.deploy();
+
+    const EnvidoResolver = await ethers.getContractFactory("EnvidoResolver");
+    const envidoResolver = await EnvidoResolver.deploy();
+
     const TrucoEngine = await ethers.getContractFactory("EngineTester");
-    const sut = await TrucoEngine.deploy(trucoin.address);
+    const sut = await TrucoEngine.deploy(
+      trucoin.address,
+      trucoResolver.address,
+      envidoResolver.address
+    );
 
     return { sut, trucoin, owner };
   }
@@ -27,7 +37,7 @@ describe("Engine Main Logic", function () {
     it("Incorrect turn", async function () {
       const { sut } = await deployContract();
 
-      let state = await sut.startGame();
+      let state = await sut.initialGameState()
 
       let move: MoveStruct = {
         action: BigNumber.from(ChallengeEnum.None),

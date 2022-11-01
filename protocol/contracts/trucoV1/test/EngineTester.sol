@@ -2,11 +2,14 @@
 pragma solidity 0.8.16;
 
 import "../Engine.sol";
-import "../Structs.sol";
 
 // Test infrastructure for Engine testing: workaround for hardhat tests handling non view return values
 contract EngineTester is Engine {
-    constructor(IERC20 _trucoin) Engine(_trucoin) {}
+    constructor(
+        IERC20 _trucoin,
+        IChallengeResolver _trucoResolver,
+        IChallengeResolver _envidoResolver
+    ) Engine(_trucoin, _trucoResolver, _envidoResolver) {}
 
     CardsStructs.GameState public gameState;
 
@@ -24,6 +27,14 @@ contract EngineTester is Engine {
         return gameState.teamPoints;
     }
 
+    function getRevealedCardsByPlayer()
+        public
+        view
+        returns (uint8[3][] memory)
+    {
+        return gameState.revealedCardsByPlayer;
+    }
+
     function executeTransaction(CardsStructs.Transaction memory transaction)
         public
     {
@@ -31,6 +42,10 @@ contract EngineTester is Engine {
     }
 
     function getEnvidoWinner() public view returns (uint8) {
-        return EnvidoResolver.getWinner(gameState);
+        return envidoResolver.getWinner(gameState);
+    }
+
+    function getTrucoWinner() public view returns (uint8) {
+        return trucoResolver.getWinner(gameState);
     }
 }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-import "../trucoV1/Structs.sol";
+import "../trucoV1/interfaces/Structs.sol";
 
 contract DeckCrypt {
     function encryptOrDecryptDeck(
