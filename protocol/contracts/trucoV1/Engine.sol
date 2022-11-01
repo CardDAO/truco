@@ -23,18 +23,18 @@ contract Engine is IERC3333, Ownable {
         trucoResolver = _trucoResolver;
     }
 
-    function startGame() external pure returns (CardsStructs.GameState memory) {
+    function startGame() external returns (CardsStructs.GameState memory) {
         // Check that consumer contract has not already payed for game
 
         // If not, transfer 1% of caller contract balance on Trucoins
 
         // Init game state
-        return initialGameState();
+        return this.initialGameState();
     }
 
     // Returns an initial Game State with default values
     function initialGameState()
-        internal
+        external
         pure
         returns (CardsStructs.GameState memory _gameState)
     {
@@ -48,7 +48,7 @@ contract Engine is IERC3333, Ownable {
         returns (CardsStructs.GameState memory gameState)
     {
         // check if game is started for current call
-
+        
         // Check correct turn
         require(
             transaction.state.playerTurn == transaction.playerIdx,
