@@ -190,8 +190,18 @@ contract TrucoResolver {
             return false;
         }
 
-        // TODO: Implement this
-        return false;
+        for (uint8 i = 0; i < _gameState.revealedCardsByPlayer.length; i++) {
+            if (_gameState.revealedCardsByPlayer[i][0] == 0 || _gameState.revealedCardsByPlayer[i][0] == 0) {
+                return false;
+            }
+
+            if (_gameState.revealedCardsByPlayer[i][1] == 0 || _gameState.revealedCardsByPlayer[i][1] == 0) {
+                return false;
+            }
+        }
+
+        // TODO: Remaining implementation
+        return true;
     }
 
     function getWinner(CardsStructs.GameState memory _gameState)
@@ -201,17 +211,47 @@ contract TrucoResolver {
     {
         require(this.isFinal(_gameState));
 
-        int8 winner = roundWinner(_gameState.revealedCardsByPlayer, 0);
-        if (winner >= 0) {
-            return _gameState.playerTurn;
+        // If truco was refused, the challenger wins
+        if (
+            _gameState.currentChallenge.response == CardsStructs.Response.Refuse
+        ) {
+            return _gameState.currentChallenge.challenger;
         }
 
-        revert("Implement ME");
+        int8 round1Winner = roundWinner(_gameState.revealedCardsByPlayer, 0);
+        int8 round2Winner = roundWinner(_gameState.revealedCardsByPlayer, 1);
+
+        if (round1Winner < 0 && round2Winner >= 0) {
+            // If first round was a tie and the second rounds defines (if it's not a tie)
+            return uint8(round2Winner);
+        }
+
+        // If both rounds are won by same player, it's the winner
+        if (round1Winner == round2Winner && round1Winner >= 0) {
+            return uint8(round1Winner);
+        }
+
+        int8 round3Winner = roundWinner(_gameState.revealedCardsByPlayer, 2);
+
+        // If it's a tie in the third round, "mano" wins
+        if (round3Winner < 0) {
+            return reversePlayer(_gameState.playerWhoShuffled);
+        }
+
+        return uint8(round3Winner);
     }
 
     // ---------------------------------------------------------------------------------------------------------
     // END: IFace impl
     // ---------------------------------------------------------------------------------------------------------
+
+    function reversePlayer(uint8 _player) internal pure returns (uint8) {
+        if (_player == 0) {
+            return 1;
+        }
+
+        return 0;
+    }
 
     // Checks if round is considered finished
     function roundFinished(uint8[3][] memory _revealedCards, uint8 round)
@@ -228,21 +268,31 @@ contract TrucoResolver {
         return true;
     }
 
-    // Returns -1 on draw or the winner player idx
+    // Returns the winner player idx or -1 on draw or
     function roundWinner(uint8[3][] memory _revealedCards, uint8 round)
         internal
         pure
         returns (int8)
     {
-        int8 winner = -1;
+        uint8[41] memory cardsHierachy = getCardsHierarchy();
+        uint8 cardPlayer0AtCurrentRound = _revealedCards[0][round];
+        uint8 cardPlayer1AtCurrentRound = _revealedCards[1][round];
 
-        for (uint8 i = 0; i < _revealedCards.length - 1; i++) {
-            if (_revealedCards[i][round] < _revealedCards[i + 1][round]) {
-                winner = int8(i);
-            }
+        if (
+            cardsHierachy[cardPlayer0AtCurrentRound] ==
+            cardsHierachy[cardPlayer1AtCurrentRound]
+        ) {
+            return -1;
         }
 
-        return winner;
+        if (
+            cardsHierachy[cardPlayer0AtCurrentRound] <
+            cardsHierachy[cardPlayer1AtCurrentRound]
+        ) {
+            return int8(0);
+        }
+
+        return int8(1);
     }
 
     // Check if card is not repeated in the array
@@ -330,29 +380,29 @@ contract TrucoResolver {
     function getCardsHierarchy() internal pure returns (uint8[41] memory) {
         /*****************************************************************
         Card Hierarchy for Castillian Suited Card Deck
-         
+
         See: https://en.wikipedia.org/wiki/Spanish-suited_playing_cards#Castilian_pattern
-        
+
         Deck definition:
-                
+
         Coins: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
         Cups: 11, 12, 13, 14, 15, 16, 17, 18, 19, 20
         Swords: 21, 22, 23, 24, 25, 26, 27, 28, 29, 30
         Clubs: 31, 32, 33, 34, 35, 36, 37, 38, 39, 40
-        
+
         Last three cards of each suit are 'Knave', 'Knight', 'King'.
 
         ID 0 is reserved for masked cards
-                 
-        Example: 
+
+        Example:
           - Card ID 8 is Knave of Coins
           - Card ID 19 is Knight of Cups
-          - Card ID 21 is Ace of Swords 
-          
+          - Card ID 21 is Ace of Swords
+
         Code:
- 
+
         uint8[41] memory hierarchy;
-        
+
         hierarchy[21] = 1; // Ace of Swords
         hierarchy[31] = 2; // Ace of Clubs
         hierarchy[27] = 3; // 7 of Swords
@@ -363,29 +413,29 @@ contract TrucoResolver {
 
         // 2 of all suits
         hierarchy[2] = hierarchy[12] = hierarchy[22] = hierarchy[32]  = 6;
-        
+
         // Aces of Cups and Coins
         hierarchy[1] = hierarchy[11] = 7;
-        
+
         // All Kings
         hierarchy[10] = hierarchy[20] = hierarchy[30] = hierarchy[40] = 8;
-        
+
         // All Knights
         hierarchy[9] = hierarchy[19] = hierarchy[29] = hierarchy[39] = 9;
-        
+
         // All Knave
         hierarchy[8] = hierarchy[18] = hierarchy[28] = hierarchy[38] = 10;
-        
+
         // 7 of Cups and Clubs
         hierarchy[17] = hierarchy[37] = 11;
-        
+
         // All 6s
         hierarchy[6] = hierarchy[16] = hierarchy[26] = hierarchy[36] = 12;
-        
-        // All 5s 
+
+        // All 5s
         hierarchy[5] = hierarchy[15] = hierarchy[25] = hierarchy[35] = 13;
-        
-        // All 4s 
+
+        // All 4s
         hierarchy[4] = hierarchy[14] = hierarchy[24] = hierarchy[34] = 14;
 
         *****************************************************************/

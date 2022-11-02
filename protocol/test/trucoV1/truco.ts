@@ -650,5 +650,103 @@ describe("Truco Resolver", function () {
 
       return state;
     }
+
+    describe("Compute the winner", function () {
+      it("Player1 wins 1st and 2nd rounds", async function () {
+        const { sut } = await deployContract();
+
+        let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
+
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
+          BigNumber.from(21); // Ace of swords
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][1] =
+          BigNumber.from(7); // 7 of Coins
+
+        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][0] =
+          BigNumber.from(6); // 6 of Coins
+        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][1] =
+          BigNumber.from(4); // 4 of Coins
+
+        sut.setGameState(state);
+
+        let result: BigNumber = await sut.getTrucoWinner();
+
+        // Check resulting state
+        expect(result).to.be.equal(currentPlayerIdx);
+      });
+
+      it("Player2 wins 1st and 2nd rounds", async function () {
+        const { sut } = await deployContract();
+
+        let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
+
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
+          BigNumber.from(6); // 6 of Coins
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][1] =
+          BigNumber.from(4); // 4 of Coins
+
+        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][0] =
+          BigNumber.from(21); // Ace of swords
+        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][1] =
+          BigNumber.from(7); // 7 of Coins
+
+        sut.setGameState(state);
+
+        let result: BigNumber = await sut.getTrucoWinner();
+
+        // Check resulting state
+        expect(result).to.be.equal(otherPlayerIdx);
+      });
+
+      it("Player1 wins on 2nd round after a tie in first", async function () {
+        const { sut } = await deployContract();
+
+        let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
+
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
+          BigNumber.from(3); // 3 of Coins
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][1] =
+          BigNumber.from(13); // 7 of Cups
+
+        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][0] =
+          BigNumber.from(23); // 3 of Swords
+        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][1] =
+          BigNumber.from(2); // 2 of Coins
+
+        sut.setGameState(state);
+
+        let result: BigNumber = await sut.getTrucoWinner();
+
+        // Check resulting state
+        expect(result).to.be.equal(currentPlayerIdx);
+      });
+
+      it("Player1 wins on 3rd round after a tie in first and second", async function () {
+        const { sut } = await deployContract();
+
+        let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
+
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
+          BigNumber.from(3); // 3 of Coins
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][1] =
+          BigNumber.from(2); // 2 of coins
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][2] =
+          BigNumber.from(1); // Ace if Coins
+
+        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][0] =
+          BigNumber.from(23); // 3 of Swords
+        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][1] =
+          BigNumber.from(12); // 2 of Cups
+        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][2] =
+          BigNumber.from(10); // King of Coins
+
+        sut.setGameState(state);
+
+        let result: BigNumber = await sut.getTrucoWinner();
+
+        // Check resulting state
+        expect(result).to.be.equal(currentPlayerIdx);
+      });
+    });
   });
 });
