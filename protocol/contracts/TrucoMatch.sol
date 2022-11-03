@@ -6,25 +6,22 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./trucoV1/interfaces/Structs.sol";
 import "./trucoV1/interfaces/IERC3333.sol";
 
-import "./crypt/DeckCrypt.sol";
-
 contract TrucoMatch  {
 
     struct player {
         address playerAddress;
         uint256 tokensAtStake;
     }
-    
+
     struct Match {
         player[2] players; // player 0 is the creator of the match
         CardsStructs.Deck deck;
         CardsStructs.GameState gameState;
-        uint256 tokensAtStake; 
+        uint256 tokensAtStake;
 
     }
 
     IERC3333 trucoEngine;
-    DeckCrypt deckCrypt;
     IERC20 truCoin;
     Match currentMatch;
     bool isDealOpen;
@@ -37,10 +34,9 @@ contract TrucoMatch  {
     event DealEnded();
 
 
-    constructor (IERC3333 _trucoEngine, DeckCrypt _deckCrypt, IERC20 _truCoin, uint256 _tokensAtStake) {
+    constructor (IERC3333 _trucoEngine, IERC20 _truCoin, uint256 _tokensAtStake) {
 
         trucoEngine = _trucoEngine;
-        deckCrypt = _deckCrypt;
         truCoin = _truCoin;
         currentMatch.tokensAtStake = _tokensAtStake;
         currentMatch.players[0].playerAddress = msg.sender;
@@ -49,8 +45,8 @@ contract TrucoMatch  {
 
         emit MatchCreated(address(this));
     }
-        
-    // Method for second player joining the match 
+
+    // Method for second player joining the match
     function join() public {
         require(currentMatch.players[0].playerAddress != msg.sender, "Match creator is already joined");
         require(currentMatch.players[1].playerAddress == address(0), "Match is full");
@@ -66,34 +62,34 @@ contract TrucoMatch  {
     // Method for staking & starting the match
     function stake(uint8 _player) public {
         require(
-            currentMatch.players[_player].playerAddress == msg.sender, 
+            currentMatch.players[_player].playerAddress == msg.sender,
             "Player is not joined");
         require(
-            truCoin.balanceOf(msg.sender) >= currentMatch.tokensAtStake, 
+            truCoin.balanceOf(msg.sender) >= currentMatch.tokensAtStake,
             "You don't have enough Trucoins to stake this match");
         require(
-            truCoin.allowance(msg.sender, address(this)) >= currentMatch.tokensAtStake, 
+            truCoin.allowance(msg.sender, address(this)) >= currentMatch.tokensAtStake,
             "Not enough trucoins transfer approved");
         require(
-            currentMatch.players[_player].tokensAtStake == 0, 
+            currentMatch.players[_player].tokensAtStake == 0,
             "You already staked this match");
 
         // Transfer Trucoins from player to contract
         require(truCoin.transferFrom(
-            msg.sender, address(this), currentMatch.tokensAtStake), 
+            msg.sender, address(this), currentMatch.tokensAtStake),
             "Trucoin transfer failed");
-        
+
         currentMatch.players[_player].tokensAtStake = currentMatch.tokensAtStake;
 
         // emit event
         emit PlayerStaked(msg.sender, currentMatch.tokensAtStake);
 
         // Start match
-        if (currentMatch.players[0].tokensAtStake == currentMatch.tokensAtStake && 
+        if (currentMatch.players[0].tokensAtStake == currentMatch.tokensAtStake &&
             currentMatch.players[1].tokensAtStake == currentMatch.tokensAtStake) {
             currentMatch.gameState = trucoEngine.startGame();
             emit MatchStarted(
-                currentMatch.players[0].playerAddress, 
+                currentMatch.players[0].playerAddress,
                 currentMatch.players[1].playerAddress,
                 currentMatch.tokensAtStake);
         }
@@ -117,7 +113,7 @@ contract TrucoMatch  {
 
         // Set the current points
         currentMatch.gameState.teamPoints = current_points;
-        
+
         // Assign new shuffler
         currentMatch.gameState.playerWhoShuffled = new_shuffler;
 
@@ -136,13 +132,9 @@ contract TrucoMatch  {
     }
 
     // [Test Functions] --------------------------------------------------------------
-    
-    // Deck getter 
-    function decryptDeck(string memory _secret) public {
-        currentMatch.deck = deckCrypt.encryptOrDecryptDeck(currentMatch.deck, _secret);
-    }
 
-    // [Test] Deck getter 
+
+    // [Test] Deck getter
     function getDeck() public view returns (CardsStructs.Deck memory) {
         return currentMatch.deck;
     }
@@ -152,10 +144,10 @@ contract TrucoMatch  {
         card  =  currentMatch.deck.cards[id];
     }
 
-    // [Test] Creates an unencrypted deck using all ordered cards 
+    // [Test] Creates an unencrypted deck using all ordered cards
     function createDeck() public {
 
-        bytes1[CardsCount] memory cards = currentMatch.deck.cards; 
+        bytes1[CardsCount] memory cards = currentMatch.deck.cards;
 
         // pack  cards into bytes
         for (uint8 i = 0; i < CardsCount; i++) {

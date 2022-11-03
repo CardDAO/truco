@@ -5,8 +5,7 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { BigNumber } from "ethers";
 
 describe("Truco Match", function () {
-  const currentPlayerIdx = BigNumber.from(0);
-  const otherPlayerIdx = BigNumber.from(1);
+
   const tokenAtStake = BigNumber.from(10);
 
   async function deployDependencies() {
@@ -26,17 +25,14 @@ describe("Truco Match", function () {
       envidoResolver.address
     );
 
-    const DeckCrypt = await ethers.getContractFactory("DeckCrypt");
-    const deckCrypt = await DeckCrypt.deploy();
-
-    return { trucoin, engine, deckCrypt };
+    return { trucoin, engine };
   }
 
   async function deployContract() {
     // Contracts are deployed using the first signer/account by default
     const [owner, player2, invalid_player] = await ethers.getSigners();
 
-    const { trucoin, engine, deckCrypt } = await deployDependencies();
+    const { trucoin, engine } = await deployDependencies();
 
     // Transfer trucoins to players
     await trucoin.mint(owner.address, tokenAtStake);
@@ -46,7 +42,6 @@ describe("Truco Match", function () {
     const TrucoMatch = await ethers.getContractFactory("TrucoMatch");
     const match = await TrucoMatch.deploy(
       engine.address,
-      deckCrypt.address,
       trucoin.address,
       tokenAtStake
     );
