@@ -21,8 +21,5 @@ export async function deployEngineContract() {
         cardsDeck.address
     );
 
-    const DeckCrypt = await ethers.getContractFactory("DeckCrypt");
-    const deckCrypt = await DeckCrypt.deploy();
-
-    return { engine, trucoin, deckCrypt };
+    return { engine, trucoin };
 }
