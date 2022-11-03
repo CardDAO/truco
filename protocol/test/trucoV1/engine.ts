@@ -37,7 +37,7 @@ describe("Engine Main Logic", function () {
     it("Incorrect turn", async function () {
       const { sut } = await deployContract();
 
-      let state = await sut.initialGameState()
+      let state = await sut.initialGameState();
 
       let move: MoveStruct = {
         action: BigNumber.from(ChallengeEnum.None),

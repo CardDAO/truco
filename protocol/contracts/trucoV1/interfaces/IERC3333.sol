@@ -8,9 +8,7 @@ import "./Structs.sol";
  * @dev see ERC-3333 proposal
  */
 interface IERC3333 {
-    function startGame() 
-        external 
-        returns (CardsStructs.GameState memory);
+    function startGame() external returns (CardsStructs.GameState memory);
 
     function initialGameState()
         external

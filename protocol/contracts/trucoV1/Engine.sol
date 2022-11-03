@@ -48,7 +48,7 @@ contract Engine is IERC3333, Ownable {
         returns (CardsStructs.GameState memory gameState)
     {
         // check if game is started for current call
-        
+
         // Check correct turn
         require(
             transaction.state.playerTurn == transaction.playerIdx,
@@ -155,17 +155,17 @@ contract Engine is IERC3333, Ownable {
         returns (bool)
     {}
 
-    // Check if envido can be spelled at rhis game 
+    // Check if envido can be spelled at this game
     function canEnvidoBeSpelled(CardsStructs.GameState memory gameState)
         internal
         view
         returns (bool)
     {
-        return 
+        return
             ! envidoResolver.isFinal(gameState) &&
             ( gameState.revealedCardsByPlayer[0][0]== 0 || gameState.revealedCardsByPlayer[1][0]== 0);
     }
-    
+
 
     function isMoveValid(
         CardsStructs.GameState memory gameState,

@@ -48,4 +48,8 @@ contract EngineTester is Engine {
     function getTrucoWinner() public view returns (uint8) {
         return trucoResolver.getWinner(gameState);
     }
+
+    function isTrucoFinal() public view returns (bool) {
+        return trucoResolver.isFinal(gameState);
+    }
 }
