@@ -10,7 +10,6 @@ import TransactionStruct = CardsStructs.TransactionStruct;
 import { BigNumber } from "ethers";
 
 describe("Engine Main Logic", function () {
-
   describe("Turn handling", function () {
     it("Incorrect turn", async function () {
       const { engine } = await deployEngineContract();

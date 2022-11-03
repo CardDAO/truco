@@ -6,7 +6,6 @@ import { deployEngineContract } from "./deploy-engine-contract";
 import { BigNumber } from "ethers";
 
 describe("Truco Match", function () {
-
   const tokenAtStake = BigNumber.from(10);
 
   async function deployContract() {
@@ -22,9 +21,9 @@ describe("Truco Match", function () {
 
     const TrucoMatch = await ethers.getContractFactory("TrucoMatch");
     const match = await TrucoMatch.deploy(
-        engine.address,
-        trucoin.address,
-        tokenAtStake
+      engine.address,
+      trucoin.address,
+      tokenAtStake
     );
 
     return { match, engine, trucoin, owner, player2, invalid_player };
