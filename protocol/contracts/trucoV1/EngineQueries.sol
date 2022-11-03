@@ -90,7 +90,7 @@ contract EngineQueries  {
             if (validCards[0].value < 10) {
                 return validCards[0].value;
             } else {
-                return 10; // Every figure alone is worth 10 points
+                return 0; // Every figure alone is worth 10 points
             }
         }
 

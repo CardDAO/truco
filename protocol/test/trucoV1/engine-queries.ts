@@ -52,6 +52,44 @@ describe("Engine Queries", function () {
 
     describe("No suit match", function () {
 
+      it("One card only", async function () {
+        const {sut} = await deployContract();
+
+        // Three cards of different suit
+        let cards = [BigNumber.from(11)]
+
+        expect(await sut.getEnvidoPointsForCards(cards)).to.equal(BigNumber.from(1))
+      })
+
+      it("One card only wich is a figure", async function () {
+        const {sut} = await deployContract();
+
+        // Three cards of different suit
+        let cards = [BigNumber.from(10)]
+
+        expect(await sut.getEnvidoPointsForCards(cards)).to.equal(BigNumber.from(0))
+      })
+
+
+      it("Two cards, just figures", async function () {
+        const {sut} = await deployContract();
+
+        // Three cards of different suit
+        let cards = [BigNumber.from(9), BigNumber.from(28)]
+
+        expect(await sut.getEnvidoPointsForCards(cards)).to.equal(BigNumber.from(0))
+      })
+
+
+      it("Two cards, one figure", async function () {
+        const {sut} = await deployContract();
+
+        // Three cards of different suit
+        let cards = [BigNumber.from(1), BigNumber.from(19)]
+
+        expect(await sut.getEnvidoPointsForCards(cards)).to.equal(BigNumber.from(1))
+      })
+
       it("One number and two figures", async function () {
         const {sut} = await deployContract();
 
@@ -93,23 +131,65 @@ describe("Engine Queries", function () {
 
     describe("Suit match", function () {
 
-      it("Suit match, only two add for envido", async function () {
-        const {sut} = await deployContract();
+      describe("Two cards query", function () {
+        it("Both figures same suit", async function () {
+          const {sut} = await deployContract();
 
-        // Three cards of different suit
-        let cards = [BigNumber.from(1), BigNumber.from(8), BigNumber.from(21)]
+          // Three cards of different suit
+          let cards = [BigNumber.from(8), BigNumber.from(9)]
 
-        expect(await sut.getEnvidoPointsForCards(cards)).to.equal(BigNumber.from(21))
+          expect(await sut.getEnvidoPointsForCards(cards)).to.equal(BigNumber.from(20))
+        })
+
+        it("One figure and one a number ", async function () {
+          const {sut} = await deployContract();
+
+          // Three cards of different suit
+          let cards = [BigNumber.from(8), BigNumber.from(9)]
+
+          expect(await sut.getEnvidoPointsForCards(cards)).to.equal(BigNumber.from(20))
+        })
+
+        it("Two numbers ", async function () {
+          const {sut} = await deployContract();
+
+          // Three cards of different suit
+          let cards = [BigNumber.from(2), BigNumber.from(3)]
+
+          expect(await sut.getEnvidoPointsForCards(cards)).to.equal(BigNumber.from(25))
+        })
       })
 
-      it("Suit match, only two add for envido", async function () {
-        const {sut} = await deployContract();
+      describe("Three cards query", function () {
 
-        // Three cards of different suit
-        let cards = [BigNumber.from(1), BigNumber.from(8), BigNumber.from(21)]
+        it("Two figures same suit, other not", async function () {
+          const {sut} = await deployContract();
 
-        expect(await sut.getEnvidoPointsForCards(cards)).to.equal(BigNumber.from(21))
+          // Three cards of different suit
+          let cards = [BigNumber.from(8), BigNumber.from(9), BigNumber.from(21)]
+
+          expect(await sut.getEnvidoPointsForCards(cards)).to.equal(BigNumber.from(20))
+        })
+
+        it("Two numbers same suit, a figure from a different one", async function () {
+          const {sut} = await deployContract();
+
+          // Three cards of different suit
+          let cards = [BigNumber.from(1), BigNumber.from(8), BigNumber.from(21)]
+
+          expect(await sut.getEnvidoPointsForCards(cards)).to.equal(BigNumber.from(21))
+        })
+
+        it("Two figures same suit, a number with a different one", async function () {
+          const {sut} = await deployContract();
+
+          // Three cards of different suit
+          let cards = [BigNumber.from(8), BigNumber.from(9), BigNumber.from(21)]
+
+          expect(await sut.getEnvidoPointsForCards(cards)).to.equal(BigNumber.from(20))
+        })
       })
+
     })
   })
 });
