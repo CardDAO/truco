@@ -7,20 +7,24 @@ import "./interfaces/Structs.sol";
 import "./interfaces/IERC3333.sol";
 
 import "./interfaces/IChallengeResolver.sol";
+import "./interfaces/ICardsDeck.sol";
+
 
 contract Engine is IERC3333, Ownable {
     IERC20 internal trucoin;
     IChallengeResolver internal envidoResolver;
     IChallengeResolver internal trucoResolver;
+    ICardsDeck internal cardsDeck;
 
     uint8 internal constant POINTS_NO_CHALLENGE = 1;
 
     uint8 public constant CARD_NOT_REVEALED_RESERVED_IDX = 0;
 
-    constructor(IERC20 _trucoin, IChallengeResolver _trucoResolver, IChallengeResolver _envidoResolver) {
+    constructor(IERC20 _trucoin, IChallengeResolver _trucoResolver, IChallengeResolver _envidoResolver, ICardsDeck _cardsDeck) {
         trucoin = _trucoin;
         envidoResolver = _envidoResolver;
         trucoResolver = _trucoResolver;
+        cardsDeck = _cardsDeck;
     }
 
     function startGame() external returns (CardsStructs.GameState memory) {
@@ -164,6 +168,18 @@ contract Engine is IERC3333, Ownable {
         return
             ! envidoResolver.isFinal(gameState) &&
             ( gameState.revealedCardsByPlayer[0][0]== 0 || gameState.revealedCardsByPlayer[1][0]== 0);
+    }
+
+
+    // get envido points of a given set of cards
+    function getEnvidoPointsForCards(uint8[3] memory cards)
+    public
+    view
+    returns (uint8)
+    {
+        uint8 envidoPoints = 0;
+
+        return envidoPoints;
     }
 
 
