@@ -537,7 +537,8 @@ describe("Truco Resolver", function () {
 
         let state: GameStateStruct = basicGameStateWithTrucoSpelled();
 
-        let cardToPlay: BigNumber = await engine.CARD_NOT_REVEALED_RESERVED_IDX(); // Idx is reserved for masked card
+        let cardToPlay: BigNumber =
+          await engine.CARD_NOT_REVEALED_RESERVED_IDX(); // Idx is reserved for masked card
 
         let move: MoveStruct = {
           action: BigNumber.from(ActionEnum.PlayCard),

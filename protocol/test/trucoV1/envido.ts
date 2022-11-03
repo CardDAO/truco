@@ -1150,7 +1150,7 @@ describe("Envido Resolver", function () {
       });
     });
 
-      describe("Compute the winner", function () {
+    describe("Compute the winner", function () {
       it("Envido refused, challenger is the winner", async function () {
         const { engine } = await deployEngineContract();
 
