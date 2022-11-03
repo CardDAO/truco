@@ -651,6 +651,138 @@ describe("Truco Resolver", function () {
       return state;
     }
 
+    describe("Finality check", function () {
+      it("Challenge is at a refusal state", async function () {
+        const { sut } = await deployContract();
+
+        let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
+
+        state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Truco);
+        state.currentChallenge.response = BigNumber.from(ResponseEnum.Refuse);
+
+        sut.setGameState(state);
+
+        expect(await sut.isTrucoFinal()).to.be.true;
+      });
+
+      it("No cards where played", async function () {
+        const { sut } = await deployContract();
+
+        let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
+
+        sut.setGameState(state);
+
+        expect(await sut.isTrucoFinal()).to.be.false;
+      });
+
+      it("Cards partially revealed at round 1 ", async function () {
+        const { sut } = await deployContract();
+
+        let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
+
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
+          BigNumber.from(21); // Ace of swords
+
+        sut.setGameState(state);
+
+        expect(await sut.isTrucoFinal()).to.be.false;
+      });
+
+      it("Round 1 complete, no cards revealed at round 2 ", async function () {
+        const { sut } = await deployContract();
+
+        let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
+
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
+          BigNumber.from(21); // Ace of swords
+
+        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][0] =
+          BigNumber.from(6); // 6 of Coins
+
+        sut.setGameState(state);
+
+        expect(await sut.isTrucoFinal()).to.be.false;
+      });
+
+      it("Round 1 complete, cards partially revealed at round 2 ", async function () {
+        const { sut } = await deployContract();
+
+        let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
+
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
+          BigNumber.from(21); // Ace of swords
+
+        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][0] =
+          BigNumber.from(6); // 6 of Coins
+
+        sut.setGameState(state);
+
+        expect(await sut.isTrucoFinal()).to.be.false;
+      });
+
+      it("Round 1 and 2 complete, game has no winner and cards not revealed at round 3 ", async function () {
+        const { sut } = await deployContract();
+
+        let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
+
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
+          BigNumber.from(21); // Ace of swords
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][1] =
+          BigNumber.from(4); // 4 of Coins
+
+        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][0] =
+          BigNumber.from(6); // 6 of Coins
+        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][1] =
+          BigNumber.from(7); // 7 of Coins
+
+        sut.setGameState(state);
+
+        expect(await sut.isTrucoFinal()).to.be.false;
+      });
+
+      it("Round 1 and 2 complete, game has a winner", async function () {
+        const { sut } = await deployContract();
+
+        let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
+
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
+          BigNumber.from(21); // Ace of swords
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][1] =
+          BigNumber.from(7); // 7 of Coins
+
+        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][0] =
+          BigNumber.from(6); // 6 of Coins
+        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][1] =
+          BigNumber.from(4); // 4 of Coins
+
+        sut.setGameState(state);
+
+        expect(await sut.isTrucoFinal()).to.be.true;
+      });
+
+      it("Round 1 and 2 complete, , game has no winner and cards partially revealed at round 3", async function () {
+        const { sut } = await deployContract();
+
+        let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
+
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
+          BigNumber.from(21); // Ace of swords
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][1] =
+          BigNumber.from(4); // 4 of Coins
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][1] =
+          BigNumber.from(5); // 5 of Coins
+
+        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][0] =
+          BigNumber.from(6); // 6 of Coins
+        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][1] =
+          BigNumber.from(7); // 7 of Coins
+
+        sut.setGameState(state);
+
+        expect(await sut.isTrucoFinal()).to.be.false;
+      });
+    });
+
     describe("Compute the winner", function () {
       it("Player1 wins 1st and 2nd rounds", async function () {
         const { sut } = await deployContract();
@@ -728,6 +860,33 @@ describe("Truco Resolver", function () {
 
         state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
           BigNumber.from(3); // 3 of Coins
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][1] =
+          BigNumber.from(2); // 2 of coins
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][2] =
+          BigNumber.from(1); // Ace if Coins
+
+        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][0] =
+          BigNumber.from(23); // 3 of Swords
+        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][1] =
+          BigNumber.from(12); // 2 of Cups
+        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][2] =
+          BigNumber.from(10); // King of Coins
+
+        sut.setGameState(state);
+
+        let result: BigNumber = await sut.getTrucoWinner();
+
+        // Check resulting state
+        expect(result).to.be.equal(currentPlayerIdx);
+      });
+
+      it("Player1 wins on 3rd round after a tie in second round", async function () {
+        const { sut } = await deployContract();
+
+        let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
+
+        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
+          BigNumber.from(21); // Ace of Swords
         state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][1] =
           BigNumber.from(2); // 2 of coins
         state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][2] =

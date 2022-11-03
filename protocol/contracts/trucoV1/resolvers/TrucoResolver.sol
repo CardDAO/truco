@@ -173,35 +173,43 @@ contract TrucoResolver {
         return false;
     }
 
+    // Check if the challenge is at a final state (no cards can be played and a winner could be determined)
     function isFinal(CardsStructs.GameState memory _gameState)
         external
         view
         returns (bool)
     {
+        //If a refusal was made, game is final
         if (
             _gameState.currentChallenge.response == CardsStructs.Response.Refuse
         ) {
             return true;
         }
 
+        // Check if there are cards yet to be reveled by any player at rounds that's a sign that the game is not over
         if (
-            _gameState.currentChallenge.challenge == CardsStructs.Challenge.None
+            !roundFinished(_gameState.revealedCardsByPlayer, 0) ||
+            !roundFinished(_gameState.revealedCardsByPlayer, 1)
         ) {
             return false;
         }
 
-        for (uint8 i = 0; i < _gameState.revealedCardsByPlayer.length; i++) {
-            if (_gameState.revealedCardsByPlayer[i][0] == 0 || _gameState.revealedCardsByPlayer[i][0] == 0) {
-                return false;
-            }
+        // At this point we should assume that all cards are revealed at round 2, so we need to check if there's a winner
+        int8 round1Winner = roundWinner(_gameState.revealedCardsByPlayer, 0);
+        int8 round2Winner = roundWinner(_gameState.revealedCardsByPlayer, 1);
 
-            if (_gameState.revealedCardsByPlayer[i][1] == 0 || _gameState.revealedCardsByPlayer[i][1] == 0) {
-                return false;
-            }
+        // If player wins both rounds, he wins the game
+        if (round1Winner >= 0 && round1Winner == round2Winner) {
+            return true;
         }
 
-        // TODO: Remaining implementation
-        return true;
+        // If first round was a tie and second round has a winner game should be final
+        if (round1Winner < 0 && round2Winner >= 0) {
+            return true;
+        }
+
+        // Check if at round 3 all cards are revealed
+        return roundFinished(_gameState.revealedCardsByPlayer, 2);
     }
 
     function getWinner(CardsStructs.GameState memory _gameState)
@@ -209,7 +217,7 @@ contract TrucoResolver {
         view
         returns (uint8)
     {
-        require(this.isFinal(_gameState));
+        require(this.isFinal(_gameState), "Game is not final");
 
         // If truco was refused, the challenger wins
         if (
