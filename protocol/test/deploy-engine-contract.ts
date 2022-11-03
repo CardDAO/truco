@@ -10,7 +10,6 @@ export async function deployEngineContract() {
     const EnvidoResolver = await ethers.getContractFactory("EnvidoResolver");
     const envidoResolver = await EnvidoResolver.deploy();
 
-
     const TrucoEngine = await ethers.getContractFactory("EngineTester");
     const engine = await TrucoEngine.deploy(
         trucoin.address,
@@ -18,8 +17,5 @@ export async function deployEngineContract() {
         envidoResolver.address,
     );
 
-    const DeckCrypt = await ethers.getContractFactory("DeckCrypt");
-    const deckCrypt = await DeckCrypt.deploy();
-
-    return { engine, trucoin, deckCrypt };
+    return { engine, trucoin };
 }
