@@ -16,7 +16,7 @@ contract CastillianDeck is ICardsDeck {
      3 (Clubs): 31, 32, 33, 34, 35, 36, 37, 38, 39, 40
     */
 
-    function suitName(uint8 _card) public returns (string memory)
+    function suitName(uint8 _card) public view returns (string memory)
     {
         Card memory card = decodeCard(_card);
 
@@ -35,7 +35,6 @@ contract CastillianDeck is ICardsDeck {
         if (card.suit == 3) {
         return "Clubs";
         }
-
 
         revert("Invalid suit");
     }
@@ -58,7 +57,7 @@ contract CastillianDeck is ICardsDeck {
     view
     returns (Card memory)
     {
-        require (_card == 0 || _card > 40 , "Invalid card");
+        require (_card != 0 || _card > 40 , "Invalid card");
 
         Card memory card;
         uint8 offset = 0;
