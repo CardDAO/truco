@@ -8,8 +8,9 @@ contract EngineTester is Engine {
     constructor(
         IERC20 _trucoin,
         IChallengeResolver _trucoResolver,
-        IChallengeResolver _envidoResolver
-    ) Engine(_trucoin, _trucoResolver, _envidoResolver) {}
+        IChallengeResolver _envidoResolver,
+        EngineQueries _engineQueries
+    ) Engine(_trucoin, _trucoResolver, _envidoResolver, _engineQueries) {}
 
     CardsStructs.GameState public gameState;
 

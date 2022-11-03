@@ -1,5 +1,4 @@
 import { expect } from "chai";
-import { ethers } from "hardhat";
 
 import { CardsStructs } from "../../typechain-types/contracts/trucoV1/Engine";
 import { ChallengeEnum } from "./struct-enums";
