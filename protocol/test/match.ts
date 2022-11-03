@@ -1,42 +1,18 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { deployEngineContract } from "./deploy-engine-contract";
 
 import { BigNumber } from "ethers";
 
 describe("Truco Match", function () {
-  const currentPlayerIdx = BigNumber.from(0);
-  const otherPlayerIdx = BigNumber.from(1);
   const tokenAtStake = BigNumber.from(10);
-
-  async function deployDependencies() {
-    const Trucoin = await ethers.getContractFactory("Trucoin");
-    const trucoin = await Trucoin.deploy();
-
-    const TrucoResolver = await ethers.getContractFactory("TrucoResolver");
-    const trucoResolver = await TrucoResolver.deploy();
-
-    const EnvidoResolver = await ethers.getContractFactory("EnvidoResolver");
-    const envidoResolver = await EnvidoResolver.deploy();
-
-    const TrucoEngine = await ethers.getContractFactory("EngineTester");
-    const engine = await TrucoEngine.deploy(
-      trucoin.address,
-      trucoResolver.address,
-      envidoResolver.address
-    );
-
-    const DeckCrypt = await ethers.getContractFactory("DeckCrypt");
-    const deckCrypt = await DeckCrypt.deploy();
-
-    return { trucoin, engine, deckCrypt };
-  }
 
   async function deployContract() {
     // Contracts are deployed using the first signer/account by default
     const [owner, player2, invalid_player] = await ethers.getSigners();
 
-    const { trucoin, engine, deckCrypt } = await deployDependencies();
+    const { trucoin, engine, deckCrypt } = await deployEngineContract();
 
     // Transfer trucoins to players
     await trucoin.mint(owner.address, tokenAtStake);
@@ -45,10 +21,10 @@ describe("Truco Match", function () {
 
     const TrucoMatch = await ethers.getContractFactory("TrucoMatch");
     const match = await TrucoMatch.deploy(
-      engine.address,
-      deckCrypt.address,
-      trucoin.address,
-      tokenAtStake
+        engine.address,
+        deckCrypt.address,
+        trucoin.address,
+        tokenAtStake
     );
 
     return { match, engine, trucoin, owner, player2, invalid_player };
