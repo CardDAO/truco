@@ -139,6 +139,32 @@ describe("Truco Resolver", function () {
 
       await expect(sut.executeTransaction(transaction)).to.be.reverted;
     });
+
+    it("Spell Challenge: ValeCuatro when no ReTruco was spelled", async function () {
+      const { sut } = await deployContract();
+
+      let state: GameStateStruct = basicGameState();
+
+      // Truco has spelled by other player and accepted, cant respond anymore
+      state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Truco);
+      state.currentChallenge.challenger = BigNumber.from(otherPlayerIdx);
+      state.currentChallenge.waitingChallengeResponse = false;
+      state.currentChallenge.pointsAtStake = BigNumber.from(2);
+      state.currentChallenge.response = BigNumber.from(ResponseEnum.Accept);
+
+      let move: MoveStruct = {
+        action: BigNumber.from(ActionEnum.Challenge),
+        parameters: [BigNumber.from(ChallengeEnum.ValeCuatro)],
+      };
+
+      let transaction: TransactionStruct = {
+        playerIdx: state.playerTurn,
+        moves: [move],
+        state: state,
+      };
+
+      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+    });
   });
 
   /**
@@ -271,7 +297,7 @@ describe("Truco Resolver", function () {
     });
 
     describe("Challenge Accepted: Points at stake changing on acceptance", function () {
-      it("No challenge to Truco", async function () {
+      it("Accept: No challenge to Truco", async function () {
         const { sut } = await deployContract();
 
         let state: GameStateStruct = basicGameStateWithTrucoSpellWaiting();
@@ -392,7 +418,7 @@ describe("Truco Resolver", function () {
 
       return state;
     }
-    it("No PlayCard  should be spelled", async function () {
+    it("No PlayCard should be spelled", async function () {
       const { sut } = await deployContract();
 
       let state: GameStateStruct = basicGameStateWithTrucoSpellRefused();
@@ -465,7 +491,7 @@ describe("Truco Resolver", function () {
     });
   });
   /**
-   * Precondintion: A challenge was ACCEPTED
+   * Precondition: A challenge was ACCEPTED
    */
   describe("Challenge in place: Accepted", function () {
     // Truco has spelled by current player and accepted by other party
@@ -633,6 +659,155 @@ describe("Truco Resolver", function () {
       });
     });
   });
+
+  /**
+   * Precondition:  No precondition
+   */
+  describe("Finality check", function () {
+    // Truco has spelled by current player and accepted by other party
+    function basicGameStateWithTrucoSpellFinished(): GameStateStruct {
+      let state: GameStateStruct = basicGameState();
+
+      // Truco has spelled by other player and accepted, cant respond anymore
+      state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Truco);
+      state.currentChallenge.challenger = BigNumber.from(otherPlayerIdx);
+      state.currentChallenge.waitingChallengeResponse = false;
+      state.currentChallenge.pointsAtStake = BigNumber.from(2);
+      state.currentChallenge.response = BigNumber.from(ResponseEnum.Accept);
+
+      return state;
+    }
+    it("Challenge is at a refusal state", async function () {
+      const { sut } = await deployContract();
+
+      let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
+
+      state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Truco);
+      state.currentChallenge.response = BigNumber.from(ResponseEnum.Refuse);
+
+      sut.setGameState(state);
+
+      expect(await sut.isTrucoFinal()).to.be.true;
+    });
+
+    it("No cards where played", async function () {
+      const { sut } = await deployContract();
+
+      let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
+
+      sut.setGameState(state);
+
+      expect(await sut.isTrucoFinal()).to.be.false;
+    });
+
+    it("Cards partially revealed at round 1 ", async function () {
+      const { sut } = await deployContract();
+
+      let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
+
+      state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
+        BigNumber.from(21); // Ace of swords
+
+      sut.setGameState(state);
+
+      expect(await sut.isTrucoFinal()).to.be.false;
+    });
+
+    it("Round 1 complete, no cards revealed at round 2 ", async function () {
+      const { sut } = await deployContract();
+
+      let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
+
+      state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
+        BigNumber.from(21); // Ace of swords
+
+      state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][0] =
+        BigNumber.from(6); // 6 of Coins
+
+      sut.setGameState(state);
+
+      expect(await sut.isTrucoFinal()).to.be.false;
+    });
+
+    it("Round 1 complete, cards partially revealed at round 2 ", async function () {
+      const { sut } = await deployContract();
+
+      let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
+
+      state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
+        BigNumber.from(21); // Ace of swords
+
+      state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][0] =
+        BigNumber.from(6); // 6 of Coins
+
+      sut.setGameState(state);
+
+      expect(await sut.isTrucoFinal()).to.be.false;
+    });
+
+    it("Round 1 and 2 complete, game has no winner and cards not revealed at round 3 ", async function () {
+      const { sut } = await deployContract();
+
+      let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
+
+      state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
+        BigNumber.from(21); // Ace of swords
+      state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][1] =
+        BigNumber.from(4); // 4 of Coins
+
+      state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][0] =
+        BigNumber.from(6); // 6 of Coins
+      state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][1] =
+        BigNumber.from(7); // 7 of Coins
+
+      sut.setGameState(state);
+
+      expect(await sut.isTrucoFinal()).to.be.false;
+    });
+
+    it("Round 1 and 2 complete, game has a winner", async function () {
+      const { sut } = await deployContract();
+
+      let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
+
+      state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
+        BigNumber.from(21); // Ace of swords
+      state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][1] =
+        BigNumber.from(7); // 7 of Coins
+
+      state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][0] =
+        BigNumber.from(6); // 6 of Coins
+      state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][1] =
+        BigNumber.from(4); // 4 of Coins
+
+      sut.setGameState(state);
+
+      expect(await sut.isTrucoFinal()).to.be.true;
+    });
+
+    it("Round 1 and 2 complete, , game has no winner and cards partially revealed at round 3", async function () {
+      const { sut } = await deployContract();
+
+      let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
+
+      state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
+        BigNumber.from(21); // Ace of swords
+      state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][1] =
+        BigNumber.from(4); // 4 of Coins
+      state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][1] =
+        BigNumber.from(5); // 5 of Coins
+
+      state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][0] =
+        BigNumber.from(6); // 6 of Coins
+      state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][1] =
+        BigNumber.from(7); // 7 of Coins
+
+      sut.setGameState(state);
+
+      expect(await sut.isTrucoFinal()).to.be.false;
+    });
+  });
+
   /**
    * Precondition: A challenge is finished (cards at play are revealed and winner is determined)
    */
@@ -650,138 +825,6 @@ describe("Truco Resolver", function () {
 
       return state;
     }
-
-    describe("Finality check", function () {
-      it("Challenge is at a refusal state", async function () {
-        const { sut } = await deployContract();
-
-        let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
-
-        state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Truco);
-        state.currentChallenge.response = BigNumber.from(ResponseEnum.Refuse);
-
-        sut.setGameState(state);
-
-        expect(await sut.isTrucoFinal()).to.be.true;
-      });
-
-      it("No cards where played", async function () {
-        const { sut } = await deployContract();
-
-        let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
-
-        sut.setGameState(state);
-
-        expect(await sut.isTrucoFinal()).to.be.false;
-      });
-
-      it("Cards partially revealed at round 1 ", async function () {
-        const { sut } = await deployContract();
-
-        let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
-
-        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
-          BigNumber.from(21); // Ace of swords
-
-        sut.setGameState(state);
-
-        expect(await sut.isTrucoFinal()).to.be.false;
-      });
-
-      it("Round 1 complete, no cards revealed at round 2 ", async function () {
-        const { sut } = await deployContract();
-
-        let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
-
-        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
-          BigNumber.from(21); // Ace of swords
-
-        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][0] =
-          BigNumber.from(6); // 6 of Coins
-
-        sut.setGameState(state);
-
-        expect(await sut.isTrucoFinal()).to.be.false;
-      });
-
-      it("Round 1 complete, cards partially revealed at round 2 ", async function () {
-        const { sut } = await deployContract();
-
-        let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
-
-        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
-          BigNumber.from(21); // Ace of swords
-
-        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][0] =
-          BigNumber.from(6); // 6 of Coins
-
-        sut.setGameState(state);
-
-        expect(await sut.isTrucoFinal()).to.be.false;
-      });
-
-      it("Round 1 and 2 complete, game has no winner and cards not revealed at round 3 ", async function () {
-        const { sut } = await deployContract();
-
-        let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
-
-        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
-          BigNumber.from(21); // Ace of swords
-        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][1] =
-          BigNumber.from(4); // 4 of Coins
-
-        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][0] =
-          BigNumber.from(6); // 6 of Coins
-        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][1] =
-          BigNumber.from(7); // 7 of Coins
-
-        sut.setGameState(state);
-
-        expect(await sut.isTrucoFinal()).to.be.false;
-      });
-
-      it("Round 1 and 2 complete, game has a winner", async function () {
-        const { sut } = await deployContract();
-
-        let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
-
-        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
-          BigNumber.from(21); // Ace of swords
-        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][1] =
-          BigNumber.from(7); // 7 of Coins
-
-        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][0] =
-          BigNumber.from(6); // 6 of Coins
-        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][1] =
-          BigNumber.from(4); // 4 of Coins
-
-        sut.setGameState(state);
-
-        expect(await sut.isTrucoFinal()).to.be.true;
-      });
-
-      it("Round 1 and 2 complete, , game has no winner and cards partially revealed at round 3", async function () {
-        const { sut } = await deployContract();
-
-        let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
-
-        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
-          BigNumber.from(21); // Ace of swords
-        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][1] =
-          BigNumber.from(4); // 4 of Coins
-        state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][1] =
-          BigNumber.from(5); // 5 of Coins
-
-        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][0] =
-          BigNumber.from(6); // 6 of Coins
-        state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][1] =
-          BigNumber.from(7); // 7 of Coins
-
-        sut.setGameState(state);
-
-        expect(await sut.isTrucoFinal()).to.be.false;
-      });
-    });
 
     describe("Compute the winner", function () {
       it("Player1 wins 1st and 2nd rounds", async function () {
