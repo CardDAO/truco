@@ -69,6 +69,26 @@ describe("Engine Queries", function () {
 
         expect(await sut.getEnvidoPointsForCards(cards)).to.equal(BigNumber.from(1))
       })
+
+      it("Two numbers and one figure, different order", async function () {
+        const {sut} = await deployContract();
+
+        // Three cards of different suit
+        let cards = [BigNumber.from(18), BigNumber.from(28), BigNumber.from(5),]
+
+        expect(await sut.getEnvidoPointsForCards(cards)).to.equal(BigNumber.from(5))
+      })
+
+      it("Three numbers", async function () {
+        const {sut} = await deployContract();
+
+        // Three cards of different suit
+        let cards = [BigNumber.from(1), BigNumber.from(23), BigNumber.from(34)]
+
+        expect(await sut.getEnvidoPointsForCards(cards)).to.equal(BigNumber.from(4))
+      })
+
+
     })
 
     describe("Suit match", function () {
