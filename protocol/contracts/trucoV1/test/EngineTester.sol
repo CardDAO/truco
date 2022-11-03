@@ -9,8 +9,8 @@ contract EngineTester is Engine {
         IERC20 _trucoin,
         IChallengeResolver _trucoResolver,
         IChallengeResolver _envidoResolver,
-        ICardsDeck _cardsDeck
-    ) Engine(_trucoin, _trucoResolver, _envidoResolver, _cardsDeck) {}
+        EngineQueries _engineQueries
+    ) Engine(_trucoin, _trucoResolver, _envidoResolver, _engineQueries) {}
 
     CardsStructs.GameState public gameState;
 

@@ -39,7 +39,6 @@ contract CastillianDeck is ICardsDeck {
         revert("Invalid suit");
     }
 
-
     function areSameSuit(uint8 _card1, uint8 _card2)
     public
     view
