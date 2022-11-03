@@ -1,5 +1,4 @@
 import { expect } from "chai";
-import { ethers } from "hardhat";
 
 import { CardsStructs } from "../../typechain-types/contracts/trucoV1/Engine";
 import { ActionEnum, ChallengeEnum, ResponseEnum } from "./struct-enums";
@@ -8,34 +7,13 @@ import MoveStruct = CardsStructs.MoveStruct;
 import TransactionStruct = CardsStructs.TransactionStruct;
 import GameStateStruct = CardsStructs.GameStateStruct;
 
+import { deployEngineContract } from "../deploy-engine-contract";
+
 import { BigNumber } from "ethers";
 
 describe("Truco Resolver", function () {
   const currentPlayerIdx = BigNumber.from(0);
   const otherPlayerIdx = BigNumber.from(1);
-
-  async function deployContract() {
-    // Contracts are deployed using the first signer/account by default
-    const [owner] = await ethers.getSigners();
-
-    const Trucoin = await ethers.getContractFactory("Trucoin");
-    const trucoin = await Trucoin.deploy();
-
-    const TrucoResolver = await ethers.getContractFactory("TrucoResolver");
-    const trucoResolver = await TrucoResolver.deploy();
-
-    const EnvidoResolver = await ethers.getContractFactory("EnvidoResolver");
-    const envidoResolver = await EnvidoResolver.deploy();
-
-    const TrucoEngine = await ethers.getContractFactory("EngineTester");
-    const sut = await TrucoEngine.deploy(
-      trucoin.address,
-      trucoResolver.address,
-      envidoResolver.address
-    );
-
-    return { sut, trucoin, owner };
-  }
 
   function basicGameState(): GameStateStruct {
     return {
@@ -65,7 +43,7 @@ describe("Truco Resolver", function () {
    */
   describe("No previous challenge", function () {
     it("Spell Challenge: Truco", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameState();
 
@@ -85,9 +63,9 @@ describe("Truco Resolver", function () {
         state: state,
       };
 
-      await sut.executeTransaction(transaction);
+      await engine.executeTransaction(transaction);
 
-      let result: GameStateStruct = await sut.gameState();
+      let result: GameStateStruct = await engine.gameState();
 
       // Check resulting state
       expect(result.currentChallenge.challenge).to.be.equal(
@@ -103,7 +81,7 @@ describe("Truco Resolver", function () {
     });
 
     it("Spell Challenge: Retruco when no Truco was spelled", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameState();
 
@@ -118,11 +96,11 @@ describe("Truco Resolver", function () {
         state: state,
       };
 
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
     });
 
     it("Spell Challenge: ValeCuatro when no Truco was spelled", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameState();
 
@@ -137,11 +115,11 @@ describe("Truco Resolver", function () {
         state: state,
       };
 
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
     });
 
     it("Spell Challenge: ValeCuatro when no ReTruco was spelled", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameState();
 
@@ -163,7 +141,7 @@ describe("Truco Resolver", function () {
         state: state,
       };
 
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
     });
   });
 
@@ -186,7 +164,7 @@ describe("Truco Resolver", function () {
     }
 
     it("Invalid response: 'None' is not accepted as a challenge response", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameStateWithTrucoSpellWaiting();
 
@@ -205,11 +183,11 @@ describe("Truco Resolver", function () {
         state: state,
       };
 
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
     });
 
     it("Raising challenge shouldn't be allowed without a valid response first", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameStateWithTrucoSpellWaiting();
 
@@ -224,11 +202,11 @@ describe("Truco Resolver", function () {
         state: state,
       };
 
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
     });
 
     it("PlayCard shouldn't be allowed without a valid response first", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameStateWithTrucoSpellWaiting();
 
@@ -243,11 +221,11 @@ describe("Truco Resolver", function () {
         state: state,
       };
 
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
     });
 
     it("Truco casted by current player and it's not the one who should respond", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameStateWithTrucoSpellWaiting();
       state.currentChallenge.challenger = BigNumber.from(currentPlayerIdx);
@@ -263,11 +241,11 @@ describe("Truco Resolver", function () {
         state: state,
       };
 
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
     });
 
     it("Refuse challenge", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameStateWithTrucoSpellWaiting();
 
@@ -282,9 +260,9 @@ describe("Truco Resolver", function () {
         state: state,
       };
 
-      await sut.executeTransaction(transaction);
+      await engine.executeTransaction(transaction);
 
-      let result: GameStateStruct = await sut.gameState();
+      let result: GameStateStruct = await engine.gameState();
 
       // Check resulting state
       expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
@@ -298,7 +276,7 @@ describe("Truco Resolver", function () {
 
     describe("Challenge Accepted: Points at stake changing on acceptance", function () {
       it("Accept: No challenge to Truco", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = basicGameStateWithTrucoSpellWaiting();
 
@@ -313,9 +291,9 @@ describe("Truco Resolver", function () {
           state: state,
         };
 
-        await sut.executeTransaction(transaction);
+        await engine.executeTransaction(transaction);
 
-        let result: GameStateStruct = await sut.gameState();
+        let result: GameStateStruct = await engine.gameState();
 
         // Check resulting state
         expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
@@ -329,7 +307,7 @@ describe("Truco Resolver", function () {
       });
 
       it("Truco to ReTruco", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = basicGameStateWithTrucoSpellWaiting();
 
@@ -349,9 +327,9 @@ describe("Truco Resolver", function () {
           state: state,
         };
 
-        await sut.executeTransaction(transaction);
+        await engine.executeTransaction(transaction);
 
-        let result: GameStateStruct = await sut.gameState();
+        let result: GameStateStruct = await engine.gameState();
 
         // Check resulting state
         expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
@@ -365,7 +343,7 @@ describe("Truco Resolver", function () {
       });
 
       it("Truco to ValeCuatro", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = basicGameStateWithTrucoSpellWaiting();
 
@@ -385,9 +363,9 @@ describe("Truco Resolver", function () {
           state: state,
         };
 
-        await sut.executeTransaction(transaction);
+        await engine.executeTransaction(transaction);
 
-        let result: GameStateStruct = await sut.gameState();
+        let result: GameStateStruct = await engine.gameState();
 
         // Check resulting state
         expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
@@ -419,7 +397,7 @@ describe("Truco Resolver", function () {
       return state;
     }
     it("No PlayCard should be spelled", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameStateWithTrucoSpellRefused();
 
@@ -436,11 +414,11 @@ describe("Truco Resolver", function () {
         state: state,
       };
 
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
     });
 
     it("No raising challenge should be spelled", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameStateWithTrucoSpellRefused();
 
@@ -457,14 +435,14 @@ describe("Truco Resolver", function () {
         state: state,
       };
 
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
 
       move.parameters = [BigNumber.from(ChallengeEnum.ValeCuatro)];
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
     });
 
     it("No response should be spelled", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameStateWithTrucoSpellRefused();
 
@@ -481,13 +459,13 @@ describe("Truco Resolver", function () {
         state: state,
       };
 
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
 
       move.parameters = [BigNumber.from(ResponseEnum.Refuse)];
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
 
       move.parameters = [BigNumber.from(ResponseEnum.None)];
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
     });
   });
   /**
@@ -509,7 +487,7 @@ describe("Truco Resolver", function () {
     }
     describe("Out of order moves", function () {
       it("Issue a response to an already accepted challenge", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = basicGameStateWithTrucoSpelled();
 
@@ -524,14 +502,14 @@ describe("Truco Resolver", function () {
           state: state,
         };
 
-        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+        await expect(engine.executeTransaction(transaction)).to.be.reverted;
 
         move.parameters = [BigNumber.from(ResponseEnum.Refuse)];
-        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+        await expect(engine.executeTransaction(transaction)).to.be.reverted;
       });
 
       it("Can't PlayCard if it's not my turn", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = basicGameStateWithTrucoSpelled();
 
@@ -546,7 +524,7 @@ describe("Truco Resolver", function () {
           state: state,
         };
 
-        await expect(sut.executeTransaction(transaction)).to.be.revertedWith(
+        await expect(engine.executeTransaction(transaction)).to.be.revertedWith(
           "Incorrect player turn"
         );
       });
@@ -555,11 +533,11 @@ describe("Truco Resolver", function () {
 
     describe("Card play dynamic", function () {
       it("Invalid Card", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = basicGameStateWithTrucoSpelled();
 
-        let cardToPlay: BigNumber = await sut.CARD_NOT_REVEALED_RESERVED_IDX(); // Idx is reserved for masked card
+        let cardToPlay: BigNumber = await engine.CARD_NOT_REVEALED_RESERVED_IDX(); // Idx is reserved for masked card
 
         let move: MoveStruct = {
           action: BigNumber.from(ActionEnum.PlayCard),
@@ -572,11 +550,11 @@ describe("Truco Resolver", function () {
           state: state,
         };
 
-        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+        await expect(engine.executeTransaction(transaction)).to.be.reverted;
       });
 
       it("Play a card, slot available", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = basicGameStateWithTrucoSpelled();
 
@@ -593,10 +571,10 @@ describe("Truco Resolver", function () {
           state: state,
         };
 
-        await sut.executeTransaction(transaction);
+        await engine.executeTransaction(transaction);
 
         let revealedCards: GameStateStruct =
-          await sut.getRevealedCardsByPlayer();
+          await engine.getRevealedCardsByPlayer();
 
         // Check resulting state
         expect(revealedCards[currentPlayerIdx.toNumber()][0]).to.be.equal(
@@ -605,7 +583,7 @@ describe("Truco Resolver", function () {
       });
 
       it("Play a card, slot unavailable", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = basicGameStateWithTrucoSpelled();
 
@@ -629,13 +607,13 @@ describe("Truco Resolver", function () {
           state: state,
         };
 
-        await expect(sut.executeTransaction(transaction)).to.be.revertedWith(
+        await expect(engine.executeTransaction(transaction)).to.be.revertedWith(
           "No rounds available"
         );
       });
 
       it("Play a card already played", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = basicGameStateWithTrucoSpelled();
 
@@ -655,7 +633,7 @@ describe("Truco Resolver", function () {
           state: state,
         };
 
-        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+        await expect(engine.executeTransaction(transaction)).to.be.reverted;
       });
     });
   });
@@ -678,43 +656,43 @@ describe("Truco Resolver", function () {
       return state;
     }
     it("Challenge is at a refusal state", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
 
       state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Truco);
       state.currentChallenge.response = BigNumber.from(ResponseEnum.Refuse);
 
-      sut.setGameState(state);
+      engine.setGameState(state);
 
-      expect(await sut.isTrucoFinal()).to.be.true;
+      expect(await engine.isTrucoFinal()).to.be.true;
     });
 
     it("No cards where played", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
 
-      sut.setGameState(state);
+      engine.setGameState(state);
 
-      expect(await sut.isTrucoFinal()).to.be.false;
+      expect(await engine.isTrucoFinal()).to.be.false;
     });
 
     it("Cards partially revealed at round 1 ", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
 
       state.revealedCardsByPlayer[currentPlayerIdx.toNumber()][0] =
         BigNumber.from(21); // Ace of swords
 
-      sut.setGameState(state);
+      engine.setGameState(state);
 
-      expect(await sut.isTrucoFinal()).to.be.false;
+      expect(await engine.isTrucoFinal()).to.be.false;
     });
 
     it("Round 1 complete, no cards revealed at round 2 ", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
 
@@ -724,13 +702,13 @@ describe("Truco Resolver", function () {
       state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][0] =
         BigNumber.from(6); // 6 of Coins
 
-      sut.setGameState(state);
+      engine.setGameState(state);
 
-      expect(await sut.isTrucoFinal()).to.be.false;
+      expect(await engine.isTrucoFinal()).to.be.false;
     });
 
     it("Round 1 complete, cards partially revealed at round 2 ", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
 
@@ -740,13 +718,13 @@ describe("Truco Resolver", function () {
       state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][0] =
         BigNumber.from(6); // 6 of Coins
 
-      sut.setGameState(state);
+      engine.setGameState(state);
 
-      expect(await sut.isTrucoFinal()).to.be.false;
+      expect(await engine.isTrucoFinal()).to.be.false;
     });
 
     it("Round 1 and 2 complete, game has no winner and cards not revealed at round 3 ", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
 
@@ -760,13 +738,13 @@ describe("Truco Resolver", function () {
       state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][1] =
         BigNumber.from(7); // 7 of Coins
 
-      sut.setGameState(state);
+      engine.setGameState(state);
 
-      expect(await sut.isTrucoFinal()).to.be.false;
+      expect(await engine.isTrucoFinal()).to.be.false;
     });
 
     it("Round 1 and 2 complete, game has a winner", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
 
@@ -780,13 +758,13 @@ describe("Truco Resolver", function () {
       state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][1] =
         BigNumber.from(4); // 4 of Coins
 
-      sut.setGameState(state);
+      engine.setGameState(state);
 
-      expect(await sut.isTrucoFinal()).to.be.true;
+      expect(await engine.isTrucoFinal()).to.be.true;
     });
 
     it("Round 1 and 2 complete, , game has no winner and cards partially revealed at round 3", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
 
@@ -802,9 +780,9 @@ describe("Truco Resolver", function () {
       state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][1] =
         BigNumber.from(7); // 7 of Coins
 
-      sut.setGameState(state);
+      engine.setGameState(state);
 
-      expect(await sut.isTrucoFinal()).to.be.false;
+      expect(await engine.isTrucoFinal()).to.be.false;
     });
   });
 
@@ -828,7 +806,7 @@ describe("Truco Resolver", function () {
 
     describe("Compute the winner", function () {
       it("Player1 wins 1st and 2nd rounds", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
 
@@ -842,16 +820,16 @@ describe("Truco Resolver", function () {
         state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][1] =
           BigNumber.from(4); // 4 of Coins
 
-        sut.setGameState(state);
+        engine.setGameState(state);
 
-        let result: BigNumber = await sut.getTrucoWinner();
+        let result: BigNumber = await engine.getTrucoWinner();
 
         // Check resulting state
         expect(result).to.be.equal(currentPlayerIdx);
       });
 
       it("Player2 wins 1st and 2nd rounds", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
 
@@ -865,16 +843,16 @@ describe("Truco Resolver", function () {
         state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][1] =
           BigNumber.from(7); // 7 of Coins
 
-        sut.setGameState(state);
+        engine.setGameState(state);
 
-        let result: BigNumber = await sut.getTrucoWinner();
+        let result: BigNumber = await engine.getTrucoWinner();
 
         // Check resulting state
         expect(result).to.be.equal(otherPlayerIdx);
       });
 
       it("Player1 wins on 2nd round after a tie in first", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
 
@@ -888,16 +866,16 @@ describe("Truco Resolver", function () {
         state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][1] =
           BigNumber.from(2); // 2 of Coins
 
-        sut.setGameState(state);
+        engine.setGameState(state);
 
-        let result: BigNumber = await sut.getTrucoWinner();
+        let result: BigNumber = await engine.getTrucoWinner();
 
         // Check resulting state
         expect(result).to.be.equal(currentPlayerIdx);
       });
 
       it("Player1 wins on 3rd round after a tie in first and second", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
 
@@ -915,16 +893,16 @@ describe("Truco Resolver", function () {
         state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][2] =
           BigNumber.from(10); // King of Coins
 
-        sut.setGameState(state);
+        engine.setGameState(state);
 
-        let result: BigNumber = await sut.getTrucoWinner();
+        let result: BigNumber = await engine.getTrucoWinner();
 
         // Check resulting state
         expect(result).to.be.equal(currentPlayerIdx);
       });
 
       it("Player1 wins on 3rd round after a tie in second round", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = basicGameStateWithTrucoSpellFinished();
 
@@ -942,9 +920,9 @@ describe("Truco Resolver", function () {
         state.revealedCardsByPlayer[otherPlayerIdx.toNumber()][2] =
           BigNumber.from(10); // King of Coins
 
-        sut.setGameState(state);
+        engine.setGameState(state);
 
-        let result: BigNumber = await sut.getTrucoWinner();
+        let result: BigNumber = await engine.getTrucoWinner();
 
         // Check resulting state
         expect(result).to.be.equal(currentPlayerIdx);

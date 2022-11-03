@@ -8,34 +8,13 @@ import MoveStruct = CardsStructs.MoveStruct;
 import TransactionStruct = CardsStructs.TransactionStruct;
 import GameStateStruct = CardsStructs.GameStateStruct;
 
+import { deployEngineContract } from "../deploy-engine-contract";
+
 import { BigNumber } from "ethers";
 
 describe("Envido Resolver", function () {
   const currentPlayerIdx = BigNumber.from(0);
   const otherPlayerIdx = BigNumber.from(1);
-
-  async function deployContract() {
-    // Contracts are deployed using the first signer/account by default
-    const [owner] = await ethers.getSigners();
-
-    const Trucoin = await ethers.getContractFactory("Trucoin");
-    const truecoin = await Trucoin.deploy();
-
-    const TrucoResolver = await ethers.getContractFactory("TrucoResolver");
-    const trucoResolver = await TrucoResolver.deploy();
-
-    const EnvidoResolver = await ethers.getContractFactory("EnvidoResolver");
-    const envidoResolver = await EnvidoResolver.deploy();
-
-    const TrucoEngine = await ethers.getContractFactory("EngineTester");
-    const sut = await TrucoEngine.deploy(
-      truecoin.address,
-      trucoResolver.address,
-      envidoResolver.address
-    );
-
-    return { sut, truecoin, owner };
-  }
 
   function basicGameState(): GameStateStruct {
     return {
@@ -60,14 +39,14 @@ describe("Envido Resolver", function () {
 
   describe("Invalid moves", function () {
     it("Challenging any Truco derivatives while Envido was spelled shouldn't be allowed", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameState();
 
       // Set current state to envido challenge
       state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Envido);
 
-      await sut.setGameState(state);
+      await engine.setGameState(state);
 
       // Set action to a new challenge spell
       let move: MoveStruct = {
@@ -81,17 +60,17 @@ describe("Envido Resolver", function () {
         state: state,
       };
 
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
 
       move.parameters = [ChallengeEnum.ReTruco];
       transaction.moves = [move];
 
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
 
       move.parameters = [ChallengeEnum.ValeCuatro];
       transaction.moves = [move];
 
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
 
       move = {
         action: BigNumber.from(ActionEnum.Challenge),
@@ -100,18 +79,18 @@ describe("Envido Resolver", function () {
 
       transaction.moves = [move];
 
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
     });
 
     it("Challenging 'None' shouldn't be allowed", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameState();
 
       // Set current state to envido challenge
       state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Envido);
 
-      await sut.setGameState(state);
+      await engine.setGameState(state);
 
       let move = {
         action: BigNumber.from(ActionEnum.Challenge),
@@ -124,7 +103,7 @@ describe("Envido Resolver", function () {
         state: state,
       };
 
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
     });
   });
 
@@ -133,7 +112,7 @@ describe("Envido Resolver", function () {
    */
   describe("No previous challenge", function () {
     it("Spell Challenge: Envido", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameState();
 
@@ -151,9 +130,9 @@ describe("Envido Resolver", function () {
         state: state,
       };
 
-      await sut.executeTransaction(transaction);
+      await engine.executeTransaction(transaction);
 
-      let result: GameStateStruct = await sut.gameState();
+      let result: GameStateStruct = await engine.gameState();
 
       // Check resulting state
       expect(result.currentChallenge.challenge).to.be.equal(
@@ -169,7 +148,7 @@ describe("Envido Resolver", function () {
     });
 
     it("Spell Challenge: FaltaEnvido", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameState();
       state.pointsToWin = BigNumber.from(30);
@@ -188,9 +167,9 @@ describe("Envido Resolver", function () {
         state: state,
       };
 
-      await sut.executeTransaction(transaction);
+      await engine.executeTransaction(transaction);
 
-      let result: GameStateStruct = await sut.gameState();
+      let result: GameStateStruct = await engine.gameState();
 
       // Check resulting state
       expect(result.currentChallenge.challenge).to.be.equal(
@@ -228,7 +207,7 @@ describe("Envido Resolver", function () {
     }
 
     it("Invalid response: 'None'is not accepted as a challenge response", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
 
@@ -247,11 +226,11 @@ describe("Envido Resolver", function () {
         state: state,
       };
 
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
     });
 
     it("Spell envido count shouldn't be allowed without a valid response first", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
 
@@ -266,11 +245,11 @@ describe("Envido Resolver", function () {
         state: state,
       };
 
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
     });
 
     it("Envido casted by current player and it's not the one who should respond", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
       state.currentChallenge.challenger = BigNumber.from(currentPlayerIdx);
@@ -286,11 +265,11 @@ describe("Envido Resolver", function () {
         state: state,
       };
 
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
     });
 
     it("Refuse challenge", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
 
@@ -305,9 +284,9 @@ describe("Envido Resolver", function () {
         state: state,
       };
 
-      await sut.executeTransaction(transaction);
+      await engine.executeTransaction(transaction);
 
-      let result: GameStateStruct = await sut.gameState();
+      let result: GameStateStruct = await engine.gameState();
 
       // Check resulting state
       expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
@@ -323,7 +302,7 @@ describe("Envido Resolver", function () {
 
     describe("Challenge Accepted: Points at stake changing on acceptance", function () {
       it("No challenge to Envido", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
 
@@ -338,9 +317,9 @@ describe("Envido Resolver", function () {
           state: state,
         };
 
-        await sut.executeTransaction(transaction);
+        await engine.executeTransaction(transaction);
 
-        let result: GameStateStruct = await sut.gameState();
+        let result: GameStateStruct = await engine.gameState();
 
         // Check resulting state
         expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
@@ -354,7 +333,7 @@ describe("Envido Resolver", function () {
       });
 
       it("No challenge to RealEnvido", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
 
@@ -373,9 +352,9 @@ describe("Envido Resolver", function () {
           state: state,
         };
 
-        await sut.executeTransaction(transaction);
+        await engine.executeTransaction(transaction);
 
-        let result: GameStateStruct = await sut.gameState();
+        let result: GameStateStruct = await engine.gameState();
 
         // Check resulting state
         expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
@@ -389,7 +368,7 @@ describe("Envido Resolver", function () {
       });
 
       it("No challenge to FaltaEnvido", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
 
@@ -408,9 +387,9 @@ describe("Envido Resolver", function () {
           state: state,
         };
 
-        await sut.executeTransaction(transaction);
+        await engine.executeTransaction(transaction);
 
-        let result: GameStateStruct = await sut.gameState();
+        let result: GameStateStruct = await engine.gameState();
 
         // Check resulting state
         expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
@@ -424,7 +403,7 @@ describe("Envido Resolver", function () {
       });
 
       it("RealEnvido from None", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
 
@@ -443,9 +422,9 @@ describe("Envido Resolver", function () {
           state: state,
         };
 
-        await sut.executeTransaction(transaction);
+        await engine.executeTransaction(transaction);
 
-        let result: GameStateStruct = await sut.gameState();
+        let result: GameStateStruct = await engine.gameState();
 
         // Check resulting state
         expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
@@ -459,7 +438,7 @@ describe("Envido Resolver", function () {
       });
 
       it("FaltaEnvido from None", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
 
@@ -478,9 +457,9 @@ describe("Envido Resolver", function () {
           state: state,
         };
 
-        await sut.executeTransaction(transaction);
+        await engine.executeTransaction(transaction);
 
-        let result: GameStateStruct = await sut.gameState();
+        let result: GameStateStruct = await engine.gameState();
 
         // Check resulting state
         expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
@@ -494,7 +473,7 @@ describe("Envido Resolver", function () {
       });
 
       it("RealEnvido from Envido", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
 
@@ -514,9 +493,9 @@ describe("Envido Resolver", function () {
           state: state,
         };
 
-        await sut.executeTransaction(transaction);
+        await engine.executeTransaction(transaction);
 
-        let result: GameStateStruct = await sut.gameState();
+        let result: GameStateStruct = await engine.gameState();
 
         // Check resulting state
         expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
@@ -530,7 +509,7 @@ describe("Envido Resolver", function () {
       });
 
       it("EnvidoEnvido from Envido", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
 
@@ -550,9 +529,9 @@ describe("Envido Resolver", function () {
           state: state,
         };
 
-        await sut.executeTransaction(transaction);
+        await engine.executeTransaction(transaction);
 
-        let result: GameStateStruct = await sut.gameState();
+        let result: GameStateStruct = await engine.gameState();
 
         // Check resulting state
         expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
@@ -567,7 +546,7 @@ describe("Envido Resolver", function () {
       });
 
       it("FaltaEnvido from Envido", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
 
@@ -587,9 +566,9 @@ describe("Envido Resolver", function () {
           state: state,
         };
 
-        await sut.executeTransaction(transaction);
+        await engine.executeTransaction(transaction);
 
-        let result: GameStateStruct = await sut.gameState();
+        let result: GameStateStruct = await engine.gameState();
 
         // Check resulting state
         expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
@@ -604,7 +583,7 @@ describe("Envido Resolver", function () {
       });
 
       it("RealEnvido from EnvidoEnvido", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting();
 
@@ -624,9 +603,9 @@ describe("Envido Resolver", function () {
           state: state,
         };
 
-        await sut.executeTransaction(transaction);
+        await engine.executeTransaction(transaction);
 
-        let result: GameStateStruct = await sut.gameState();
+        let result: GameStateStruct = await engine.gameState();
 
         // Check resulting state
         expect(result.currentChallenge.waitingChallengeResponse).to.be.false;
@@ -659,7 +638,7 @@ describe("Envido Resolver", function () {
     }
 
     it("No envido count should be spelled", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameStateWithEnvidoSpellRefused();
 
@@ -676,11 +655,11 @@ describe("Envido Resolver", function () {
         state: state,
       };
 
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
     });
 
     it("No raising challenge should be spelled", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameStateWithEnvidoSpellRefused();
 
@@ -697,17 +676,17 @@ describe("Envido Resolver", function () {
         state: state,
       };
 
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
 
       move.parameters = [BigNumber.from(ChallengeEnum.EnvidoEnvido)];
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
 
       move.parameters = [BigNumber.from(ChallengeEnum.FaltaEnvido)];
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
     });
 
     it("No response should be spelled", async function () {
-      const { sut } = await deployContract();
+      const { engine } = await deployEngineContract();
 
       let state: GameStateStruct = basicGameStateWithEnvidoSpellRefused();
 
@@ -724,13 +703,13 @@ describe("Envido Resolver", function () {
         state: state,
       };
 
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
 
       move.parameters = [BigNumber.from(ResponseEnum.Refuse)];
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
 
       move.parameters = [BigNumber.from(ResponseEnum.None)];
-      await expect(sut.executeTransaction(transaction)).to.be.reverted;
+      await expect(engine.executeTransaction(transaction)).to.be.reverted;
     });
   });
   /**
@@ -752,7 +731,7 @@ describe("Envido Resolver", function () {
     }
     describe("Out of order moves", function () {
       it("Issue a response to an already accepted challenge", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = gameStateWithEnvidoSpell();
 
@@ -767,14 +746,14 @@ describe("Envido Resolver", function () {
           state: state,
         };
 
-        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+        await expect(engine.executeTransaction(transaction)).to.be.reverted;
 
         move.parameters = [BigNumber.from(ResponseEnum.Refuse)];
-        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+        await expect(engine.executeTransaction(transaction)).to.be.reverted;
       });
 
       it("Can't spell envido count being challenger and other party didn't spell it's count first ", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = gameStateWithEnvidoSpell();
 
@@ -789,13 +768,13 @@ describe("Envido Resolver", function () {
           state: state,
         };
 
-        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+        await expect(engine.executeTransaction(transaction)).to.be.reverted;
       });
     });
 
     describe("Raising the challenge", function () {
       it("Raise Envido shouldn't be possible when raiser is the challenger", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = gameStateWithEnvidoSpell();
 
@@ -810,11 +789,11 @@ describe("Envido Resolver", function () {
           state: state,
         };
 
-        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+        await expect(engine.executeTransaction(transaction)).to.be.reverted;
       });
 
       it("Raise EnvidoEnvido shouldn't be possible from RealEnvido", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = gameStateWithEnvidoSpell();
         state.currentChallenge.challenge = BigNumber.from(
@@ -832,11 +811,11 @@ describe("Envido Resolver", function () {
           state: state,
         };
 
-        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+        await expect(engine.executeTransaction(transaction)).to.be.reverted;
       });
 
       it("Raise FaltaEnvido shouldn't be possible for any player", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = gameStateWithEnvidoSpell();
 
@@ -857,11 +836,11 @@ describe("Envido Resolver", function () {
         };
         move.parameters = [BigNumber.from(ChallengeEnum.RealEnvido)];
 
-        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+        await expect(engine.executeTransaction(transaction)).to.be.reverted;
       });
 
       it("Raise Envido going OK", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = gameStateWithEnvidoSpell();
 
@@ -878,9 +857,9 @@ describe("Envido Resolver", function () {
           state: state,
         };
 
-        await sut.executeTransaction(transaction);
+        await engine.executeTransaction(transaction);
 
-        let result: GameStateStruct = await sut.gameState();
+        let result: GameStateStruct = await engine.gameState();
 
         // Check resulting state
         expect(result.currentChallenge.challenge).to.be.equal(
@@ -900,7 +879,7 @@ describe("Envido Resolver", function () {
       });
 
       it("Raise to Falta envido, check points", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = gameStateWithEnvidoSpell();
 
@@ -926,9 +905,9 @@ describe("Envido Resolver", function () {
           state: state,
         };
 
-        await sut.executeTransaction(transaction);
+        await engine.executeTransaction(transaction);
 
-        let result: GameStateStruct = await sut.gameState();
+        let result: GameStateStruct = await engine.gameState();
 
         // Points at stake should not be raised either
         expect(result.currentChallenge.pointsAtStake).to.be.equal(
@@ -939,7 +918,7 @@ describe("Envido Resolver", function () {
 
     describe("Points count stage", function () {
       it("Invalid envido count", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = gameStateWithEnvidoSpell();
 
@@ -957,18 +936,18 @@ describe("Envido Resolver", function () {
         };
 
         // 33 is the max value for envido count
-        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+        await expect(engine.executeTransaction(transaction)).to.be.reverted;
 
         move.parameters = [BigNumber.from(100)];
-        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+        await expect(engine.executeTransaction(transaction)).to.be.reverted;
 
         // 0 is a reserved value to indicate that the player didn't spell envido count
         move.parameters = [BigNumber.from(0)];
-        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+        await expect(engine.executeTransaction(transaction)).to.be.reverted;
       });
 
       it("Spell envido count being the player who shuffled deck, but other player didn't cast it's envido count first", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = gameStateWithEnvidoSpell();
 
@@ -984,11 +963,11 @@ describe("Envido Resolver", function () {
         };
 
         // Spell envido count should fail because other player didn't cast their envido count
-        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+        await expect(engine.executeTransaction(transaction)).to.be.reverted;
       });
 
       it("Spell envido count being the player who shuffled deck - OK", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = gameStateWithEnvidoSpell();
 
@@ -1007,11 +986,11 @@ describe("Envido Resolver", function () {
         };
 
         // Spell envido count should go fine
-        await sut.executeTransaction(transaction);
+        await engine.executeTransaction(transaction);
       });
 
       it("Spell envido count being the player who didn't shuffle deck", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = gameStateWithEnvidoSpell();
 
@@ -1027,11 +1006,11 @@ describe("Envido Resolver", function () {
         };
 
         // Spell envido count should fail because other player didn't cast their envido count
-        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+        await expect(engine.executeTransaction(transaction)).to.be.reverted;
       });
 
       it("Spell envido count beign 'mano'", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = gameStateWithEnvidoSpell();
 
@@ -1049,10 +1028,10 @@ describe("Envido Resolver", function () {
         };
 
         // Spell envido count should go fine
-        await sut.executeTransaction(transaction);
+        await engine.executeTransaction(transaction);
 
         // This is a workaround to get envido points for player, since fetching current game state and accessing envidoCountPerPlayer is not working
-        let result: BigNumber[] = await sut.getEnvidoPoints();
+        let result: BigNumber[] = await engine.getEnvidoPoints();
 
         // Check resulting state from current points being spelled
         expect(result[otherPlayerIdx.toNumber()]).to.be.equal(
@@ -1066,7 +1045,7 @@ describe("Envido Resolver", function () {
       });
 
       it("Spell envido count being who shuffle the deck", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = gameStateWithEnvidoSpell();
 
@@ -1085,10 +1064,10 @@ describe("Envido Resolver", function () {
           BigNumber.from(33);
 
         // Spell envido count should go fine
-        await sut.executeTransaction(transaction);
+        await engine.executeTransaction(transaction);
 
         // This is a workaround to get envido points for player, since fetching current game state and accessing envidoCountPerPlayer is not working
-        let result: BigNumber[] = await sut.getEnvidoPoints();
+        let result: BigNumber[] = await engine.getEnvidoPoints();
 
         // Check resulting state
         expect(result[currentPlayerIdx.toNumber()]).to.be.equal(
@@ -1122,7 +1101,7 @@ describe("Envido Resolver", function () {
 
     describe("Invalid moves", function () {
       it("Spell a new envido type challenge when challenge is in final state", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = gameStateWithEnvidoSpellFinished();
 
@@ -1138,20 +1117,20 @@ describe("Envido Resolver", function () {
         };
 
         // Spell a new envido challenge should fail because game is at a final state
-        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+        await expect(engine.executeTransaction(transaction)).to.be.reverted;
 
         move.parameters = [BigNumber.from(ChallengeEnum.EnvidoEnvido)];
-        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+        await expect(engine.executeTransaction(transaction)).to.be.reverted;
 
         move.parameters = [BigNumber.from(ChallengeEnum.RealEnvido)];
-        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+        await expect(engine.executeTransaction(transaction)).to.be.reverted;
 
         move.parameters = [BigNumber.from(ChallengeEnum.FaltaEnvido)];
-        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+        await expect(engine.executeTransaction(transaction)).to.be.reverted;
       });
 
       it("Spell an EnvidoCount on final state", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = gameStateWithEnvidoSpellFinished();
 
@@ -1167,38 +1146,38 @@ describe("Envido Resolver", function () {
         };
 
         // Spell envido count should fail because game is at a final state
-        await expect(sut.executeTransaction(transaction)).to.be.reverted;
+        await expect(engine.executeTransaction(transaction)).to.be.reverted;
       });
     });
 
-    describe("Compute the winner", function () {
+      describe("Compute the winner", function () {
       it("Envido refused, challenger is the winner", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = gameStateWithEnvidoSpellFinished();
 
         state.currentChallenge.response = BigNumber.from(ResponseEnum.Refuse);
         state.currentChallenge.challenger = otherPlayerIdx;
 
-        sut.setGameState(state);
+        engine.setGameState(state);
 
-        let result: BigNumber = await sut.getEnvidoWinner();
+        let result: BigNumber = await engine.getEnvidoWinner();
 
         // Check resulting state
         expect(result).to.be.equal(otherPlayerIdx);
 
         state.currentChallenge.challenger = currentPlayerIdx;
 
-        sut.setGameState(state);
+        engine.setGameState(state);
 
-        result = await sut.getEnvidoWinner();
+        result = await engine.getEnvidoWinner();
 
         // Check resulting state
         expect(result).to.be.equal(currentPlayerIdx);
       });
 
       it("Both player have same envido count, current player shuffled", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = gameStateWithEnvidoSpellFinished();
 
@@ -1209,16 +1188,16 @@ describe("Envido Resolver", function () {
 
         state.playerWhoShuffled = currentPlayerIdx;
 
-        sut.setGameState(state);
+        engine.setGameState(state);
 
-        let result: BigNumber = await sut.getEnvidoWinner();
+        let result: BigNumber = await engine.getEnvidoWinner();
 
         // Check resulting state
         expect(result).to.be.equal(otherPlayerIdx);
       });
 
       it("Both player have same envido count, other player shuffled", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = gameStateWithEnvidoSpellFinished();
 
@@ -1229,16 +1208,16 @@ describe("Envido Resolver", function () {
 
         state.playerWhoShuffled = otherPlayerIdx;
 
-        sut.setGameState(state);
+        engine.setGameState(state);
 
-        let result: BigNumber = await sut.getEnvidoWinner();
+        let result: BigNumber = await engine.getEnvidoWinner();
 
         // Check resulting state
         expect(result).to.be.equal(currentPlayerIdx);
       });
 
       it("One player has more points than other and vice-versa", async function () {
-        const { sut } = await deployContract();
+        const { engine } = await deployEngineContract();
 
         let state: GameStateStruct = gameStateWithEnvidoSpellFinished();
 
@@ -1249,9 +1228,9 @@ describe("Envido Resolver", function () {
 
         state.playerWhoShuffled = otherPlayerIdx;
 
-        sut.setGameState(state);
+        engine.setGameState(state);
 
-        let result: BigNumber = await sut.getEnvidoWinner();
+        let result: BigNumber = await engine.getEnvidoWinner();
 
         // Check resulting state
         expect(result).to.be.equal(currentPlayerIdx);
@@ -1263,9 +1242,9 @@ describe("Envido Resolver", function () {
 
         state.playerWhoShuffled = otherPlayerIdx;
 
-        sut.setGameState(state);
+        engine.setGameState(state);
 
-        result = await sut.getEnvidoWinner();
+        result = await engine.getEnvidoWinner();
 
         // Check resulting state
         expect(result).to.be.equal(otherPlayerIdx);
