@@ -26,6 +26,7 @@ export const Game = () => {
                     :
                     <Dashboard
                         address={address}
+                        inSession={inSession}
                         messageInput={messageInput}
                         setMessageInput={setMessageInput}
                     />

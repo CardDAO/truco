@@ -4,13 +4,6 @@ import { verifyMessage } from 'ethers/lib/utils'
 import P2PT, { Peer } from "p2pt"
 
 
-const determineCurrentNonce = (messageList: any[]) => {
-    return messageList.length === 0 ?
-        0
-        :
-        messageList[messageList.length - 1];
-}
-
 const addToMessageList = (
     messageSigned: MessageType,
     setMessages: (currentMessages: any) => any,
@@ -24,6 +17,7 @@ export const useP2PT = (inSession: Boolean, sessionKey : String) => {
     const p2pt: any = useRef()
     const [ peers, setPeers ] = useState([] as Peer[])
 
+    const [ latestNonce, setLatestNonce ] = useState(-1)
     const [ messages, setMessages ] = useState([] as MessageType[])
     const addPeer : any = useRef()
     const removePeer: any = useRef()
@@ -33,11 +27,12 @@ export const useP2PT = (inSession: Boolean, sessionKey : String) => {
 
 
     // verificar antes de enviar
-    const verifyAndAddMessage = (messageSigned: MessageType) => {
+    const verifyAndAddMessage = useCallback((messageSigned: MessageType) => {
         //verify message nonce and exists signature
+        console.log('verficando mensaje')
         
-        const currentNonce = determineCurrentNonce(messages)
-        if (messageSigned.signature !== undefined && messageSigned.message !== undefined && messageSigned.message.nonce > currentNonce) {
+        if (messageSigned.signature !== undefined && messageSigned.message !== undefined && messageSigned.message.nonce > latestNonce) {
+            console.log('verificando con etherjs')
             const sourceAddress = verifyMessage(
                 JSON.stringify(messageSigned.message),
                 messageSigned.signature!!
@@ -47,9 +42,10 @@ export const useP2PT = (inSession: Boolean, sessionKey : String) => {
                 console.log("mensaje verificado desde address", sourceAddress, jsonMessage)
                 //processMessage(gameState, setGameState, jsonMessage.topic, jsonMessage.data) 
                 addToMessageList(messageSigned, setMessages)
+                setLatestNonce(messageSigned.message.nonce)
             }
         }
-    }
+    }, [messages])
     const sendToPeers = (address: any, signature:any, variables: any) => {
         const signer = verifyMessage(variables.message, signature)
         // comprobar address
@@ -60,9 +56,10 @@ export const useP2PT = (inSession: Boolean, sessionKey : String) => {
             }     
             // ADD TO LIST
             peers.forEach((peer: Peer) => {
-                p2pt.send(peer, messageSourceSigned)
+                p2pt.current.send(peer, messageSourceSigned)
             }) 
             addToMessageList(messageSourceSigned, setMessages)
+            setLatestNonce(messageSourceSigned.message.nonce)
         }
     }
 
@@ -123,7 +120,7 @@ export const useP2PT = (inSession: Boolean, sessionKey : String) => {
         }
     }, [inSession])
 
-    return { p2pt, peers, setPeers, messages, sendToPeers }
+    return { p2pt, peers, setPeers, messages, sendToPeers, latestNonce }
 
 }
 

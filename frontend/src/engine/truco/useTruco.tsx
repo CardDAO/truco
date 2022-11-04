@@ -9,17 +9,9 @@ import { useP2PT } from './P2PT'
 import { StateEnum } from "../../hooks/enums"
 
 // new library
-import { createConfig, createPlayer, createDeck } from 'mental-poker'
 import { createContext } from "vm"
 
-const GAME_CONFIG = createConfig(40)
 
-export const GameContext = createContext({
-    self: createPlayer(GAME_CONFIG),
-    opponent: [],
-    sharedCardCodewordFragments: [],
-    state: StateEnum.WAITING_PLAYERS
-})
 
 const CASTILLAN_CARDS: Card[] = [
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b,
