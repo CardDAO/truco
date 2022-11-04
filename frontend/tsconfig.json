@@ -27,5 +27,6 @@
   "include": [
     "src/**/*",
     "custom-types/index.d.ts"
+    "custom-types/mental-poker.d.ts"
   ]
 }
