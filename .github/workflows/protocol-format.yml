@@ -15,6 +15,7 @@ jobs:
           cache-dependency-path: 'protocol/package-lock.json'
           node-version: 16
           cache: 'npm'
+      - run: npm install
       - run: npm run format
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
