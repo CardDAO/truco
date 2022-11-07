@@ -57,8 +57,8 @@ contract EnvidoResolver is IChallengeResolver {
                 );
             }
             require(
-                _gameState.envidoCountPerPlayer[_gameState.playerTurn] == 0 &&
-                    _gameState.envidoCountPerPlayer[
+                _gameState.envido.playerCount[_gameState.playerTurn] == 0 &&
+                    _gameState.envido.playerCount[
                         reversePlayer(_gameState.playerTurn)
                     ] ==
                     0
@@ -166,12 +166,12 @@ contract EnvidoResolver is IChallengeResolver {
             ) {
                 // Current player challenged envido, so we must ensure other player already cast it's envido count
                 require(
-                    _gameState.envidoCountPerPlayer[
+                    _gameState.envido.playerCount[
                         reversePlayer(_gameState.playerTurn)
                     ] != 0
                 );
                 require(
-                    _gameState.envidoCountPerPlayer[_gameState.playerTurn] == 0
+                    _gameState.envido.playerCount[_gameState.playerTurn] == 0
                 );
             }
 
@@ -183,7 +183,7 @@ contract EnvidoResolver is IChallengeResolver {
 
             //Do envido count
             uint8 envidoCount = _move.parameters[0];
-            _gameState.envidoCountPerPlayer[
+            _gameState.envido.playerCount[
                 _gameState.playerTurn
             ] = envidoCount;
             return _gameState;
@@ -231,8 +231,8 @@ contract EnvidoResolver is IChallengeResolver {
 
         // Check if any of the players remain to spell their envido count
         if (
-            _gameState.envidoCountPerPlayer[_gameState.playerTurn] == 0 ||
-            _gameState.envidoCountPerPlayer[
+            _gameState.envido.playerCount[_gameState.playerTurn] == 0 ||
+            _gameState.envido.playerCount[
                 reversePlayer(_gameState.playerTurn)
             ] ==
             0
@@ -262,8 +262,8 @@ contract EnvidoResolver is IChallengeResolver {
 
         // If the same points for envido were spoken by all players, "mano" won (the opponent of the deck shuffler)
         if (
-            _gameState.envidoCountPerPlayer[_gameState.playerTurn] ==
-            _gameState.envidoCountPerPlayer[
+            _gameState.envido.playerCount[_gameState.playerTurn] ==
+            _gameState.envido.playerCount[
                 reversePlayer(_gameState.playerTurn)
             ]
         ) {
@@ -272,8 +272,8 @@ contract EnvidoResolver is IChallengeResolver {
 
         // Last but not least: the player with the highest envido count wins
         if (
-            _gameState.envidoCountPerPlayer[_gameState.playerTurn] >
-            _gameState.envidoCountPerPlayer[
+            _gameState.envido.playerCount[_gameState.playerTurn] >
+            _gameState.envido.playerCount[
                 reversePlayer(_gameState.playerTurn)
             ]
         ) {

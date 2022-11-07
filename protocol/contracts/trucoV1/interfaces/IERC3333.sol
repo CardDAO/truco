@@ -49,6 +49,13 @@ interface IERC3333 {
         Response response;
     }
 
+    // Envido State
+    struct EnvidoState {
+        bool spelled;
+        uint8[] playerCount;
+        uint8 points;
+    }
+
     // Game state representation
     struct GameState {
         uint8 playerTurn; // player index
@@ -56,7 +63,7 @@ interface IERC3333 {
         uint8 pointsToWin;
         CurrentChallenge currentChallenge;
         uint8[3][] revealedCardsByPlayer;
-        uint8[] envidoCountPerPlayer;
+        EnvidoState envido;
         uint8[] teamPoints; //points indexed by team id (in this case a player is a team)
     }
 

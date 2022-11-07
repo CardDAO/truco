@@ -952,7 +952,7 @@ describe("Envido Resolver", function () {
 
         let state: GameStateStruct = gameStateWithEnvidoSpell()
 
-        state.envidoCountPerPlayer[otherPlayerIdx.toNumber()] =
+        state.envido.playerCount[otherPlayerIdx.toNumber()] =
           BigNumber.from(33)
 
         let move: MoveStruct = {
@@ -1041,7 +1041,7 @@ describe("Envido Resolver", function () {
           state: state,
         }
 
-        state.envidoCountPerPlayer[otherPlayerIdx.toNumber()] =
+        state.envido.playerCount[otherPlayerIdx.toNumber()] =
           BigNumber.from(33)
 
         // Spell envido count should go fine
@@ -1072,9 +1072,9 @@ describe("Envido Resolver", function () {
       state.currentChallenge.pointsAtStake = BigNumber.from(2)
       state.currentChallenge.response = BigNumber.from(ResponseEnum.Accept)
 
-      state.envidoCountPerPlayer[currentPlayerIdx.toNumber()] =
+      state.envido.playerCount[currentPlayerIdx.toNumber()] =
         BigNumber.from(10)
-      state.envidoCountPerPlayer[otherPlayerIdx.toNumber()] =
+      state.envido.playerCount[otherPlayerIdx.toNumber()] =
         BigNumber.from(20)
 
       return state
@@ -1162,9 +1162,9 @@ describe("Envido Resolver", function () {
 
         let state: GameStateStruct = gameStateWithEnvidoSpellFinished()
 
-        state.envidoCountPerPlayer[currentPlayerIdx.toNumber()] =
+        state.envido.playerCount[currentPlayerIdx.toNumber()] =
           BigNumber.from(33)
-        state.envidoCountPerPlayer[otherPlayerIdx.toNumber()] =
+        state.envido.playerCount[otherPlayerIdx.toNumber()] =
           BigNumber.from(33)
 
         state.playerWhoShuffled = currentPlayerIdx
@@ -1182,9 +1182,9 @@ describe("Envido Resolver", function () {
 
         let state: GameStateStruct = gameStateWithEnvidoSpellFinished()
 
-        state.envidoCountPerPlayer[currentPlayerIdx.toNumber()] =
+        state.envido.playerCount[currentPlayerIdx.toNumber()] =
           BigNumber.from(33)
-        state.envidoCountPerPlayer[otherPlayerIdx.toNumber()] =
+        state.envido.playerCount[otherPlayerIdx.toNumber()] =
           BigNumber.from(33)
 
         state.playerWhoShuffled = otherPlayerIdx
@@ -1202,9 +1202,9 @@ describe("Envido Resolver", function () {
 
         let state: GameStateStruct = gameStateWithEnvidoSpellFinished()
 
-        state.envidoCountPerPlayer[currentPlayerIdx.toNumber()] =
+        state.envido.playerCount[currentPlayerIdx.toNumber()] =
           BigNumber.from(30)
-        state.envidoCountPerPlayer[otherPlayerIdx.toNumber()] =
+        state.envido.playerCount[otherPlayerIdx.toNumber()] =
           BigNumber.from(20)
 
         state.playerWhoShuffled = otherPlayerIdx
@@ -1216,9 +1216,9 @@ describe("Envido Resolver", function () {
         // Check resulting state
         expect(result).to.be.equal(currentPlayerIdx)
 
-        state.envidoCountPerPlayer[currentPlayerIdx.toNumber()] =
+        state.envido.playerCount[currentPlayerIdx.toNumber()] =
           BigNumber.from(20)
-        state.envidoCountPerPlayer[otherPlayerIdx.toNumber()] =
+        state.envido.playerCount[otherPlayerIdx.toNumber()] =
           BigNumber.from(30)
 
         state.playerWhoShuffled = otherPlayerIdx

@@ -24,7 +24,11 @@ export function basicGameState(): GameStateStruct {
       [maskedCard, maskedCard, maskedCard],
       [maskedCard, maskedCard, maskedCard],
     ],
-    envidoCountPerPlayer: [BigNumber.from(0), BigNumber.from(0)],
+    envido: {
+      spelled: false,
+      playerCount: [BigNumber.from(0), BigNumber.from(0)],
+      points: BigNumber.from(0),
+    },
     teamPoints: [BigNumber.from(0), BigNumber.from(0)],
   }
 }

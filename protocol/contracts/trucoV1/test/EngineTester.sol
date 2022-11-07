@@ -21,7 +21,7 @@ contract EngineTester is Engine {
     // This functions are an aide for testing since hardhat return structure for these properties are not present
     // on gameState getter result (don't know why)
     function getEnvidoPoints() public view returns (uint8[] memory) {
-        return gameState.envidoCountPerPlayer;
+        return gameState.envido.playerCount;
     }
 
     function getTeamPoints() public view returns (uint8[] memory) {
