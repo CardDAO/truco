@@ -2,7 +2,7 @@
 pragma solidity 0.8.16;
 
 /**
- * @title ERC3333 interface for turn Truco Games based on the Blockchain
+ * @title ERC3333 interface for turn based Truco card games on the Blockchain
  * @dev see ERC-3333 proposal
  */
 interface IERC3333 {
