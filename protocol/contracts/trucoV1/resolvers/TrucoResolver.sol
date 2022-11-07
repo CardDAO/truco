@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-import "../interfaces/IChallengeResolver.sol";
+import '../interfaces/IChallengeResolver.sol';
 
 contract TrucoResolver {
     function resolve(
@@ -21,13 +21,13 @@ contract TrucoResolver {
             _gameState.currentChallenge.response == IERC3333.Response.Refuse
         ) {
             revert(
-                "No new moves can be processed while current challenge is at refusal state"
+                'No new moves can be processed while current challenge is at refusal state'
             );
         }
 
         // Check whether the game is at a final state and should not accept any new moves
         if (this.isFinal(_gameState)) {
-            revert("Game is in final state");
+            revert('Game is in final state');
         }
 
         // ---------------------------------------------------------------------------------------------------------
@@ -148,7 +148,7 @@ contract TrucoResolver {
         }
 
         // If we reach this point, it means that the move is not valid
-        revert("Invalid Move");
+        revert('Invalid Move');
     }
 
     function canResolve(IERC3333.Challenge _challenge)
@@ -210,7 +210,7 @@ contract TrucoResolver {
         view
         returns (uint8)
     {
-        require(this.isFinal(_gameState), "Game is not final");
+        require(this.isFinal(_gameState), 'Game is not final');
 
         // If truco was refused, the challenger wins
         if (_gameState.currentChallenge.response == IERC3333.Response.Refuse) {
@@ -349,7 +349,7 @@ contract TrucoResolver {
             return 4;
         }
 
-        revert("Invalid challenge");
+        revert('Invalid challenge');
     }
 
     // Check if it's a valid card representation
@@ -370,7 +370,7 @@ contract TrucoResolver {
         }
 
         if (i == 3) {
-            revert("No rounds available");
+            revert('No rounds available');
         }
 
         return i;
@@ -420,11 +420,47 @@ contract TrucoResolver {
 
         // This array was created using previously described code and pre-calculated to avoid memory expansion and gas costs
         return [
-        0,
-        7, 6, 5, 14, 13, 12,  4, 10, 9, 8,
-        7, 6, 5, 14, 13, 12, 11, 10, 9, 8,
-        1, 6, 5, 14, 13, 12,  3, 10, 9, 8,
-        2, 6, 5, 14, 13, 12, 11, 10, 9, 8
+            0,
+            7,
+            6,
+            5,
+            14,
+            13,
+            12,
+            4,
+            10,
+            9,
+            8,
+            7,
+            6,
+            5,
+            14,
+            13,
+            12,
+            11,
+            10,
+            9,
+            8,
+            1,
+            6,
+            5,
+            14,
+            13,
+            12,
+            3,
+            10,
+            9,
+            8,
+            2,
+            6,
+            5,
+            14,
+            13,
+            12,
+            11,
+            10,
+            9,
+            8
         ];
     }
 }

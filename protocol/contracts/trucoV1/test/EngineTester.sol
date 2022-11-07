@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-import "../Engine2Players.sol";
+import '../Engine2Players.sol';
 
 // Test infrastructure for Engine testing: workaround for hardhat tests handling non view return values
 contract Engine2PlayersTester is Engine2Players {

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-import "../interfaces/IChallengeResolver.sol";
+import '../interfaces/IChallengeResolver.sol';
 
 contract EnvidoResolver is IChallengeResolver {
     function resolve(
@@ -21,13 +21,13 @@ contract EnvidoResolver is IChallengeResolver {
             _gameState.currentChallenge.response == IERC3333.Response.Refuse
         ) {
             revert(
-                "No new moves can be processed while current challenge is at refusal state"
+                'No new moves can be processed while current challenge is at refusal state'
             );
         }
 
         // Check whether the game is at a final state and should not accept any new moves
         if (this.isFinal(_gameState)) {
-            revert("Game is in final state");
+            revert('Game is in final state');
         }
 
         // ---------------------------------------------------------------------------------------------------------
@@ -180,7 +180,7 @@ contract EnvidoResolver is IChallengeResolver {
             // Check envido count is valid
             require(
                 _move.parameters[0] > 0 && _move.parameters[0] <= 33,
-                "Invalid envido count"
+                'Invalid envido count'
             );
 
             //Do envido count
@@ -198,7 +198,7 @@ contract EnvidoResolver is IChallengeResolver {
         }
 
         // If we reach this point, it means that the move is not valid
-        revert("Invalid Move");
+        revert('Invalid Move');
     }
 
     function canResolve(IERC3333.Challenge _challenge)
@@ -304,7 +304,7 @@ contract EnvidoResolver is IChallengeResolver {
             return _gameState.pointsToWin - _gameState.teamPoints[1];
         }
 
-        revert("Invalid challenge");
+        revert('Invalid challenge');
     }
 
     function isEnvidoCountFinished(IERC3333.GameState memory _gameState)

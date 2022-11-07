@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-import "./IERC3333.sol";
+import './IERC3333.sol';
 
 interface IChallengeResolver {
     function resolve(
