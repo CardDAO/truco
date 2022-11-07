@@ -7,7 +7,7 @@ import MoveStruct = CardsStructs.MoveStruct;
 import TransactionStruct = CardsStructs.TransactionStruct;
 import GameStateStruct = CardsStructs.GameStateStruct;
 
-import { deployEngineContract } from "../deploy-engine-contract";
+import {deployDeckContract, deployEngineContract} from "../deploy-engine-contract";
 
 import { BigNumber } from "ethers";
 
@@ -533,7 +533,8 @@ describe("Truco Resolver", function () {
 
     describe("Card play dynamic", function () {
       it("Invalid Card", async function () {
-        const { engine, cardsDeck } = await deployEngineContract();
+        const { engine } = await deployEngineContract();
+        const { cardsDeck } = await deployDeckContract();
 
         let state: GameStateStruct = basicGameStateWithTrucoSpelled();
 
