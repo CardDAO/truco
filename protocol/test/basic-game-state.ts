@@ -1,8 +1,8 @@
 import {BigNumber} from "ethers";
 import {ChallengeEnum, ResponseEnum} from "./trucoV1/struct-enums";
 
-import { CardsStructs } from "../typechain-types/contracts/trucoV1/Engine"
-import GameStateStruct = CardsStructs.GameStateStruct
+import { IERC3333 } from "../typechain-types/contracts/trucoV1/interfaces/IERC3333"
+import GameStateStruct = IERC3333.GameStateStruct
 
 export function basicGameState(): GameStateStruct {
 

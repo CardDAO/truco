@@ -9,7 +9,7 @@ import "./interfaces/IChallengeResolver.sol";
 import "./interfaces/ICardsDeck.sol";
 import "./EngineQueries.sol";
 
-contract Engine is IERC3333, Ownable {
+contract Engine2Players is IERC3333, Ownable {
     IERC20 internal trucoin;
     IChallengeResolver internal envidoResolver;
     IChallengeResolver internal trucoResolver;

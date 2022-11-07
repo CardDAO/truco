@@ -26,7 +26,7 @@ export async function deployEngineContract() {
     cardsDeck.address
   )
 
-  const TrucoEngine = await ethers.getContractFactory("EngineTester")
+  const TrucoEngine = await ethers.getContractFactory("Engine2PlayersTester")
   const engine = await TrucoEngine.deploy(
     trucoin.address,
     trucoResolver.address,

@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-import "../Engine.sol";
+import "../Engine2Players.sol";
 
 // Test infrastructure for Engine testing: workaround for hardhat tests handling non view return values
-contract EngineTester is Engine {
+contract Engine2PlayersTester is Engine2Players {
     constructor(
         IERC20 _trucoin,
         IChallengeResolver _trucoResolver,
         IChallengeResolver _envidoResolver,
         EngineQueries _engineQueries
-    ) Engine(_trucoin, _trucoResolver, _envidoResolver, _engineQueries) {}
+    ) Engine2Players(_trucoin, _trucoResolver, _envidoResolver, _engineQueries) {}
 
     IERC3333.GameState public gameState;
 
