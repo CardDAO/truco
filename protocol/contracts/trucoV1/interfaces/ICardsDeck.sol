@@ -11,6 +11,8 @@ interface ICardsDeck {
 
     function maskedCardId() external view returns (uint8);
 
+    function numberOfCards() external view returns (uint8);
+
     function areSameSuit(uint8 _card1, uint8 _card2)
         external
         view
