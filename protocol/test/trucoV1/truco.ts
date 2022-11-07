@@ -30,6 +30,7 @@ describe("Truco Resolver", function () {
       state.playerTurn = currentPlayerIdx
 
       // Point at stake checkpoint
+      // @ts-ignore
       const pointAtStake: BigNumber = state.currentChallenge.pointsAtStake
 
       let move: MoveStruct = {
@@ -536,7 +537,7 @@ describe("Truco Resolver", function () {
       })
 
       it("Play a card, slot available", async function () {
-        const { engine, cardsDeck } = await deployEngineContract()
+        const { engine } = await deployEngineContract()
 
         let state: GameStateStruct = basicGameStateWithTrucoSpelled()
 
@@ -559,7 +560,8 @@ describe("Truco Resolver", function () {
           await engine.getRevealedCardsByPlayer()
 
         // Check resulting state
-        expect(revealedCards[currentPlayerIdx.toNumber()][0]).to.be.equal(
+        // @ts-ignore
+        expect(revealedCards[currentPlayerIdx][0]).to.be.equal(
           cardToPlay
         )
       })

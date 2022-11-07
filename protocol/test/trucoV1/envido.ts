@@ -96,6 +96,7 @@ describe("Envido Resolver", function () {
       let state: GameStateStruct = basicGameState()
 
       // Point at stake checkpoint
+      // @ts-ignore
       const pointAtStake: BigNumber = state.currentChallenge.pointsAtStake
 
       let move: MoveStruct = {
@@ -133,6 +134,7 @@ describe("Envido Resolver", function () {
       state.pointsToWin = BigNumber.from(30)
 
       // Point at stake checkpoint
+      // @ts-ignore
       const pointAtStake: BigNumber = state.currentChallenge.pointsAtStake
 
       let move: MoveStruct = {
