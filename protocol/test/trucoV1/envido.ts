@@ -125,6 +125,12 @@ describe("Envido Resolver", function () {
       // Check that point at stake didn't change on challenge, they should change on acceptance
       expect(result.currentChallenge.pointsAtStake).to.be.equal(pointAtStake)
       expect(result.currentChallenge.challenger).to.be.equal(currentPlayerIdx)
+
+      // Check that spell for envido spelled was added
+      expect(result.envido.spelled).to.be.true
+
+      // Check that envido points were not rewarded at this point
+      expect(result.envido.pointsRewarded).to.be.equal(BigNumber.from(0))
     })
 
     it("Spell Challenge: FaltaEnvido", async function () {
@@ -164,6 +170,12 @@ describe("Envido Resolver", function () {
       // Check that point at stake didn't change on challenge, they should change on acceptance
       expect(result.currentChallenge.pointsAtStake).to.be.equal(pointAtStake)
       expect(result.currentChallenge.challenger).to.be.equal(currentPlayerIdx)
+
+      // Check that spell for envido spelled was added
+      expect(result.envido.spelled).to.be.true
+
+      // Check that envido points were not rewarded at this point
+      expect(result.envido.pointsRewarded).to.be.equal(BigNumber.from(0))
     })
   })
 
@@ -184,10 +196,12 @@ describe("Envido Resolver", function () {
       state.currentChallenge.pointsAtStake = BigNumber.from(1)
       state.currentChallenge.response = BigNumber.from(ResponseEnum.None)
 
+      state.envido.spelled = true
+
       return state
     }
 
-    it("Invalid response: 'None'is not accepted as a challenge response", async function () {
+    it("Invalid response: 'None' is not accepted as a challenge response", async function () {
       const { engine } = await deployEngineContract()
 
       let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting()
@@ -275,10 +289,18 @@ describe("Envido Resolver", function () {
         BigNumber.from(ResponseEnum.Refuse)
       )
 
+      const nonAcceptedChallenge: BigNumber = BigNumber.from(1);
+
       // Points at stake shouldn't change on refusal
       expect(result.currentChallenge.pointsAtStake).to.be.equal(
-        BigNumber.from(1)
+          nonAcceptedChallenge
       )
+
+      // Check that spell for envido spelled was added
+      expect(result.envido.spelled).to.be.true
+
+      // Since it's final state, check that envido were rewarded on refusal
+      expect(result.envido.pointsRewarded).to.be.equal(nonAcceptedChallenge)
     })
 
     describe("Challenge Accepted: Points at stake changing on acceptance", function () {
@@ -311,6 +333,12 @@ describe("Envido Resolver", function () {
           BigNumber.from(2)
         )
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx)
+
+        // Check that spell for envido spelled was added
+        expect(result.envido.spelled).to.be.true
+
+        // Points at envido game state shouln't change if no one accepted the challenge
+        expect(result.envido.pointsRewarded).to.be.equal(BigNumber.from(0))
       })
 
       it("No challenge to RealEnvido", async function () {
@@ -346,6 +374,12 @@ describe("Envido Resolver", function () {
           BigNumber.from(3)
         )
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx)
+
+        // Check that spell for envido spelled was added
+        expect(result.envido.spelled).to.be.true
+
+        // Points at envido game state shouln't change if no one accepted the challenge
+        expect(result.envido.pointsRewarded).to.be.equal(BigNumber.from(0))
       })
 
       it("No challenge to FaltaEnvido", async function () {
@@ -381,6 +415,12 @@ describe("Envido Resolver", function () {
           BigNumber.from(30)
         )
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx)
+
+        // Check that spell for envido spelled was added
+        expect(result.envido.spelled).to.be.true
+
+        // Points at envido game state shouln't change if no one accepted the challenge
+        expect(result.envido.pointsRewarded).to.be.equal(BigNumber.from(0))
       })
 
       it("RealEnvido from None", async function () {
@@ -416,6 +456,12 @@ describe("Envido Resolver", function () {
           BigNumber.from(3)
         )
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx)
+
+        // Check that spell for envido spelled was added
+        expect(result.envido.spelled).to.be.true
+
+        // Points at envido game state shouln't change if no one accepted the challenge
+        expect(result.envido.pointsRewarded).to.be.equal(BigNumber.from(0))
       })
 
       it("FaltaEnvido from None", async function () {
@@ -451,6 +497,12 @@ describe("Envido Resolver", function () {
           BigNumber.from(3)
         )
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx)
+
+        // Check that spell for envido spelled was added
+        expect(result.envido.spelled).to.be.true
+
+        // Check that envido points were not rewarded at this point
+        expect(result.envido.pointsRewarded).to.be.equal(BigNumber.from(0))
       })
 
       it("RealEnvido from Envido", async function () {
@@ -487,6 +539,12 @@ describe("Envido Resolver", function () {
           BigNumber.from(5)
         )
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx)
+
+        // Check that spell for envido spelled was added
+        expect(result.envido.spelled).to.be.true
+
+        // Check that envido points were not rewarded at this point
+        expect(result.envido.pointsRewarded).to.be.equal(BigNumber.from(0))
       })
 
       it("EnvidoEnvido from Envido", async function () {
@@ -524,6 +582,12 @@ describe("Envido Resolver", function () {
           BigNumber.from(4)
         )
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx)
+
+        // Check that spell for envido spelled was added
+        expect(result.envido.spelled).to.be.true
+
+        // Check that envido points were not rewarded at this point
+        expect(result.envido.pointsRewarded).to.be.equal(BigNumber.from(0))
       })
 
       it("FaltaEnvido from Envido", async function () {
@@ -561,6 +625,13 @@ describe("Envido Resolver", function () {
           BigNumber.from(30)
         )
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx)
+
+        // Check that spell for envido spelled was added
+        expect(result.envido.spelled).to.be.true
+
+        // Check that envido points were not rewarded at this point
+        expect(result.envido.pointsRewarded).to.be.equal(BigNumber.from(0))
+
       })
 
       it("RealEnvido from EnvidoEnvido", async function () {
@@ -597,6 +668,12 @@ describe("Envido Resolver", function () {
           BigNumber.from(7)
         )
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx)
+
+        // Check that spell for envido spelled was added
+        expect(result.envido.spelled).to.be.true
+
+        // Check that envido points were not rewarded at this point
+        expect(result.envido.pointsRewarded).to.be.equal(BigNumber.from(0))
       })
     })
   })
@@ -614,6 +691,8 @@ describe("Envido Resolver", function () {
       state.currentChallenge.waitingChallengeResponse = false
       state.currentChallenge.response = BigNumber.from(ResponseEnum.Refuse)
       state.currentChallenge.pointsAtStake = BigNumber.from(2)
+
+      state.envido.spelled = true
 
       return state
     }
@@ -708,6 +787,7 @@ describe("Envido Resolver", function () {
       state.currentChallenge.response = BigNumber.from(ResponseEnum.Accept)
       state.currentChallenge.pointsAtStake = BigNumber.from(2)
 
+      state.envido.spelled = true
       return state
     }
     describe("Out of order moves", function () {
@@ -952,7 +1032,7 @@ describe("Envido Resolver", function () {
 
         let state: GameStateStruct = gameStateWithEnvidoSpell()
 
-        state.envidoCountPerPlayer[otherPlayerIdx.toNumber()] =
+        state.envido.playerCount[otherPlayerIdx.toNumber()] =
           BigNumber.from(33)
 
         let move: MoveStruct = {
@@ -968,6 +1048,14 @@ describe("Envido Resolver", function () {
 
         // Spell envido count should go fine
         await engine.executeTransaction(transaction)
+
+        let result: GameStateStruct = await engine.gameState()
+
+        // Check resulting state from current points being spelled
+        expect(result.envido.spelled).to.be.true
+
+        //Check that points rewarded are correct
+        expect(result.envido.pointsRewarded).to.be.equal(result.currentChallenge.pointsAtStake)
       })
 
       it("Spell envido count being the player who didn't shuffle deck", async function () {
@@ -1011,18 +1099,22 @@ describe("Envido Resolver", function () {
         // Spell envido count should go fine
         await engine.executeTransaction(transaction)
 
-        // This is a workaround to get envido points for player, since fetching current game state and accessing envidoCountPerPlayer is not working
-        let result: BigNumber[] = await engine.getEnvidoPoints()
+        let result: BigNumber[] = await engine.gameState()
+
+        expect(result.envido.spelled).to.be.true
 
         // Check resulting state from current points being spelled
-        expect(result[otherPlayerIdx.toNumber()]).to.be.equal(
+        expect(result.envido.playerCount[otherPlayerIdx.toNumber()]).to.be.equal(
           move.parameters[0]
         )
 
         // Check counterparty envido points
-        expect(result[currentPlayerIdx.toNumber()]).to.be.equal(
+        expect(result.envido.playerCount[currentPlayerIdx.toNumber()]).to.be.equal(
           BigNumber.from(0)
         )
+
+        // No points rewarded yet, since envido count from other player is yet to be spelled
+        expect(result.envido.pointsRewarded).to.be.equal(BigNumber.from(0))
       })
 
       it("Spell envido count being who shuffle the deck", async function () {
@@ -1041,19 +1133,24 @@ describe("Envido Resolver", function () {
           state: state,
         }
 
-        state.envidoCountPerPlayer[otherPlayerIdx.toNumber()] =
+        state.envido.playerCount[otherPlayerIdx.toNumber()] =
           BigNumber.from(33)
 
         // Spell envido count should go fine
         await engine.executeTransaction(transaction)
 
-        // This is a workaround to get envido points for player, since fetching current game state and accessing envidoCountPerPlayer is not working
-        let result: BigNumber[] = await engine.getEnvidoPoints()
+        let result: BigNumber[] = await engine.gameState()
 
-        // Check resulting state
-        expect(result[currentPlayerIdx.toNumber()]).to.be.equal(
-          move.parameters[0]
+        expect(result.envido.spelled).to.be.true
+
+        // Check resulting state from current points being spelled
+        expect(result.envido.playerCount[currentPlayerIdx.toNumber()]).to.be.equal(
+            move.parameters[0]
         )
+
+        // Points should be rewarded since envido count from other player is already spelled
+        expect(result.envido.pointsRewarded).to.be.equal(result.currentChallenge.pointsAtStake)
+
       })
     })
   })
@@ -1072,9 +1169,11 @@ describe("Envido Resolver", function () {
       state.currentChallenge.pointsAtStake = BigNumber.from(2)
       state.currentChallenge.response = BigNumber.from(ResponseEnum.Accept)
 
-      state.envidoCountPerPlayer[currentPlayerIdx.toNumber()] =
+      state.envido.spelled = true
+      state.envido.pointsRewarded = state.currentChallenge.pointsAtStake
+      state.envido.playerCount[currentPlayerIdx.toNumber()] =
         BigNumber.from(10)
-      state.envidoCountPerPlayer[otherPlayerIdx.toNumber()] =
+      state.envido.playerCount[otherPlayerIdx.toNumber()] =
         BigNumber.from(20)
 
       return state
@@ -1162,9 +1261,9 @@ describe("Envido Resolver", function () {
 
         let state: GameStateStruct = gameStateWithEnvidoSpellFinished()
 
-        state.envidoCountPerPlayer[currentPlayerIdx.toNumber()] =
+        state.envido.playerCount[currentPlayerIdx.toNumber()] =
           BigNumber.from(33)
-        state.envidoCountPerPlayer[otherPlayerIdx.toNumber()] =
+        state.envido.playerCount[otherPlayerIdx.toNumber()] =
           BigNumber.from(33)
 
         state.playerWhoShuffled = currentPlayerIdx
@@ -1182,9 +1281,9 @@ describe("Envido Resolver", function () {
 
         let state: GameStateStruct = gameStateWithEnvidoSpellFinished()
 
-        state.envidoCountPerPlayer[currentPlayerIdx.toNumber()] =
+        state.envido.playerCount[currentPlayerIdx.toNumber()] =
           BigNumber.from(33)
-        state.envidoCountPerPlayer[otherPlayerIdx.toNumber()] =
+        state.envido.playerCount[otherPlayerIdx.toNumber()] =
           BigNumber.from(33)
 
         state.playerWhoShuffled = otherPlayerIdx
@@ -1202,9 +1301,9 @@ describe("Envido Resolver", function () {
 
         let state: GameStateStruct = gameStateWithEnvidoSpellFinished()
 
-        state.envidoCountPerPlayer[currentPlayerIdx.toNumber()] =
+        state.envido.playerCount[currentPlayerIdx.toNumber()] =
           BigNumber.from(30)
-        state.envidoCountPerPlayer[otherPlayerIdx.toNumber()] =
+        state.envido.playerCount[otherPlayerIdx.toNumber()] =
           BigNumber.from(20)
 
         state.playerWhoShuffled = otherPlayerIdx
@@ -1216,9 +1315,9 @@ describe("Envido Resolver", function () {
         // Check resulting state
         expect(result).to.be.equal(currentPlayerIdx)
 
-        state.envidoCountPerPlayer[currentPlayerIdx.toNumber()] =
+        state.envido.playerCount[currentPlayerIdx.toNumber()] =
           BigNumber.from(20)
-        state.envidoCountPerPlayer[otherPlayerIdx.toNumber()] =
+        state.envido.playerCount[otherPlayerIdx.toNumber()] =
           BigNumber.from(30)
 
         state.playerWhoShuffled = otherPlayerIdx

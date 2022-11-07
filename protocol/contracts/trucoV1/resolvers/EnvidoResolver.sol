@@ -57,8 +57,8 @@ contract EnvidoResolver is IChallengeResolver {
                 );
             }
             require(
-                _gameState.envidoCountPerPlayer[_gameState.playerTurn] == 0 &&
-                    _gameState.envidoCountPerPlayer[
+                _gameState.envido.playerCount[_gameState.playerTurn] == 0 &&
+                    _gameState.envido.playerCount[
                         reversePlayer(_gameState.playerTurn)
                     ] ==
                     0
@@ -78,6 +78,9 @@ contract EnvidoResolver is IChallengeResolver {
                 newChallenge > _gameState.currentChallenge.challenge,
                 "Can't rise a challenge with a lower value"
             );
+
+            // Since envido is being spelled, state should be set accordingly
+            _gameState.envido.spelled = true;
 
             _gameState.currentChallenge.challenge = newChallenge;
             _gameState.currentChallenge.response = IERC3333.Response.None;
@@ -113,9 +116,12 @@ contract EnvidoResolver is IChallengeResolver {
 
             _gameState.currentChallenge.response = response;
             _gameState.currentChallenge.waitingChallengeResponse = false;
+            _gameState.currentChallenge.pointsAtStake;
 
             // If response is a refusal, the challenge is over
             if (response == IERC3333.Response.Refuse) {
+                // Reward points to the challenger
+                _gameState.envido.pointsRewarded = _gameState.currentChallenge.pointsAtStake;
                 return _gameState;
             }
 
@@ -166,12 +172,12 @@ contract EnvidoResolver is IChallengeResolver {
             ) {
                 // Current player challenged envido, so we must ensure other player already cast it's envido count
                 require(
-                    _gameState.envidoCountPerPlayer[
+                    _gameState.envido.playerCount[
                         reversePlayer(_gameState.playerTurn)
                     ] != 0
                 );
                 require(
-                    _gameState.envidoCountPerPlayer[_gameState.playerTurn] == 0
+                    _gameState.envido.playerCount[_gameState.playerTurn] == 0
                 );
             }
 
@@ -183,9 +189,15 @@ contract EnvidoResolver is IChallengeResolver {
 
             //Do envido count
             uint8 envidoCount = _move.parameters[0];
-            _gameState.envidoCountPerPlayer[
+            _gameState.envido.playerCount[
                 _gameState.playerTurn
             ] = envidoCount;
+
+            if (isEnvidoCountFinished(_gameState)) {
+                // If game is final, we should reward points to the winner
+                _gameState.envido.pointsRewarded = _gameState.currentChallenge.pointsAtStake;
+            }
+
             return _gameState;
         }
 
@@ -230,18 +242,7 @@ contract EnvidoResolver is IChallengeResolver {
         // At this point we can assume challenge was accepted
 
         // Check if any of the players remain to spell their envido count
-        if (
-            _gameState.envidoCountPerPlayer[_gameState.playerTurn] == 0 ||
-            _gameState.envidoCountPerPlayer[
-                reversePlayer(_gameState.playerTurn)
-            ] ==
-            0
-        ) {
-            return false;
-        }
-
-        // All other cases are final
-        return true;
+        return isEnvidoCountFinished(_gameState);
     }
 
     function getWinner(IERC3333.GameState memory _gameState)
@@ -262,8 +263,8 @@ contract EnvidoResolver is IChallengeResolver {
 
         // If the same points for envido were spoken by all players, "mano" won (the opponent of the deck shuffler)
         if (
-            _gameState.envidoCountPerPlayer[_gameState.playerTurn] ==
-            _gameState.envidoCountPerPlayer[
+            _gameState.envido.playerCount[_gameState.playerTurn] ==
+            _gameState.envido.playerCount[
                 reversePlayer(_gameState.playerTurn)
             ]
         ) {
@@ -272,8 +273,8 @@ contract EnvidoResolver is IChallengeResolver {
 
         // Last but not least: the player with the highest envido count wins
         if (
-            _gameState.envidoCountPerPlayer[_gameState.playerTurn] >
-            _gameState.envidoCountPerPlayer[
+            _gameState.envido.playerCount[_gameState.playerTurn] >
+            _gameState.envido.playerCount[
                 reversePlayer(_gameState.playerTurn)
             ]
         ) {
@@ -316,5 +317,19 @@ contract EnvidoResolver is IChallengeResolver {
         }
 
         revert("Invalid challenge");
+    }
+
+    function isEnvidoCountFinished(IERC3333.GameState memory _gameState) internal view returns (bool) {
+        if (
+            _gameState.envido.playerCount[_gameState.playerTurn] == 0 ||
+            _gameState.envido.playerCount[
+                reversePlayer(_gameState.playerTurn)
+            ] ==
+            0
+        ) {
+            return false;
+        }
+
+        return true;
     }
 }

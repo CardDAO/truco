@@ -2,7 +2,7 @@
 pragma solidity 0.8.16;
 
 /**
- * @title ERC3333 interface for turn Truco Games based on the Blockchain
+ * @title ERC3333 interface for turn based Truco card games on the Blockchain
  * @dev see ERC-3333 proposal
  */
 interface IERC3333 {
@@ -44,9 +44,16 @@ interface IERC3333 {
     struct CurrentChallenge {
         Challenge challenge;
         uint8 challenger;
-        uint8 pointsAtStake;
+        uint8 pointsAtStake; // Amount of points that will be added to the winner's score when challenge is resolved
         bool waitingChallengeResponse;
         Response response;
+    }
+
+    // Envido State
+    struct EnvidoState {
+        bool spelled; // True if envido was spelled by some player, does not mean it was accepted, refused or played
+        uint8[] playerCount; // Points count per player, 0 if not played
+        uint8 pointsRewarded; // Points rewarded to the winner, if there's no winner yet, it's 0
     }
 
     // Game state representation
@@ -56,7 +63,7 @@ interface IERC3333 {
         uint8 pointsToWin;
         CurrentChallenge currentChallenge;
         uint8[3][] revealedCardsByPlayer;
-        uint8[] envidoCountPerPlayer;
+        EnvidoState envido;
         uint8[] teamPoints; //points indexed by team id (in this case a player is a team)
     }
 
