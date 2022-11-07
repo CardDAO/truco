@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import '@openzeppelin/contracts/access/Ownable.sol';
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
-import "./interfaces/IERC3333.sol";
-import "./interfaces/IChallengeResolver.sol";
-import "./interfaces/ICardsDeck.sol";
-import "./EngineQueries.sol";
+import './interfaces/IERC3333.sol';
+import './interfaces/IChallengeResolver.sol';
+import './interfaces/ICardsDeck.sol';
+import './EngineQueries.sol';
 
 contract Engine2Players is IERC3333, Ownable {
     IERC20 internal trucoin;
@@ -17,7 +17,12 @@ contract Engine2Players is IERC3333, Ownable {
 
     uint8 internal constant POINTS_NO_CHALLENGE = 1;
 
-    constructor(IERC20 _trucoin, IChallengeResolver _trucoResolver, IChallengeResolver _envidoResolver, EngineQueries _engineQueries) {
+    constructor(
+        IERC20 _trucoin,
+        IChallengeResolver _trucoResolver,
+        IChallengeResolver _envidoResolver,
+        EngineQueries _engineQueries
+    ) {
         trucoin = _trucoin;
         envidoResolver = _envidoResolver;
         trucoResolver = _trucoResolver;
@@ -53,7 +58,7 @@ contract Engine2Players is IERC3333, Ownable {
         // Check correct turn
         require(
             transaction.state.playerTurn == transaction.playerIdx,
-            "Incorrect player turn"
+            'Incorrect player turn'
         );
 
         gameState = transaction.state;
@@ -78,15 +83,16 @@ contract Engine2Players is IERC3333, Ownable {
         IERC3333.Move memory _move
     ) internal view returns (IERC3333.GameState memory) {
         // Verify if it's a valid move
-        require(engineQueries.isMoveValid(_gameState, _move), "Move is invalid");
+        require(
+            engineQueries.isMoveValid(_gameState, _move),
+            'Move is invalid'
+        );
 
         if (_move.action == IERC3333.Action.Resign) {
             // Resign
         }
 
-        if (
-            _gameState.currentChallenge.challenge == IERC3333.Challenge.None
-        ) {
+        if (_gameState.currentChallenge.challenge == IERC3333.Challenge.None) {
             if (_move.action == IERC3333.Action.PlayCard) {
                 return trucoResolver.resolve(_gameState, _move);
             }
@@ -106,7 +112,7 @@ contract Engine2Players is IERC3333, Ownable {
             return trucoResolver.resolve(_gameState, _move);
         }
 
-        revert("Invalid move for given game state");
+        revert('Invalid move for given game state');
     }
 
     // [Owner] Transfer gained fees to an arbitrary address

@@ -1,15 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-import "./interfaces/IChallengeResolver.sol";
-import "./interfaces/ICardsDeck.sol";
+import './interfaces/IChallengeResolver.sol';
+import './interfaces/ICardsDeck.sol';
 
-contract EngineQueries  {
+contract EngineQueries {
     IChallengeResolver internal envidoResolver;
     IChallengeResolver internal trucoResolver;
     ICardsDeck internal cardsDeck;
 
-    constructor(IChallengeResolver _trucoResolver, IChallengeResolver _envidoResolver, ICardsDeck _cardsDeck) {
+    constructor(
+        IChallengeResolver _trucoResolver,
+        IChallengeResolver _envidoResolver,
+        ICardsDeck _cardsDeck
+    ) {
         envidoResolver = _envidoResolver;
         trucoResolver = _trucoResolver;
         cardsDeck = _cardsDeck;
@@ -24,9 +28,7 @@ contract EngineQueries  {
             return false;
         }
         return
-            envidoResolver.canResolve(
-                IERC3333.Challenge(_move.parameters[0])
-            );
+            envidoResolver.canResolve(IERC3333.Challenge(_move.parameters[0]));
     }
 
     function isMoveAChallengeForTruco(IERC3333.Move memory _move)
@@ -38,11 +40,8 @@ contract EngineQueries  {
             return false;
         }
         return
-            trucoResolver.canResolve(
-                IERC3333.Challenge(_move.parameters[0])
-            );
+            trucoResolver.canResolve(IERC3333.Challenge(_move.parameters[0]));
     }
-
 
     function isGameEnded(IERC3333.GameState memory gameState)
         external
@@ -60,18 +59,18 @@ contract EngineQueries  {
         returns (bool)
     {
         return
-            ! envidoResolver.isFinal(gameState) &&
-            ( gameState.revealedCardsByPlayer[0][0]== 0 || gameState.revealedCardsByPlayer[1][0]== 0);
+            !envidoResolver.isFinal(gameState) &&
+            (gameState.revealedCardsByPlayer[0][0] == 0 ||
+                gameState.revealedCardsByPlayer[1][0] == 0);
     }
-
 
     // Get envido points of a given set of cards
     function getEnvidoPointsForCards(uint8[] memory _cards)
-    public
-    view
-    returns (uint8 _envido)
+        public
+        view
+        returns (uint8 _envido)
     {
-        require (_cards.length <= 3, "Invalid number of cards");
+        require(_cards.length <= 3, 'Invalid number of cards');
 
         ICardsDeck.Card[3] memory validCards;
         uint8 numValidCards;
@@ -127,13 +126,12 @@ contract EngineQueries  {
         return _envido;
     }
 
-    function getEnvidoPointsForCardPair(ICardsDeck.Card memory card1, ICardsDeck.Card memory card2 )
-    internal view
-    returns (uint8) {
-
+    function getEnvidoPointsForCardPair(
+        ICardsDeck.Card memory card1,
+        ICardsDeck.Card memory card2
+    ) internal view returns (uint8) {
         // Check if cards are of the same suit, in that case return the number that's bigger
         if (card1.suit != card2.suit) {
-
             // Both figures
             if (card1.value >= 10 && card2.value >= 10) {
                 return 0;

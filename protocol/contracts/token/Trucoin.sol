@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20FlashMint.sol";
+import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
+import '@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol';
+import '@openzeppelin/contracts/security/Pausable.sol';
+import '@openzeppelin/contracts/access/Ownable.sol';
+import '@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol';
+import '@openzeppelin/contracts/token/ERC20/extensions/ERC20FlashMint.sol';
 
 contract Trucoin is
     ERC20,
@@ -16,7 +16,7 @@ contract Trucoin is
     ERC20Permit,
     ERC20FlashMint
 {
-    constructor() ERC20("Trucoin", "TC") ERC20Permit("Trucoin") {}
+    constructor() ERC20('Trucoin', 'TC') ERC20Permit('Trucoin') {}
 
     function pause() public onlyOwner {
         _pause();
