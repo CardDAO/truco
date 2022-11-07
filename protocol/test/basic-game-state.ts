@@ -27,7 +27,7 @@ export function basicGameState(): GameStateStruct {
     envido: {
       spelled: false,
       playerCount: [BigNumber.from(0), BigNumber.from(0)],
-      points: BigNumber.from(0),
+      pointsRewarded: BigNumber.from(0),
     },
     teamPoints: [BigNumber.from(0), BigNumber.from(0)],
   }
