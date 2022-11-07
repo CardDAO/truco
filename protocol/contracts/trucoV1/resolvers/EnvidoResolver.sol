@@ -79,6 +79,10 @@ contract EnvidoResolver is IChallengeResolver {
                 "Can't rise a challenge with a lower value"
             );
 
+            // Since envido is being spelled, state shouuld be set accordingly
+            _gameState.envido.spelled = true;
+            _gameState.envido.points = _gameState.currentChallenge.pointsAtStake;
+
             _gameState.currentChallenge.challenge = newChallenge;
             _gameState.currentChallenge.response = IERC3333.Response.None;
             _gameState.currentChallenge.waitingChallengeResponse = true;
@@ -113,6 +117,7 @@ contract EnvidoResolver is IChallengeResolver {
 
             _gameState.currentChallenge.response = response;
             _gameState.currentChallenge.waitingChallengeResponse = false;
+            _gameState.envido.points = _gameState.currentChallenge.pointsAtStake;
 
             // If response is a refusal, the challenge is over
             if (response == IERC3333.Response.Refuse) {
@@ -130,7 +135,7 @@ contract EnvidoResolver is IChallengeResolver {
                 _gameState.currentChallenge.challenge ==
                 IERC3333.Challenge.FaltaEnvido
             ) {
-                _gameState.currentChallenge.pointsAtStake = pointsPerChallenge(
+                _gameState.envido.points = _gameState.currentChallenge.pointsAtStake = pointsPerChallenge(
                     _gameState.currentChallenge.challenge,
                     _gameState
                 );
@@ -139,7 +144,7 @@ contract EnvidoResolver is IChallengeResolver {
             }
 
             // Previous challenge was accepted, so we should add the new challenge points to the current points at stake
-            _gameState.currentChallenge.pointsAtStake += pointsPerChallenge(
+            _gameState.envido.points =  _gameState.currentChallenge.pointsAtStake += pointsPerChallenge(
                 _gameState.currentChallenge.challenge,
                 _gameState
             );

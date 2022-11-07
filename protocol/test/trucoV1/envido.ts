@@ -125,6 +125,12 @@ describe("Envido Resolver", function () {
       // Check that point at stake didn't change on challenge, they should change on acceptance
       expect(result.currentChallenge.pointsAtStake).to.be.equal(pointAtStake)
       expect(result.currentChallenge.challenger).to.be.equal(currentPlayerIdx)
+
+      // Check that spell for envido spelled was added
+      expect(result.envido.spelled).to.be.true
+
+      // Points at envido game state shouln't change if no one accepted the challenge
+      expect(result.envido.points).to.be.equal(pointAtStake)
     })
 
     it("Spell Challenge: FaltaEnvido", async function () {
@@ -164,6 +170,12 @@ describe("Envido Resolver", function () {
       // Check that point at stake didn't change on challenge, they should change on acceptance
       expect(result.currentChallenge.pointsAtStake).to.be.equal(pointAtStake)
       expect(result.currentChallenge.challenger).to.be.equal(currentPlayerIdx)
+
+      // Check that spell for envido spelled was added
+      expect(result.envido.spelled).to.be.true
+
+      // Points at envido game state shouln't change if no one accepted the challenge
+      expect(result.envido.points).to.be.equal(pointAtStake)
     })
   })
 
@@ -184,10 +196,13 @@ describe("Envido Resolver", function () {
       state.currentChallenge.pointsAtStake = BigNumber.from(1)
       state.currentChallenge.response = BigNumber.from(ResponseEnum.None)
 
+      state.envido.spelled = true
+      state.currentChallenge.points = state.currentChallenge.pointsAtStake
+
       return state
     }
 
-    it("Invalid response: 'None'is not accepted as a challenge response", async function () {
+    it("Invalid response: 'None' is not accepted as a challenge response", async function () {
       const { engine } = await deployEngineContract()
 
       let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting()
@@ -275,10 +290,18 @@ describe("Envido Resolver", function () {
         BigNumber.from(ResponseEnum.Refuse)
       )
 
+      const nonAcceptedChallenge: BigNumber = BigNumber.from(1);
+
       // Points at stake shouldn't change on refusal
       expect(result.currentChallenge.pointsAtStake).to.be.equal(
-        BigNumber.from(1)
+          nonAcceptedChallenge
       )
+
+      // Check that spell for envido spelled was added
+      expect(result.envido.spelled).to.be.true
+
+      // Points at envido game state shouln't change if no one accepted the challenge
+      expect(result.envido.points).to.be.equal(nonAcceptedChallenge)
     })
 
     describe("Challenge Accepted: Points at stake changing on acceptance", function () {
@@ -311,6 +334,12 @@ describe("Envido Resolver", function () {
           BigNumber.from(2)
         )
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx)
+
+        // Check that spell for envido spelled was added
+        expect(result.envido.spelled).to.be.true
+
+        // Points at envido game state shouln't change if no one accepted the challenge
+        expect(result.envido.points).to.be.equal(BigNumber.from(2))
       })
 
       it("No challenge to RealEnvido", async function () {
@@ -346,6 +375,12 @@ describe("Envido Resolver", function () {
           BigNumber.from(3)
         )
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx)
+
+        // Check that spell for envido spelled was added
+        expect(result.envido.spelled).to.be.true
+
+        // Points at envido game state shouln't change if no one accepted the challenge
+        expect(result.envido.points).to.be.equal(BigNumber.from(3))
       })
 
       it("No challenge to FaltaEnvido", async function () {
@@ -381,6 +416,12 @@ describe("Envido Resolver", function () {
           BigNumber.from(30)
         )
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx)
+
+        // Check that spell for envido spelled was added
+        expect(result.envido.spelled).to.be.true
+
+        // Points at envido game state shouln't change if no one accepted the challenge
+        expect(result.envido.points).to.be.equal(BigNumber.from(30))
       })
 
       it("RealEnvido from None", async function () {
@@ -416,6 +457,12 @@ describe("Envido Resolver", function () {
           BigNumber.from(3)
         )
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx)
+
+        // Check that spell for envido spelled was added
+        expect(result.envido.spelled).to.be.true
+
+        // Points at envido game state shouln't change if no one accepted the challenge
+        expect(result.envido.points).to.be.equal(BigNumber.from(3))
       })
 
       it("FaltaEnvido from None", async function () {
@@ -451,6 +498,12 @@ describe("Envido Resolver", function () {
           BigNumber.from(3)
         )
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx)
+
+        // Check that spell for envido spelled was added
+        expect(result.envido.spelled).to.be.true
+
+        // Points at envido game state shouln't change if no one accepted the challenge
+        expect(result.envido.points).to.be.equal(BigNumber.from(3))
       })
 
       it("RealEnvido from Envido", async function () {
@@ -487,6 +540,12 @@ describe("Envido Resolver", function () {
           BigNumber.from(5)
         )
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx)
+
+        // Check that spell for envido spelled was added
+        expect(result.envido.spelled).to.be.true
+
+        // Points at envido game state shouln't change if no one accepted the challenge
+        expect(result.envido.points).to.be.equal(BigNumber.from(5))
       })
 
       it("EnvidoEnvido from Envido", async function () {
@@ -524,6 +583,12 @@ describe("Envido Resolver", function () {
           BigNumber.from(4)
         )
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx)
+
+        // Check that spell for envido spelled was added
+        expect(result.envido.spelled).to.be.true
+
+        // Points at envido game state shouln't change if no one accepted the challenge
+        expect(result.envido.points).to.be.equal(BigNumber.from(4))
       })
 
       it("FaltaEnvido from Envido", async function () {
@@ -561,6 +626,13 @@ describe("Envido Resolver", function () {
           BigNumber.from(30)
         )
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx)
+
+        // Check that spell for envido spelled was added
+        expect(result.envido.spelled).to.be.true
+
+        // Points at envido game state shouln't change if no one accepted the challenge
+        expect(result.envido.points).to.be.equal(BigNumber.from(30))
+
       })
 
       it("RealEnvido from EnvidoEnvido", async function () {
@@ -597,6 +669,12 @@ describe("Envido Resolver", function () {
           BigNumber.from(7)
         )
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx)
+
+        // Check that spell for envido spelled was added
+        expect(result.envido.spelled).to.be.true
+
+        // Points at envido game state shouln't change if no one accepted the challenge
+        expect(result.envido.points).to.be.equal(BigNumber.from(7))
       })
     })
   })
@@ -614,6 +692,9 @@ describe("Envido Resolver", function () {
       state.currentChallenge.waitingChallengeResponse = false
       state.currentChallenge.response = BigNumber.from(ResponseEnum.Refuse)
       state.currentChallenge.pointsAtStake = BigNumber.from(2)
+
+      state.envido.spelled = true
+      state.currentChallenge.points = state.currentChallenge.pointsAtStake
 
       return state
     }
@@ -707,6 +788,9 @@ describe("Envido Resolver", function () {
       state.currentChallenge.waitingChallengeResponse = false
       state.currentChallenge.response = BigNumber.from(ResponseEnum.Accept)
       state.currentChallenge.pointsAtStake = BigNumber.from(2)
+
+      state.envido.spelled = true
+      state.currentChallenge.points = state.currentChallenge.pointsAtStake
 
       return state
     }
@@ -1072,6 +1156,8 @@ describe("Envido Resolver", function () {
       state.currentChallenge.pointsAtStake = BigNumber.from(2)
       state.currentChallenge.response = BigNumber.from(ResponseEnum.Accept)
 
+      state.envido.spelled = true
+      state.currentChallenge.points = state.currentChallenge.pointsAtStake
       state.envido.playerCount[currentPlayerIdx.toNumber()] =
         BigNumber.from(10)
       state.envido.playerCount[otherPlayerIdx.toNumber()] =
