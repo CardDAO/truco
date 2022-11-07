@@ -385,30 +385,10 @@ contract TrucoResolver {
         return i;
     }
 
+    // @dev Card Hierarchy for Castillian Suited Card Deck, see CastillianDeck.sol (IDeck impl) for deck card definition
     function getCardsHierarchy() internal pure returns (uint8[41] memory) {
-        /*****************************************************************
-        Card Hierarchy for Castillian Suited Card Deck
-
-        See: https://en.wikipedia.org/wiki/Spanish-suited_playing_cards#Castilian_pattern
-
-        Deck definition:
-
-        Coins: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
-        Cups: 11, 12, 13, 14, 15, 16, 17, 18, 19, 20
-        Swords: 21, 22, 23, 24, 25, 26, 27, 28, 29, 30
-        Clubs: 31, 32, 33, 34, 35, 36, 37, 38, 39, 40
-
-        Last three cards of each suit are 'Knave', 'Knight', 'King'.
-
-        ID 0 is reserved for masked cards
-
-        Example:
-          - Card ID 8 is Knave of Coins
-          - Card ID 19 is Knight of Cups
-          - Card ID 21 is Ace of Swords
-
-        Code:
-
+        /*
+        // Generation Code
         uint8[41] memory hierarchy;
 
         hierarchy[21] = 1; // Ace of Swords
@@ -445,8 +425,7 @@ contract TrucoResolver {
 
         // All 4s
         hierarchy[4] = hierarchy[14] = hierarchy[24] = hierarchy[34] = 14;
-
-        *****************************************************************/
+        */
 
         // This array was created using previously described code and pre-calculated to avoid memory expansion and gas costs
         return [

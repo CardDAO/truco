@@ -14,6 +14,15 @@ contract CastillianDeck is ICardsDeck {
      1 (Cups): 11, 12, 13, 14, 15, 16, 17, 18, 19, 20
      2 (Swords): 21, 22, 23, 24, 25, 26, 27, 28, 29, 30
      3 (Clubs): 31, 32, 33, 34, 35, 36, 37, 38, 39, 40
+
+     Last three cards of each suit are 'Knave', 'Knight', 'King'.
+
+    ID 0 is reserved for masked cards
+
+    Example:
+      - Card ID 8 is Knave of Coins
+      - Card ID 19 is Knight of Cups
+      - Card ID 21 is Ace of Swords
     */
 
     function suitName(uint8 _card) public view returns (string memory)
