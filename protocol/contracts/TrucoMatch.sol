@@ -130,30 +130,4 @@ contract TrucoMatch  {
     function getPlayers() public view returns (address[2] memory) {
         return [currentMatch.players[0].playerAddress, currentMatch.players[1].playerAddress];
     }
-
-    // [Test Functions] --------------------------------------------------------------
-
-
-    // [Test] Deck getter
-    function getDeck() public view returns (CardsStructs.Deck memory) {
-        return currentMatch.deck;
-    }
-
-    // [Test] Card getter
-    function getCardAtId(uint8 id) public view returns (bytes1 card){
-        card  =  currentMatch.deck.cards[id];
-    }
-
-    // [Test] Creates an unencrypted deck using all ordered cards
-    function createDeck() public {
-
-        bytes1[CardsCount] memory cards = currentMatch.deck.cards;
-
-        // pack  cards into bytes
-        for (uint8 i = 0; i < CardsCount; i++) {
-            cards[i] =  bytes1(i);
-        }
-
-        currentMatch.deck.cards = cards;
-    }
 }
