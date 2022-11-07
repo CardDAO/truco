@@ -5,8 +5,8 @@ import { IERC3333 } from '../typechain-types/contracts/trucoV1/interfaces/IERC33
 import GameStateStruct = IERC3333.GameStateStruct
 
 export function basicGameState(): GameStateStruct {
-    const defaultPlayerId = BigNumber.from(0)
-    const maskedCard = BigNumber.from(0) // see ICardsDeck impl:  CastillianDeck.sol
+       const defaultPlayerId = BigNumber.from(0)
+       const maskedCard = BigNumber.from(0) // see ICardsDeck impl:  CastillianDeck.sol
 
     return {
         playerTurn: BigNumber.from(defaultPlayerId),
