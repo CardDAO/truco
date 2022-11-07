@@ -10,7 +10,14 @@ contract Engine2PlayersTester is Engine2Players {
         IChallengeResolver _trucoResolver,
         IChallengeResolver _envidoResolver,
         EngineQueries _engineQueries
-    ) Engine2Players(_trucoin, _trucoResolver, _envidoResolver, _engineQueries) {}
+    )
+        Engine2Players(
+            _trucoin,
+            _trucoResolver,
+            _envidoResolver,
+            _engineQueries
+        )
+    {}
 
     IERC3333.GameState public gameState;
 

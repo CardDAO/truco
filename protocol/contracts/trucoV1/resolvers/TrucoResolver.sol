@@ -17,8 +17,7 @@ contract TrucoResolver {
 
         // When current challenge is at a refusal state, no new moves can be processed
         if (
-            _gameState.currentChallenge.challenge !=
-            IERC3333.Challenge.None &&
+            _gameState.currentChallenge.challenge != IERC3333.Challenge.None &&
             _gameState.currentChallenge.response == IERC3333.Response.Refuse
         ) {
             revert(
@@ -47,8 +46,7 @@ contract TrucoResolver {
 
             // Check challenger only if it's a raise (comes from a state of no current challenge)
             if (
-                _gameState.currentChallenge.challenge !=
-                IERC3333.Challenge.None
+                _gameState.currentChallenge.challenge != IERC3333.Challenge.None
             ) {
                 require(
                     _gameState.playerTurn !=
@@ -88,13 +86,10 @@ contract TrucoResolver {
             // - Can't be the challenger
             // - Should be a valid response
             require(
-                _gameState.currentChallenge.response ==
-                    IERC3333.Response.None
+                _gameState.currentChallenge.response == IERC3333.Response.None
             );
 
-            IERC3333.Response response = IERC3333.Response(
-                _move.parameters[0]
-            );
+            IERC3333.Response response = IERC3333.Response(_move.parameters[0]);
 
             require(
                 response == IERC3333.Response.Accept ||
@@ -180,9 +175,7 @@ contract TrucoResolver {
         returns (bool)
     {
         //If a refusal was made, game is final
-        if (
-            _gameState.currentChallenge.response == IERC3333.Response.Refuse
-        ) {
+        if (_gameState.currentChallenge.response == IERC3333.Response.Refuse) {
             return true;
         }
 
@@ -220,9 +213,7 @@ contract TrucoResolver {
         require(this.isFinal(_gameState), "Game is not final");
 
         // If truco was refused, the challenger wins
-        if (
-            _gameState.currentChallenge.response == IERC3333.Response.Refuse
-        ) {
+        if (_gameState.currentChallenge.response == IERC3333.Response.Refuse) {
             return _gameState.currentChallenge.challenger;
         }
 

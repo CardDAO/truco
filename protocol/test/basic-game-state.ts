@@ -1,13 +1,12 @@
-import {BigNumber} from "ethers";
-import {ChallengeEnum, ResponseEnum} from "./trucoV1/struct-enums";
+import { BigNumber } from "ethers";
+import { ChallengeEnum, ResponseEnum } from "./trucoV1/struct-enums";
 
-import { IERC3333 } from "../typechain-types/contracts/trucoV1/interfaces/IERC3333"
-import GameStateStruct = IERC3333.GameStateStruct
+import { IERC3333 } from "../typechain-types/contracts/trucoV1/interfaces/IERC3333";
+import GameStateStruct = IERC3333.GameStateStruct;
 
 export function basicGameState(): GameStateStruct {
-
-  const defaultPlayerId = BigNumber.from(0)
-  const maskedCard = BigNumber.from(0) // see ICardsDeck impl:  CastillianDeck.sol
+  const defaultPlayerId = BigNumber.from(0);
+  const maskedCard = BigNumber.from(0); // see ICardsDeck impl:  CastillianDeck.sol
 
   return {
     playerTurn: BigNumber.from(defaultPlayerId),
@@ -30,5 +29,5 @@ export function basicGameState(): GameStateStruct {
       pointsRewarded: BigNumber.from(0),
     },
     teamPoints: [BigNumber.from(0), BigNumber.from(0)],
-  }
+  };
 }
