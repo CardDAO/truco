@@ -253,6 +253,10 @@ describe("Truco Resolver", function () {
       expect(result.currentChallenge.pointsAtStake).to.be.equal(
         BigNumber.from(1)
       )
+
+      // It should have no effect at envido level
+      expect(result.envido.spelled).to.be.false
+      expect(result.envido.points).to.be.equal(BigNumber.from(0))
     })
 
     describe("Challenge Accepted: Points at stake changing on acceptance", function () {
@@ -285,6 +289,10 @@ describe("Truco Resolver", function () {
           BigNumber.from(2)
         )
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx)
+
+        // It should have no effect at envido level
+        expect(result.envido.spelled).to.be.false
+        expect(result.envido.points).to.be.equal(BigNumber.from(0))
       })
 
       it("Truco to ReTruco", async function () {
@@ -321,6 +329,10 @@ describe("Truco Resolver", function () {
           BigNumber.from(3)
         )
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx)
+
+        // It should have no effect at envido level
+        expect(result.envido.spelled).to.be.false
+        expect(result.envido.points).to.be.equal(BigNumber.from(0))
       })
 
       it("Truco to ValeCuatro", async function () {
@@ -357,6 +369,10 @@ describe("Truco Resolver", function () {
           BigNumber.from(4)
         )
         expect(result.currentChallenge.challenger).to.be.equal(otherPlayerIdx)
+
+        // It should have no effect at envido level
+        expect(result.envido.spelled).to.be.false
+        expect(result.envido.points).to.be.equal(BigNumber.from(0))
       })
     })
   })
