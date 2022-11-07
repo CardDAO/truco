@@ -28,5 +28,5 @@ export async function deployEngineContract() {
     engineQueries.address
   );
 
-  return { engine, trucoin };
+  return { engine, trucoin, cardsDeck };
 }

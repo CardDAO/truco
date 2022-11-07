@@ -18,8 +18,6 @@ contract Engine is IERC3333, Ownable {
 
     uint8 internal constant POINTS_NO_CHALLENGE = 1;
 
-    uint8 public constant CARD_NOT_REVEALED_RESERVED_IDX = 0;
-
     constructor(IERC20 _trucoin, IChallengeResolver _trucoResolver, IChallengeResolver _envidoResolver, EngineQueries _engineQueries) {
         trucoin = _trucoin;
         envidoResolver = _envidoResolver;

@@ -9,6 +9,8 @@ interface ICardsDeck {
 
     function suitName(uint8 _card) external view returns (string memory);
 
+    function maskedCardId() external view returns (uint8);
+
     function areSameSuit(uint8 _card1, uint8 _card2)
         external
         view

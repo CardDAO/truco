@@ -24,6 +24,8 @@ Example:
 */
 contract CastillianDeck is ICardsDeck {
 
+    uint8 public constant maskedCardId = 0;
+
     function suitName(uint8 _card) public view returns (string memory)
     {
         Card memory card = decodeCard(_card);

@@ -533,12 +533,12 @@ describe("Truco Resolver", function () {
 
     describe("Card play dynamic", function () {
       it("Invalid Card", async function () {
-        const { engine } = await deployEngineContract();
+        const { engine, cardsDeck } = await deployEngineContract();
 
         let state: GameStateStruct = basicGameStateWithTrucoSpelled();
 
         let cardToPlay: BigNumber =
-          await engine.CARD_NOT_REVEALED_RESERVED_IDX(); // Idx is reserved for masked card
+          await cardsDeck.maskedCardId(); // Idx is reserved for masked card
 
         let move: MoveStruct = {
           action: BigNumber.from(ActionEnum.PlayCard),
@@ -555,7 +555,7 @@ describe("Truco Resolver", function () {
       });
 
       it("Play a card, slot available", async function () {
-        const { engine } = await deployEngineContract();
+        const { engine, cardsDeck } = await deployEngineContract();
 
         let state: GameStateStruct = basicGameStateWithTrucoSpelled();
 
