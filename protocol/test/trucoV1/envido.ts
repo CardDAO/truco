@@ -1,5 +1,4 @@
 import { expect } from "chai"
-import { ethers } from "hardhat"
 
 import { CardsStructs } from "../../typechain-types/contracts/trucoV1/Engine"
 import { ActionEnum, ChallengeEnum, ResponseEnum } from "./struct-enums"
@@ -9,33 +8,13 @@ import TransactionStruct = CardsStructs.TransactionStruct
 import GameStateStruct = CardsStructs.GameStateStruct
 
 import { deployEngineContract } from "../deploy-engine-contract"
+import { basicGameState } from "../basic-game-state"
 
 import { BigNumber } from "ethers"
 
 describe("Envido Resolver", function () {
   const currentPlayerIdx = BigNumber.from(0)
   const otherPlayerIdx = BigNumber.from(1)
-
-  function basicGameState(): GameStateStruct {
-    return {
-      playerTurn: BigNumber.from(currentPlayerIdx),
-      playerWhoShuffled: BigNumber.from(currentPlayerIdx),
-      pointsToWin: BigNumber.from(0),
-      currentChallenge: {
-        challenge: BigNumber.from(ChallengeEnum.None),
-        challenger: BigNumber.from(currentPlayerIdx),
-        pointsAtStake: BigNumber.from(currentPlayerIdx),
-        waitingChallengeResponse: false,
-        response: BigNumber.from(ResponseEnum.None),
-      },
-      revealedCardsByPlayer: [
-        [BigNumber.from(0), BigNumber.from(0), BigNumber.from(0)],
-        [BigNumber.from(0), BigNumber.from(0), BigNumber.from(0)],
-      ],
-      envidoCountPerPlayer: [BigNumber.from(0), BigNumber.from(0)],
-      teamPoints: [BigNumber.from(0), BigNumber.from(0)],
-    }
-  }
 
   describe("Invalid moves", function () {
     it("Challenging any Truco derivatives while Envido was spelled shouldn't be allowed", async function () {
