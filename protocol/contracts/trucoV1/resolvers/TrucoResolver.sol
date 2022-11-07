@@ -5,21 +5,21 @@ import "../interfaces/IChallengeResolver.sol";
 
 contract TrucoResolver {
     function resolve(
-        CardsStructs.GameState memory _gameState,
-        CardsStructs.Move memory _move
-    ) external view returns (CardsStructs.GameState memory) {
+        IERC3333.GameState memory _gameState,
+        IERC3333.Move memory _move
+    ) external view returns (IERC3333.GameState memory) {
         // Valid moves up to this point are enforced before any logic
         require(
-            _move.action == CardsStructs.Action.Challenge ||
-                _move.action == CardsStructs.Action.Response ||
-                _move.action == CardsStructs.Action.PlayCard
+            _move.action == IERC3333.Action.Challenge ||
+                _move.action == IERC3333.Action.Response ||
+                _move.action == IERC3333.Action.PlayCard
         );
 
         // When current challenge is at a refusal state, no new moves can be processed
         if (
             _gameState.currentChallenge.challenge !=
-            CardsStructs.Challenge.None &&
-            _gameState.currentChallenge.response == CardsStructs.Response.Refuse
+            IERC3333.Challenge.None &&
+            _gameState.currentChallenge.response == IERC3333.Response.Refuse
         ) {
             revert(
                 "No new moves can be processed while current challenge is at refusal state"
@@ -36,7 +36,7 @@ contract TrucoResolver {
         // 3 possible cases are handled:
 
         // 1) Check if action is a challenge  "rising" (i.e: Envido -> Real Envido! / Envido -> Falta Envido!) or challenge mismatch
-        if (_move.action == CardsStructs.Action.Challenge) {
+        if (_move.action == IERC3333.Action.Challenge) {
             // Preconditions:
             // - Previous challenge was accepted
             // - Player is not the challenger
@@ -48,7 +48,7 @@ contract TrucoResolver {
             // Check challenger only if it's a raise (comes from a state of no current challenge)
             if (
                 _gameState.currentChallenge.challenge !=
-                CardsStructs.Challenge.None
+                IERC3333.Challenge.None
             ) {
                 require(
                     _gameState.playerTurn !=
@@ -59,11 +59,11 @@ contract TrucoResolver {
             // Check if the challenge can't be raised
             require(
                 _gameState.currentChallenge.challenge !=
-                    CardsStructs.Challenge.ValeCuatro,
+                    IERC3333.Challenge.ValeCuatro,
                 "ValeCuatro can't be rised"
             );
 
-            CardsStructs.Challenge newChallenge = CardsStructs.Challenge(
+            IERC3333.Challenge newChallenge = IERC3333.Challenge(
                 _move.parameters[0]
             );
 
@@ -74,7 +74,7 @@ contract TrucoResolver {
             );
 
             _gameState.currentChallenge.challenge = newChallenge;
-            _gameState.currentChallenge.response = CardsStructs.Response.None;
+            _gameState.currentChallenge.response = IERC3333.Response.None;
             _gameState.currentChallenge.waitingChallengeResponse = true;
             _gameState.currentChallenge.challenger = _gameState.playerTurn;
 
@@ -82,23 +82,23 @@ contract TrucoResolver {
         }
 
         // 2) Check if action is an envido acceptance or refusal
-        if (_move.action == CardsStructs.Action.Response) {
+        if (_move.action == IERC3333.Action.Response) {
             // Preconditions:
             // - Challenge should have no response
             // - Can't be the challenger
             // - Should be a valid response
             require(
                 _gameState.currentChallenge.response ==
-                    CardsStructs.Response.None
+                    IERC3333.Response.None
             );
 
-            CardsStructs.Response response = CardsStructs.Response(
+            IERC3333.Response response = IERC3333.Response(
                 _move.parameters[0]
             );
 
             require(
-                response == CardsStructs.Response.Accept ||
-                    response == CardsStructs.Response.Refuse
+                response == IERC3333.Response.Accept ||
+                    response == IERC3333.Response.Refuse
             );
 
             require(
@@ -109,7 +109,7 @@ contract TrucoResolver {
             _gameState.currentChallenge.response = response;
 
             // If response is a refusal, game ends
-            if (response == CardsStructs.Response.Refuse) {
+            if (response == IERC3333.Response.Refuse) {
                 return _gameState;
             }
 
@@ -123,7 +123,7 @@ contract TrucoResolver {
         }
 
         // 3) Play a card
-        if (_move.action == CardsStructs.Action.PlayCard) {
+        if (_move.action == IERC3333.Action.PlayCard) {
             // Preconditions:
             // - There should be no Challenge spelled or a Challenge should have been accepted by other party
             require(
@@ -156,16 +156,16 @@ contract TrucoResolver {
         revert("Invalid Move");
     }
 
-    function canResolve(CardsStructs.Challenge _challenge)
+    function canResolve(IERC3333.Challenge _challenge)
         external
         view
         returns (bool)
     {
         if (
-            _challenge == CardsStructs.Challenge.None ||
-            _challenge == CardsStructs.Challenge.Truco ||
-            _challenge == CardsStructs.Challenge.ReTruco ||
-            _challenge == CardsStructs.Challenge.ValeCuatro
+            _challenge == IERC3333.Challenge.None ||
+            _challenge == IERC3333.Challenge.Truco ||
+            _challenge == IERC3333.Challenge.ReTruco ||
+            _challenge == IERC3333.Challenge.ValeCuatro
         ) {
             return true;
         }
@@ -174,14 +174,14 @@ contract TrucoResolver {
     }
 
     // Check if the challenge is at a final state (no cards can be played and a winner could be determined)
-    function isFinal(CardsStructs.GameState memory _gameState)
+    function isFinal(IERC3333.GameState memory _gameState)
         external
         view
         returns (bool)
     {
         //If a refusal was made, game is final
         if (
-            _gameState.currentChallenge.response == CardsStructs.Response.Refuse
+            _gameState.currentChallenge.response == IERC3333.Response.Refuse
         ) {
             return true;
         }
@@ -212,7 +212,7 @@ contract TrucoResolver {
         return roundFinished(_gameState.revealedCardsByPlayer, 2);
     }
 
-    function getWinner(CardsStructs.GameState memory _gameState)
+    function getWinner(IERC3333.GameState memory _gameState)
         external
         view
         returns (uint8)
@@ -221,7 +221,7 @@ contract TrucoResolver {
 
         // If truco was refused, the challenger wins
         if (
-            _gameState.currentChallenge.response == CardsStructs.Response.Refuse
+            _gameState.currentChallenge.response == IERC3333.Response.Refuse
         ) {
             return _gameState.currentChallenge.challenger;
         }
@@ -321,7 +321,7 @@ contract TrucoResolver {
     }
 
     // Get current round id at play
-    function roundAtPlay(CardsStructs.GameState memory _gameState)
+    function roundAtPlay(IERC3333.GameState memory _gameState)
         internal
         pure
         returns (uint8)
@@ -343,18 +343,18 @@ contract TrucoResolver {
 
     // Return points that should be at stake for a given challenge
     function pointsPerChallenge(
-        CardsStructs.Challenge challenge,
-        CardsStructs.GameState memory _gameState
+        IERC3333.Challenge challenge,
+        IERC3333.GameState memory _gameState
     ) internal pure returns (uint8) {
-        if (challenge == CardsStructs.Challenge.Truco) {
+        if (challenge == IERC3333.Challenge.Truco) {
             return 2;
         }
 
-        if (challenge == CardsStructs.Challenge.ReTruco) {
+        if (challenge == IERC3333.Challenge.ReTruco) {
             return 3;
         }
 
-        if (challenge == CardsStructs.Challenge.ValeCuatro) {
+        if (challenge == IERC3333.Challenge.ValeCuatro) {
             return 4;
         }
 

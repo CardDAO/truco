@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-import "./interfaces/Structs.sol";
 import "./interfaces/IChallengeResolver.sol";
 import "./interfaces/ICardsDeck.sol";
 
@@ -16,36 +15,36 @@ contract EngineQueries  {
         cardsDeck = _cardsDeck;
     }
 
-    function isMoveAChallengeForEnvido(CardsStructs.Move memory _move)
+    function isMoveAChallengeForEnvido(IERC3333.Move memory _move)
         external
         view
         returns (bool)
     {
-        if (_move.action != CardsStructs.Action.Challenge) {
+        if (_move.action != IERC3333.Action.Challenge) {
             return false;
         }
         return
             envidoResolver.canResolve(
-                CardsStructs.Challenge(_move.parameters[0])
+                IERC3333.Challenge(_move.parameters[0])
             );
     }
 
-    function isMoveAChallengeForTruco(CardsStructs.Move memory _move)
+    function isMoveAChallengeForTruco(IERC3333.Move memory _move)
         external
         view
         returns (bool)
     {
-        if (_move.action != CardsStructs.Action.Challenge) {
+        if (_move.action != IERC3333.Action.Challenge) {
             return false;
         }
         return
             trucoResolver.canResolve(
-                CardsStructs.Challenge(_move.parameters[0])
+                IERC3333.Challenge(_move.parameters[0])
             );
     }
 
 
-    function isGameEnded(CardsStructs.GameState memory gameState)
+    function isGameEnded(IERC3333.GameState memory gameState)
         external
         view
         returns (bool)
@@ -55,7 +54,7 @@ contract EngineQueries  {
     }
 
     // Check if envido can be spelled at this game
-    function canEnvidoBeSpelled(CardsStructs.GameState memory gameState)
+    function canEnvidoBeSpelled(IERC3333.GameState memory gameState)
         internal
         view
         returns (bool)
@@ -185,27 +184,27 @@ contract EngineQueries  {
 
     // Determine if a given move is valid for a given game state
     function isMoveValid(
-        CardsStructs.GameState memory gameState,
-        CardsStructs.Move memory move
+        IERC3333.GameState memory gameState,
+        IERC3333.Move memory move
     ) external view returns (bool) {
-        CardsStructs.Challenge challenge = gameState.currentChallenge.challenge;
+        IERC3333.Challenge challenge = gameState.currentChallenge.challenge;
 
         // Poors man Finite State Machine (FSM) on Solidity times...
-        if (move.action == CardsStructs.Action.Resign) {
+        if (move.action == IERC3333.Action.Resign) {
             //Any player can resign at any time
             return true;
         }
 
-        if (challenge == CardsStructs.Challenge.None) {
+        if (challenge == IERC3333.Challenge.None) {
             return
-                move.action == CardsStructs.Action.PlayCard ||
-                move.action == CardsStructs.Action.Challenge;
+                move.action == IERC3333.Action.PlayCard ||
+                move.action == IERC3333.Action.Challenge;
         }
 
         if (
-            challenge == CardsStructs.Challenge.Truco ||
-            challenge == CardsStructs.Challenge.ReTruco ||
-            challenge == CardsStructs.Challenge.ValeCuatro
+            challenge == IERC3333.Challenge.Truco ||
+            challenge == IERC3333.Challenge.ReTruco ||
+            challenge == IERC3333.Challenge.ValeCuatro
         ) {
             // Current player is not challenger, check if there's a response to enforce
             if (gameState.currentChallenge.waitingChallengeResponse) {
@@ -213,31 +212,31 @@ contract EngineQueries  {
                     // Check if envido can be spelled
                 }
                 return
-                    move.action == CardsStructs.Action.Challenge ||
-                    move.action == CardsStructs.Action.Response;
+                    move.action == IERC3333.Action.Challenge ||
+                    move.action == IERC3333.Action.Response;
             }
 
             return
-                move.action == CardsStructs.Action.Response ||
-                move.action == CardsStructs.Action.PlayCard ||
-                move.action == CardsStructs.Action.Challenge;
+                move.action == IERC3333.Action.Response ||
+                move.action == IERC3333.Action.PlayCard ||
+                move.action == IERC3333.Action.Challenge;
         }
 
         if (
-            challenge == CardsStructs.Challenge.Envido ||
-            challenge == CardsStructs.Challenge.RealEnvido ||
-            challenge == CardsStructs.Challenge.EnvidoEnvido
+            challenge == IERC3333.Challenge.Envido ||
+            challenge == IERC3333.Challenge.RealEnvido ||
+            challenge == IERC3333.Challenge.EnvidoEnvido
         ) {
             return
-                move.action == CardsStructs.Action.Response ||
-                move.action == CardsStructs.Action.Challenge ||
-                move.action == CardsStructs.Action.EnvidoCount;
+                move.action == IERC3333.Action.Response ||
+                move.action == IERC3333.Action.Challenge ||
+                move.action == IERC3333.Action.EnvidoCount;
         }
 
-        if (challenge == CardsStructs.Challenge.FaltaEnvido) {
+        if (challenge == IERC3333.Challenge.FaltaEnvido) {
             return
-                move.action == CardsStructs.Action.Response ||
-                move.action == CardsStructs.Action.EnvidoCount;
+                move.action == IERC3333.Action.Response ||
+                move.action == IERC3333.Action.EnvidoCount;
         }
 
         return false;

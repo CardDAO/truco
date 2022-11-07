@@ -3,9 +3,8 @@ pragma solidity 0.8.16;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./interfaces/Structs.sol";
-import "./interfaces/IERC3333.sol";
 
+import "./interfaces/IERC3333.sol";
 import "./interfaces/IChallengeResolver.sol";
 import "./interfaces/ICardsDeck.sol";
 import "./EngineQueries.sol";
@@ -25,7 +24,7 @@ contract Engine is IERC3333, Ownable {
         engineQueries = _engineQueries;
     }
 
-    function startGame() external returns (CardsStructs.GameState memory) {
+    function startGame() external returns (IERC3333.GameState memory) {
         // Check that consumer contract has not already payed for game
 
         // If not, transfer 1% of caller contract balance on Trucoins
@@ -38,16 +37,16 @@ contract Engine is IERC3333, Ownable {
     function initialGameState()
         external
         pure
-        returns (CardsStructs.GameState memory _gameState)
+        returns (IERC3333.GameState memory _gameState)
     {
-        _gameState.currentChallenge.challenge = CardsStructs.Challenge.None;
+        _gameState.currentChallenge.challenge = IERC3333.Challenge.None;
         _gameState.currentChallenge.pointsAtStake = POINTS_NO_CHALLENGE;
-        _gameState.currentChallenge.response = CardsStructs.Response.None;
+        _gameState.currentChallenge.response = IERC3333.Response.None;
     }
 
-    function transact(CardsStructs.Transaction calldata transaction)
+    function transact(IERC3333.Transaction calldata transaction)
         external
-        returns (CardsStructs.GameState memory gameState)
+        returns (IERC3333.GameState memory gameState)
     {
         // check if game is started for current call
 
@@ -75,20 +74,20 @@ contract Engine is IERC3333, Ownable {
     }
 
     function resolveMove(
-        CardsStructs.GameState memory _gameState,
-        CardsStructs.Move memory _move
-    ) internal view returns (CardsStructs.GameState memory) {
+        IERC3333.GameState memory _gameState,
+        IERC3333.Move memory _move
+    ) internal view returns (IERC3333.GameState memory) {
         // Verify if it's a valid move
         require(engineQueries.isMoveValid(_gameState, _move), "Move is invalid");
 
-        if (_move.action == CardsStructs.Action.Resign) {
+        if (_move.action == IERC3333.Action.Resign) {
             // Resign
         }
 
         if (
-            _gameState.currentChallenge.challenge == CardsStructs.Challenge.None
+            _gameState.currentChallenge.challenge == IERC3333.Challenge.None
         ) {
-            if (_move.action == CardsStructs.Action.PlayCard) {
+            if (_move.action == IERC3333.Action.PlayCard) {
                 return trucoResolver.resolve(_gameState, _move);
             }
         }
@@ -118,7 +117,7 @@ contract Engine is IERC3333, Ownable {
         trucoin.transfer(_recipient, _amount);
     }
 
-    function isGameEnded(CardsStructs.GameState memory gameState)
+    function isGameEnded(IERC3333.GameState memory gameState)
         external
         view
         returns (bool)

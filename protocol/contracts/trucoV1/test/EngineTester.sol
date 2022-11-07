@@ -12,9 +12,9 @@ contract EngineTester is Engine {
         EngineQueries _engineQueries
     ) Engine(_trucoin, _trucoResolver, _envidoResolver, _engineQueries) {}
 
-    CardsStructs.GameState public gameState;
+    IERC3333.GameState public gameState;
 
-    function setGameState(CardsStructs.GameState calldata _gameState) external {
+    function setGameState(IERC3333.GameState calldata _gameState) external {
         gameState = _gameState;
     }
 
@@ -36,7 +36,7 @@ contract EngineTester is Engine {
         return gameState.revealedCardsByPlayer;
     }
 
-    function executeTransaction(CardsStructs.Transaction memory transaction)
+    function executeTransaction(IERC3333.Transaction memory transaction)
         public
     {
         gameState = this.transact(transaction);

@@ -1,11 +1,11 @@
 import { expect } from "chai"
 
-import { CardsStructs } from "../../typechain-types/contracts/trucoV1/Engine"
+import { IERC3333 } from "../../typechain-types/contracts/trucoV1/interfaces/IERC3333"
 import { ActionEnum, ChallengeEnum, ResponseEnum } from "./struct-enums"
 
-import MoveStruct = CardsStructs.MoveStruct
-import TransactionStruct = CardsStructs.TransactionStruct
-import GameStateStruct = CardsStructs.GameStateStruct
+import MoveStruct = IERC3333.MoveStruct
+import TransactionStruct = IERC3333.TransactionStruct
+import GameStateStruct = IERC3333.GameStateStruct
 
 import {deployDeckContract, deployEngineContract} from "../deploy-engine-contract"
 import { basicGameState } from "../basic-game-state"

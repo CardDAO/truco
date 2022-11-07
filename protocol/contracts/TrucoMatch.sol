@@ -2,8 +2,6 @@
 pragma solidity 0.8.16;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
-import "./trucoV1/interfaces/Structs.sol";
 import "./trucoV1/interfaces/IERC3333.sol";
 
 contract TrucoMatch  {
@@ -15,8 +13,7 @@ contract TrucoMatch  {
 
     struct Match {
         player[2] players; // player 0 is the creator of the match
-        CardsStructs.Deck deck;
-        CardsStructs.GameState gameState;
+        IERC3333.GameState gameState;
         uint256 tokensAtStake;
 
     }
@@ -95,15 +92,13 @@ contract TrucoMatch  {
         }
     }
 
-    function newDeal(CardsStructs.Deck memory _deck) public {
+    function newDeal() public {
         // Check if current game state enables new card shufflings
         require(!isDealOpen, "Deal is already open");
 
         // Determine the new shuffler and check that corresponds to the current player
         uint8 new_shuffler = currentMatch.gameState.playerWhoShuffled ^ 1;
         require(msg.sender == currentMatch.players[new_shuffler].playerAddress, "You are not the shuffler");
-
-        currentMatch.deck = _deck; // encrypted deck using 2 secrets
 
         // Grab the current points
         uint8[] memory current_points = currentMatch.gameState.teamPoints;

@@ -1,11 +1,11 @@
 import { expect } from "chai"
 
-import { CardsStructs } from "../../typechain-types/contracts/trucoV1/Engine"
+import { IERC3333 } from "../../typechain-types/contracts/trucoV1/interfaces/IERC3333"
 import { ChallengeEnum } from "./struct-enums"
 import { deployEngineContract } from "../deploy-engine-contract"
 
-import MoveStruct = CardsStructs.MoveStruct
-import TransactionStruct = CardsStructs.TransactionStruct
+import MoveStruct = IERC3333.MoveStruct
+import TransactionStruct = IERC3333.TransactionStruct
 
 import { BigNumber } from "ethers"
 
