@@ -21,5 +21,8 @@
     "tabWidth": 4,
     "semi": false,
     "singleQuote": true
+  },
+  "scripts" : {
+    "format": "prettier --write scripts/**/*.ts test/**/**/*.ts contracts/**/**/*.sol"
   }
 }
