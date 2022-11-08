@@ -108,6 +108,18 @@ describe('Multi Transaction Test: Envido', function () {
                 .to.be.reverted
         })
 
+        it('Spelling an envido count that is used internally as "not spelled" indicator', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployContract
+            )
+
+            await match.connect(player1).spellEnvido()
+            await match.connect(player2).refuseChallenge()
+
+            expect(match.connect(player2).spellEnvidoCount(BigNumber.from(99)))
+                .to.be.reverted
+        })
+
         it('Spelling refusal after accepting', async function () {
             const { match, player1, player2 } = await loadFixture(
                 deployContract
@@ -354,92 +366,6 @@ describe('Multi Transaction Test: Envido', function () {
             )
         })
 
-        it('Complete Envido Flow: Spell envido, accept it, spell envido counts for each player', async function () {
-            const { match, player1, player2 } = await loadFixture(
-                deployContract
-            )
-
-            let state: TrucoMatch.Match = await match.currentMatch()
-
-            expect(state.gameState.playerTurn).to.be.equal(
-                await match.connect(player1).currentPlayerIdx()
-            )
-
-            expect(state.gameState.currentChallenge.challenge).to.be.equal(
-                BigNumber.from(ChallengeEnum.None)
-            )
-
-            // TRANSACTION: Player 1 is the first to play (mano)
-            await match.connect(player1).spellEnvido()
-
-            state = await match.currentMatch()
-
-            // Player 2 should respond
-            expect(state.gameState.playerTurn).to.be.equal(
-                await match.connect(player2).currentPlayerIdx()
-            )
-
-            // State should be as follows
-            expect(state.gameState.currentChallenge.challenge).to.be.equal(
-                BigNumber.from(ChallengeEnum.Envido)
-            )
-            expect(state.gameState.currentChallenge.waitingChallengeResponse).to
-                .be.true
-            expect(state.gameState.currentChallenge.response).to.be.equal(
-                BigNumber.from(ResponseEnum.None)
-            )
-
-            // TRANSACTION: Player 2 accepts the challenge
-            await match.connect(player2).acceptChallenge()
-
-            // PLayer 2 is mano, so it should hold the turn to spell envido count
-            expect(state.gameState.playerTurn).to.be.equal(
-                await match.connect(player2).currentPlayerIdx()
-            )
-
-            state = await match.currentMatch()
-
-            expect(state.gameState.currentChallenge.challenge).to.be.equal(
-                BigNumber.from(ChallengeEnum.Envido)
-            )
-            expect(state.gameState.currentChallenge.waitingChallengeResponse).to
-                .be.false
-            expect(state.gameState.currentChallenge.response).to.be.equal(
-                BigNumber.from(ResponseEnum.Accept)
-            )
-
-            // TRANSACTION: Player 2 spells envido count
-            await match.connect(player2).spellEnvidoCount(BigNumber.from(20))
-
-            let envidoCount = await match.getEnvidoCountPerPlayer()
-
-            state = await match.currentMatch()
-
-            expect(state.gameState.playerTurn).to.be.equal(
-                await match.connect(player1).currentPlayerIdx()
-            )
-
-            expect(envidoCount[1]).to.be.equal(BigNumber.from(20))
-            // There should be no points rewarded at this stage
-            expect(state.gameState.envido.pointsRewarded).to.be.equal(
-                BigNumber.from(0)
-            )
-
-            // TRANSACTION: Player 1 spells envido count and resolves envido
-            await match.connect(player1).spellEnvidoCount(BigNumber.from(33))
-
-            envidoCount = await match.getEnvidoCountPerPlayer()
-            state = await match.currentMatch()
-
-            expect(envidoCount[0]).to.be.equal(BigNumber.from(33))
-            expect(state.gameState.envido.pointsRewarded).to.be.equal(
-                BigNumber.from(2)
-            )
-
-            expect(state.gameState.playerTurn).to.be.equal(
-                await match.connect(player2).currentPlayerIdx()
-            )
-        })
 
         it('Complete Envido Flow with raising from Envido to RealEnvido', async function () {
             const { match, player1, player2 } = await loadFixture(
@@ -535,5 +461,95 @@ describe('Multi Transaction Test: Envido', function () {
                 await match.connect(player2).currentPlayerIdx()
             )
         })
+    })
+    describe('Full State Assertions', function () {
+
+        it('Complete Envido Flow: Spell envido, accept it, spell envido counts for each player', async function () {
+            const {match, player1, player2} = await loadFixture(
+                deployContract
+            )
+
+            let state: TrucoMatch.Match = await match.currentMatch()
+
+            expect(state.gameState.playerTurn).to.be.equal(
+                await match.connect(player1).currentPlayerIdx()
+            )
+
+            expect(state.gameState.currentChallenge.challenge).to.be.equal(
+                BigNumber.from(ChallengeEnum.None)
+            )
+
+            // TRANSACTION: Player 1 is the first to play (mano)
+            await match.connect(player1).spellEnvido()
+
+            state = await match.currentMatch()
+
+            // Player 2 should respond
+            expect(state.gameState.playerTurn).to.be.equal(
+                await match.connect(player2).currentPlayerIdx()
+            )
+
+            // State should be as follows
+            expect(state.gameState.currentChallenge.challenge).to.be.equal(
+                BigNumber.from(ChallengeEnum.Envido)
+            )
+            expect(state.gameState.currentChallenge.waitingChallengeResponse).to
+                .be.true
+            expect(state.gameState.currentChallenge.response).to.be.equal(
+                BigNumber.from(ResponseEnum.None)
+            )
+
+            // TRANSACTION: Player 2 accepts the challenge
+            await match.connect(player2).acceptChallenge()
+
+            // PLayer 2 is mano, so it should hold the turn to spell envido count
+            expect(state.gameState.playerTurn).to.be.equal(
+                await match.connect(player2).currentPlayerIdx()
+            )
+
+            state = await match.currentMatch()
+
+            expect(state.gameState.currentChallenge.challenge).to.be.equal(
+                BigNumber.from(ChallengeEnum.Envido)
+            )
+            expect(state.gameState.currentChallenge.waitingChallengeResponse).to
+                .be.false
+            expect(state.gameState.currentChallenge.response).to.be.equal(
+                BigNumber.from(ResponseEnum.Accept)
+            )
+
+            // TRANSACTION: Player 2 spells envido count
+            await match.connect(player2).spellEnvidoCount(BigNumber.from(20))
+
+            let envidoCount = await match.getEnvidoCountPerPlayer()
+
+            state = await match.currentMatch()
+
+            expect(state.gameState.playerTurn).to.be.equal(
+                await match.connect(player1).currentPlayerIdx()
+            )
+
+            expect(envidoCount[1]).to.be.equal(BigNumber.from(20))
+            // There should be no points rewarded at this stage
+            expect(state.gameState.envido.pointsRewarded).to.be.equal(
+                BigNumber.from(0)
+            )
+
+            // TRANSACTION: Player 1 spells envido count and resolves envido
+            await match.connect(player1).spellEnvidoCount(BigNumber.from(33))
+
+            envidoCount = await match.getEnvidoCountPerPlayer()
+            state = await match.currentMatch()
+
+            expect(envidoCount[0]).to.be.equal(BigNumber.from(33))
+            expect(state.gameState.envido.pointsRewarded).to.be.equal(
+                BigNumber.from(2)
+            )
+
+            expect(state.gameState.playerTurn).to.be.equal(
+                await match.connect(player2).currentPlayerIdx()
+            )
+        })
+
     })
 })
