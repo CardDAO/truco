@@ -42,7 +42,6 @@ describe('Multi Transaction Test: Truco', function () {
     }
 
     describe('Invalid Moves', function () {
-
         it('Spell Truco when Truco was already Challenged', async function () {
             const { match, player1, player2 } = await loadFixture(
                 deployContract
@@ -65,13 +64,10 @@ describe('Multi Transaction Test: Truco', function () {
         })
 
         it('Spelling ReTruco without any previous challenge', async function () {
-            const { match, player1 } = await loadFixture(
-                deployContract
-            )
+            const { match, player1 } = await loadFixture(deployContract)
 
             expect(match.connect(player1).spellReTruco()).to.be.reverted
         })
-
 
         it('Spelling same challenge', async function () {
             const { match, player1, player2 } = await loadFixture(
@@ -91,8 +87,8 @@ describe('Multi Transaction Test: Truco', function () {
 
             await match.connect(player1).spellTruco()
 
-            expect(match.connect(player2).playCard(BigNumber.from(1)))
-                .to.be.reverted
+            expect(match.connect(player2).playCard(BigNumber.from(1))).to.be
+                .reverted
         })
 
         it('Playing an invalid card', async function () {
@@ -103,8 +99,8 @@ describe('Multi Transaction Test: Truco', function () {
             await match.connect(player1).spellTruco()
             await match.connect(player2).acceptChallenge()
 
-            expect(match.connect(player2).playCard(BigNumber.from(41)))
-                .to.be.reverted
+            expect(match.connect(player2).playCard(BigNumber.from(41))).to.be
+                .reverted
         })
 
         it('PLaying a card id that is used internally as a masked card indicator', async function () {
@@ -115,8 +111,8 @@ describe('Multi Transaction Test: Truco', function () {
             await match.connect(player1).spellTruco()
             await match.connect(player2).acceptChallenge()
 
-            expect(match.connect(player2).playCard(BigNumber.from(0)))
-                .to.be.reverted
+            expect(match.connect(player2).playCard(BigNumber.from(0))).to.be
+                .reverted
         })
 
         it('Spelling refusal after accepting', async function () {
@@ -136,17 +132,13 @@ describe('Multi Transaction Test: Truco', function () {
 
             await match.connect(player1).spellTruco()
             await match.connect(player2).acceptChallenge()
-            expect(match.connect(player1).playCard(BigNumber.from(1)))
-                .to.be.reverted
+            expect(match.connect(player1).playCard(BigNumber.from(1))).to.be
+                .reverted
         })
-
     })
 
-    describe('Refusals', function () {
-
-    })
+    describe('Refusals', function () {})
     describe('Acceptances', function () {
-
         it('Spell Truco with an acceptance', async function () {
             const { match, player1, player2 } = await loadFixture(
                 deployContract
@@ -171,7 +163,6 @@ describe('Multi Transaction Test: Truco', function () {
                 BigNumber.from(ResponseEnum.Accept)
             )
         })
-
 
         it('Truco raising to ReTruco', async function () {
             const { match, player1, player2 } = await loadFixture(
@@ -199,10 +190,6 @@ describe('Multi Transaction Test: Truco', function () {
             )
         })
     })
-    describe('Corner cases', function () {
-
-    })
-    describe('Full State Assertions', function () {
-
-    })
+    describe('Corner cases', function () {})
+    describe('Full State Assertions', function () {})
 })

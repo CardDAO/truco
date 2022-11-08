@@ -19,7 +19,6 @@ contract TrucoMatchTester is TrucoMatch {
         return currentMatch.gameState.revealedCardsByPlayer;
     }
 
-
     function currentPlayerIdx() public view returns (uint8) {
         return getPlayerIdx();
     }
