@@ -416,6 +416,16 @@ contract TrucoResolver {
 
         // All 4s
         hierarchy[4] = hierarchy[14] = hierarchy[24] = hierarchy[34] = 14;
+
+        Array:
+        [
+            0,
+            7, 6, 5, 14, 13, 12,  4, 10, 9, 8,
+            7, 6, 5, 14, 13, 12, 11, 10, 9, 8,
+            1, 6, 5, 14, 13, 12,  3, 10, 9, 8,
+            2, 6, 5, 14, 13, 12, 11, 10, 9, 8
+        ]
+
         */
 
         // This array was created using previously described code and pre-calculated to avoid memory expansion and gas costs

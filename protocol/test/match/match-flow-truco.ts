@@ -191,5 +191,208 @@ describe('Multi Transaction Test: Truco', function () {
         })
     })
     describe('Corner cases', function () {})
-    describe('Full State Assertions', function () {})
+    describe('Full State Assertions', function () {
+        it('Complete Truco Flow: Spell truco, accept it, play rounds of cards till truco ends', async function () {
+            const { match, player1, player2, engine } = await loadFixture(
+                deployContract
+            )
+
+            let state: TrucoMatch.Match = await match.currentMatch()
+
+            expect(state.gameState.playerTurn).to.be.equal(
+                await match.connect(player1).currentPlayerIdx()
+            )
+
+            expect(state.gameState.currentChallenge.challenge).to.be.equal(
+                BigNumber.from(ChallengeEnum.None)
+            )
+
+            // TRANSACTION: Player 1 is the first to play (mano)
+            await match.connect(player1).spellTruco()
+
+            state = await match.currentMatch()
+
+            // Player 2 should respond
+            expect(state.gameState.playerTurn).to.be.equal(
+                await match.connect(player2).currentPlayerIdx()
+            )
+
+            // State should be as follows
+            expect(state.gameState.currentChallenge.challenge).to.be.equal(
+                BigNumber.from(ChallengeEnum.Truco)
+            )
+            expect(state.gameState.currentChallenge.waitingChallengeResponse).to
+                .be.true
+            expect(state.gameState.currentChallenge.response).to.be.equal(
+                BigNumber.from(ResponseEnum.None)
+            )
+
+            // TRANSACTION: Player 2 accepts the challenge
+            await match.connect(player2).acceptChallenge()
+
+            state = await match.currentMatch()
+
+            // PLayer 2 is mano, so it should hold the turn to play a card
+            expect(state.gameState.playerTurn).to.be.equal(
+                await match.connect(player2).currentPlayerIdx()
+            )
+
+            expect(state.gameState.currentChallenge.challenge).to.be.equal(
+                BigNumber.from(ChallengeEnum.Truco)
+            )
+            expect(state.gameState.currentChallenge.waitingChallengeResponse).to
+                .be.false
+            expect(state.gameState.currentChallenge.response).to.be.equal(
+                BigNumber.from(ResponseEnum.Accept)
+            )
+
+            // TRANSACTION
+            await match.connect(player2).playCard(BigNumber.from(3)) // 3 of Coins
+
+            state = await match.currentMatch()
+
+            // Now it's player 1 turn
+            expect(state.gameState.playerTurn).to.be.equal(
+                await match.connect(player1).currentPlayerIdx()
+            )
+
+            let revealedCards = await match.getRevealedCards()
+            expect(
+                revealedCards[
+                    await match.connect(player1).currentPlayerIdx()
+                ][0]
+            ).to.be.equal(BigNumber.from(0)) // Masked
+            expect(
+                revealedCards[
+                    await match.connect(player2).currentPlayerIdx()
+                ][0]
+            ).to.be.equal(BigNumber.from(3)) // Just played
+
+            // TRANSACTION
+            await match.connect(player1).playCard(BigNumber.from(2)) // 2 of Coins
+
+            state = await match.currentMatch()
+
+            // Now it's player 1 turn
+            expect(state.gameState.playerTurn).to.be.equal(
+                await match.connect(player2).currentPlayerIdx()
+            )
+
+            revealedCards = await match.getRevealedCards()
+            expect(
+                revealedCards[
+                    await match.connect(player1).currentPlayerIdx()
+                ][0]
+            ).to.be.equal(BigNumber.from(2)) // Masked
+            expect(
+                revealedCards[
+                    await match.connect(player2).currentPlayerIdx()
+                ][0]
+            ).to.be.equal(BigNumber.from(3)) // Just played
+
+            // FIRST ROUND COMPLETE: Player 2 wins the round -----------------------------------------------------------
+
+            // Truco should not be final at this step
+            await engine.setGameState(state.gameState)
+            expect(await engine.isTrucoFinal()).to.be.false
+
+            // TRANSACTION
+            await match.connect(player2).playCard(BigNumber.from(4)) // 4 of Coins
+
+            state = await match.currentMatch()
+
+            // Now it's player 1 turn
+            expect(state.gameState.playerTurn).to.be.equal(
+                await match.connect(player1).currentPlayerIdx()
+            )
+
+            revealedCards = await match.getRevealedCards()
+            expect(
+                revealedCards[
+                    await match.connect(player1).currentPlayerIdx()
+                ][1]
+            ).to.be.equal(BigNumber.from(0)) // Masked
+            expect(
+                revealedCards[
+                    await match.connect(player2).currentPlayerIdx()
+                ][1]
+            ).to.be.equal(BigNumber.from(4)) // Just played
+
+            // TRANSACTION
+            await match.connect(player1).playCard(BigNumber.from(5)) // 5 of Coins
+
+            state = await match.currentMatch()
+
+            // Now it's player 1 turn
+            expect(state.gameState.playerTurn).to.be.equal(
+                await match.connect(player2).currentPlayerIdx()
+            )
+
+            revealedCards = await match.getRevealedCards()
+            expect(
+                revealedCards[
+                    await match.connect(player1).currentPlayerIdx()
+                ][1]
+            ).to.be.equal(BigNumber.from(5)) // Masked
+            expect(
+                revealedCards[
+                    await match.connect(player2).currentPlayerIdx()
+                ][1]
+            ).to.be.equal(BigNumber.from(4)) // Just played
+
+            // SECOND ROUND COMPLETE: Player 1 wins the round -----------------------------------------------------------
+
+            // Truco should not be final at this step
+            await engine.setGameState(state.gameState)
+            expect(await engine.isTrucoFinal()).to.be.false
+
+            // TRANSACTION
+            await match.connect(player2).playCard(BigNumber.from(12)) // 2 of Cups
+
+            state = await match.currentMatch()
+
+            // Now it's player 1 turn
+            expect(state.gameState.playerTurn).to.be.equal(
+                await match.connect(player1).currentPlayerIdx()
+            )
+
+            revealedCards = await match.getRevealedCards()
+            expect(
+                revealedCards[
+                    await match.connect(player1).currentPlayerIdx()
+                ][2]
+            ).to.be.equal(BigNumber.from(0)) // Masked
+            expect(
+                revealedCards[
+                    await match.connect(player2).currentPlayerIdx()
+                ][2]
+            ).to.be.equal(BigNumber.from(12)) // Just played
+
+            // TRANSACTION
+            await match.connect(player1).playCard(BigNumber.from(1)) // 1 of Cups
+
+            state = await match.currentMatch()
+
+            // Now it's player 1 turn
+            expect(state.gameState.playerTurn).to.be.equal(
+                await match.connect(player2).currentPlayerIdx()
+            )
+
+            revealedCards = await match.getRevealedCards()
+            expect(
+                revealedCards[
+                    await match.connect(player1).currentPlayerIdx()
+                ][2]
+            ).to.be.equal(BigNumber.from(1)) // Masked
+            expect(
+                revealedCards[
+                    await match.connect(player2).currentPlayerIdx()
+                ][2]
+            ).to.be.equal(BigNumber.from(12)) // Just played
+
+            await engine.setGameState(state.gameState)
+
+            expect(await engine.isTrucoFinal()).to.be.true
+        })
+    })
 })
