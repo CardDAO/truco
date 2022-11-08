@@ -366,7 +366,6 @@ describe('Multi Transaction Test: Envido', function () {
             )
         })
 
-
         it('Complete Envido Flow with raising from Envido to RealEnvido', async function () {
             const { match, player1, player2 } = await loadFixture(
                 deployContract
@@ -463,9 +462,8 @@ describe('Multi Transaction Test: Envido', function () {
         })
     })
     describe('Full State Assertions', function () {
-
         it('Complete Envido Flow: Spell envido, accept it, spell envido counts for each player', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployContract
             )
 
@@ -550,6 +548,5 @@ describe('Multi Transaction Test: Envido', function () {
                 await match.connect(player2).currentPlayerIdx()
             )
         })
-
     })
 })
