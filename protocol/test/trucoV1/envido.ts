@@ -1114,7 +1114,7 @@ describe('Envido Resolver', function () {
                 )
             })
 
-            it("Spell envido count being the player who shuffled the deck - Not OK", async function () {
+            it('Spell envido count being the player who shuffled the deck - Not OK', async function () {
                 const { engine } = await deployEngineContract()
 
                 let state: GameStateStruct = gameStateWithEnvidoSpell()
