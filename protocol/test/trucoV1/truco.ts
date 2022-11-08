@@ -10,7 +10,7 @@ import GameStateStruct = IERC3333.GameStateStruct
 import {
     deployDeckContract,
     deployEngineContract,
-} from '../deploy-engine-contract'
+} from '../deploy-contracts'
 import { basicGameState } from '../basic-game-state'
 
 import { BigNumber } from 'ethers'

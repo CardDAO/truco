@@ -13,7 +13,7 @@ contract TrucoMatch {
     struct Match {
         player[2] players; // player 0 is the creator of the match
         IERC3333.GameState gameState;
-        uint256 tokensAtStake;
+        uint256 bet;
     }
 
     IERC3333 trucoEngine;
@@ -23,7 +23,7 @@ contract TrucoMatch {
 
     // Events
     event MatchCreated(address match_address);
-    event MatchStarted(address player1, address player2, uint256 tokensAtStake);
+    event MatchStarted(address player1, address player2, uint256 bet);
     event PlayerStaked(address player, uint256 tokensAtStake);
     event DealStarted(address shuffler);
     event DealEnded();
@@ -31,11 +31,11 @@ contract TrucoMatch {
     constructor(
         IERC3333 _trucoEngine,
         IERC20 _truCoin,
-        uint256 _tokensAtStake
+        uint256 _bet
     ) {
         trucoEngine = _trucoEngine;
         truCoin = _truCoin;
-        currentMatch.tokensAtStake = _tokensAtStake;
+        currentMatch.bet = _bet;
         currentMatch.players[0].playerAddress = msg.sender;
 
         //Mint Sould Bound Token
@@ -69,12 +69,12 @@ contract TrucoMatch {
             'Player is not joined'
         );
         require(
-            truCoin.balanceOf(msg.sender) >= currentMatch.tokensAtStake,
+            truCoin.balanceOf(msg.sender) >= currentMatch.bet,
             "You don't have enough Trucoins to stake this match"
         );
         require(
             truCoin.allowance(msg.sender, address(this)) >=
-                currentMatch.tokensAtStake,
+                currentMatch.bet,
             'Not enough trucoins transfer approved'
         );
         require(
@@ -87,28 +87,27 @@ contract TrucoMatch {
             truCoin.transferFrom(
                 msg.sender,
                 address(this),
-                currentMatch.tokensAtStake
+                currentMatch.bet
             ),
             'Trucoin transfer failed'
         );
 
         currentMatch.players[_player].tokensAtStake = currentMatch
-            .tokensAtStake;
+            .bet;
 
         // emit event
-        emit PlayerStaked(msg.sender, currentMatch.tokensAtStake);
+        emit PlayerStaked(msg.sender, currentMatch.bet);
 
         // Start match
         if (
-            currentMatch.players[0].tokensAtStake ==
-            currentMatch.tokensAtStake &&
-            currentMatch.players[1].tokensAtStake == currentMatch.tokensAtStake
+            currentMatch.players[0].tokensAtStake == currentMatch.bet &&
+            currentMatch.players[1].tokensAtStake == currentMatch.bet
         ) {
             currentMatch.gameState = trucoEngine.startGame();
             emit MatchStarted(
                 currentMatch.players[0].playerAddress,
                 currentMatch.players[1].playerAddress,
-                currentMatch.tokensAtStake
+                currentMatch.bet
             );
         }
     }
