@@ -42,9 +42,7 @@ describe('Multi Transaction Test: Envido', function () {
     }
 
     describe('Invalid Moves', function () {
-
         it('Envido when Envido was already Challenged', async function () {
-
             const { match, player1, player2 } = await loadFixture(
                 deployContract
             )
@@ -56,7 +54,6 @@ describe('Multi Transaction Test: Envido', function () {
         })
 
         it('Raising without accepting', async function () {
-
             const { match, player1, player2 } = await loadFixture(
                 deployContract
             )
@@ -67,7 +64,6 @@ describe('Multi Transaction Test: Envido', function () {
         })
 
         it('Lowering challenge', async function () {
-
             const { match, player1, player2 } = await loadFixture(
                 deployContract
             )
@@ -79,18 +75,17 @@ describe('Multi Transaction Test: Envido', function () {
         })
 
         it('Spelling envido count without accepting', async function () {
-
             const { match, player1, player2 } = await loadFixture(
                 deployContract
             )
 
             await match.connect(player1).spellEnvido()
 
-            expect(match.connect(player2).spellEnvidoCount(BigNumber.from(33))).to.be.reverted
+            expect(match.connect(player2).spellEnvidoCount(BigNumber.from(33)))
+                .to.be.reverted
         })
 
         it('Spelling envido again after refusal', async function () {
-
             const { match, player1, player2 } = await loadFixture(
                 deployContract
             )
@@ -102,7 +97,6 @@ describe('Multi Transaction Test: Envido', function () {
         })
 
         it('Spelling invalid envido count', async function () {
-
             const { match, player1, player2 } = await loadFixture(
                 deployContract
             )
@@ -110,11 +104,11 @@ describe('Multi Transaction Test: Envido', function () {
             await match.connect(player1).spellEnvido()
             await match.connect(player2).refuseChallenge()
 
-            expect(match.connect(player2).spellEnvidoCount(BigNumber.from(34))).to.be.reverted
+            expect(match.connect(player2).spellEnvidoCount(BigNumber.from(34)))
+                .to.be.reverted
         })
 
         it('Spelling refusal after accepting', async function () {
-
             const { match, player1, player2 } = await loadFixture(
                 deployContract
             )
@@ -122,18 +116,17 @@ describe('Multi Transaction Test: Envido', function () {
             await match.connect(player1).spellEnvido()
             await match.connect(player2).acceptChallenge()
             expect(match.connect(player2).refuseChallenge()).to.be.reverted
-
         })
 
         it('Out of turn Envido Count spelling', async function () {
-
             const { match, player1, player2 } = await loadFixture(
                 deployContract
             )
 
             await match.connect(player1).spellEnvido()
             await match.connect(player2).acceptChallenge()
-            expect(match.connect(player1).spellEnvidoCount(BigNumber.from(33))).to.be.reverted
+            expect(match.connect(player1).spellEnvidoCount(BigNumber.from(33)))
+                .to.be.reverted
         })
     })
 
