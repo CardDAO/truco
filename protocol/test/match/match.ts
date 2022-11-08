@@ -6,7 +6,6 @@ import { deployMatchContract } from '../deploy-contracts'
 import { BigNumber } from 'ethers'
 
 describe('Truco Match', function () {
-
     async function startMatch() {
         const { match, trucoin, owner, player2, bet } = await loadFixture(
             deployMatchContract
@@ -61,9 +60,7 @@ describe('Truco Match', function () {
 
             // Allow trucoin transfer
             await trucoin.connect(player2).approve(match.address, bet)
-            await trucoin
-                .connect(invalid_player)
-                .approve(match.address, bet)
+            await trucoin.connect(invalid_player).approve(match.address, bet)
 
             await match.connect(player2).join()
             await expect(
@@ -83,9 +80,7 @@ describe('Truco Match', function () {
             )
 
             // Allow trucoin transfer
-            await trucoin
-                .connect(player2)
-                .approve(match.address, bet.sub(1))
+            await trucoin.connect(player2).approve(match.address, bet.sub(1))
 
             await expect(match.connect(player2).join()).to.be.revertedWith(
                 'Not enough trucoins transfer approved'
@@ -94,7 +89,9 @@ describe('Truco Match', function () {
 
         // Owner must not be able to join the match
         it('Owner must not be able to join the match', async function () {
-            const { match, trucoin, owner, bet } = await loadFixture(deployMatchContract)
+            const { match, trucoin, owner, bet } = await loadFixture(
+                deployMatchContract
+            )
 
             // Allow trucoin transfer
             await trucoin.connect(owner).approve(match.address, bet)
@@ -133,7 +130,9 @@ describe('Truco Match', function () {
     // Stake tests
     describe('Stake', function () {
         it('Must emit an event when staking', async function () {
-            const { match, trucoin, owner, bet } = await loadFixture(deployMatchContract)
+            const { match, trucoin, owner, bet } = await loadFixture(
+                deployMatchContract
+            )
 
             // Allow trucoin transfer
             await trucoin.connect(owner).approve(match.address, bet)
@@ -160,12 +159,12 @@ describe('Truco Match', function () {
 
         // Must revert if player does not have enough tokens approved
         it('Must revert if player does not have enough tokens approved', async function () {
-            const { match, trucoin, owner, bet } = await loadFixture(deployMatchContract)
+            const { match, trucoin, owner, bet } = await loadFixture(
+                deployMatchContract
+            )
 
             // Allow trucoin transfer
-            await trucoin
-                .connect(owner)
-                .approve(match.address, bet.sub(1))
+            await trucoin.connect(owner).approve(match.address, bet.sub(1))
 
             await expect(match.connect(owner).stake(0)).to.be.revertedWith(
                 'Not enough trucoins transfer approved'

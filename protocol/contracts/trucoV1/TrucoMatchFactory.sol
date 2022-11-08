@@ -2,10 +2,10 @@
 pragma solidity 0.8.16;
 
 // Imports
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./interfaces/IERC3333.sol";
-import "../TrucoMatch.sol";
+import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import './interfaces/IERC3333.sol';
+import '../TrucoMatch.sol';
 
 contract TrucoMatchFactory is OwnableUpgradeable {
     // State variables
@@ -15,10 +15,18 @@ contract TrucoMatchFactory is OwnableUpgradeable {
     uint256 public minBet;
 
     // Events
-    event TrucoMatchCreated(address indexed match_address, address indexed player1, uint256 bet);
+    event TrucoMatchCreated(
+        address indexed match_address,
+        address indexed player1,
+        uint256 bet
+    );
 
     // Initialize
-    function initialize(IERC3333 _trucoEngine, IERC20 _truCoin, uint256 _minBet) public initializer {
+    function initialize(
+        IERC3333 _trucoEngine,
+        IERC20 _truCoin,
+        uint256 _minBet
+    ) public initializer {
         trucoEngine = _trucoEngine;
         truCoin = _truCoin;
         minBet = _minBet;
@@ -26,9 +34,15 @@ contract TrucoMatchFactory is OwnableUpgradeable {
 
     // New Match
     function newMatch(uint256 _bet) public returns (address) {
-        require(_bet >= minBet, "Bet is too low");
-        require(IERC20(truCoin).balanceOf(msg.sender) >= _bet, "Not enough tokens");
-        require(IERC20(truCoin).allowance(msg.sender, address(this)) >= _bet, "Not enough allowance");
+        require(_bet >= minBet, 'Bet is too low');
+        require(
+            IERC20(truCoin).balanceOf(msg.sender) >= _bet,
+            'Not enough tokens'
+        );
+        require(
+            IERC20(truCoin).allowance(msg.sender, address(this)) >= _bet,
+            'Not enough allowance'
+        );
 
         // Create new match
         TrucoMatch deployedMatch = new TrucoMatch(trucoEngine, truCoin, _bet);

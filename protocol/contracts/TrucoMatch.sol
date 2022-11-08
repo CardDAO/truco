@@ -73,8 +73,7 @@ contract TrucoMatch {
             "You don't have enough Trucoins to stake this match"
         );
         require(
-            truCoin.allowance(msg.sender, address(this)) >=
-                currentMatch.bet,
+            truCoin.allowance(msg.sender, address(this)) >= currentMatch.bet,
             'Not enough trucoins transfer approved'
         );
         require(
@@ -84,16 +83,11 @@ contract TrucoMatch {
 
         // Transfer Trucoins from player to contract
         require(
-            truCoin.transferFrom(
-                msg.sender,
-                address(this),
-                currentMatch.bet
-            ),
+            truCoin.transferFrom(msg.sender, address(this), currentMatch.bet),
             'Trucoin transfer failed'
         );
 
-        currentMatch.players[_player].tokensAtStake = currentMatch
-            .bet;
+        currentMatch.players[_player].tokensAtStake = currentMatch.bet;
 
         // emit event
         emit PlayerStaked(msg.sender, currentMatch.bet);

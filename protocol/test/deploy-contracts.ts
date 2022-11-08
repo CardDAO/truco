@@ -1,5 +1,5 @@
 import { ethers, upgrades } from 'hardhat'
-import { BigNumber } from 'ethers';
+import { BigNumber } from 'ethers'
 
 export async function deployDeckContract() {
     const CardsDeck = await ethers.getContractFactory('CastillianDeck')
@@ -52,25 +52,26 @@ export async function deployMatchContract() {
     await trucoin.mint(invalid_player.address, bet)
 
     const TrucoMatch = await ethers.getContractFactory('TrucoMatch')
-    const match = await TrucoMatch.deploy(
-        engine.address,
-        trucoin.address,
-        bet
-    )
+    const match = await TrucoMatch.deploy(engine.address, trucoin.address, bet)
 
     return { match, engine, trucoin, owner, player2, invalid_player, bet }
 }
-
 
 export async function deployFactoryContract() {
     const [owner] = await ethers.getSigners()
 
     const { trucoin, engine } = await deployEngineContract()
 
-    const min_bet = BigNumber.from("10000")
+    const min_bet = BigNumber.from('10000')
 
-    const TrucoMatchFactory = await ethers.getContractFactory('TrucoMatchFactory')
-    const factory = await upgrades.deployProxy(TrucoMatchFactory, [engine.address, trucoin.address, min_bet])
+    const TrucoMatchFactory = await ethers.getContractFactory(
+        'TrucoMatchFactory'
+    )
+    const factory = await upgrades.deployProxy(TrucoMatchFactory, [
+        engine.address,
+        trucoin.address,
+        min_bet,
+    ])
     await factory.deployed()
 
     return { factory, trucoin, owner, min_bet }
