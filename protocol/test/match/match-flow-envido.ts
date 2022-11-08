@@ -115,7 +115,7 @@ describe('Multi Transaction Test: Envido', function () {
             // TRANSACTION: Player 2 refuses
             await match.connect(player1).refuseChallenge()
 
-            let state: TrucoMatch.Match  = await match.currentMatch()
+            let state: TrucoMatch.Match = await match.currentMatch()
 
             expect(state.gameState.currentChallenge.challenge).to.be.equal(
                 BigNumber.from(ChallengeEnum.EnvidoEnvido)
@@ -142,7 +142,7 @@ describe('Multi Transaction Test: Envido', function () {
             // TRANSACTION: Player 2 accepts and raises the challenge
             await match.connect(player2).refuseChallenge()
 
-            let state: TrucoMatch.Match  = await match.currentMatch()
+            let state: TrucoMatch.Match = await match.currentMatch()
 
             expect(state.gameState.currentChallenge.challenge).to.be.equal(
                 BigNumber.from(ChallengeEnum.FaltaEnvido)
@@ -173,7 +173,7 @@ describe('Multi Transaction Test: Envido', function () {
             // TRANSACTION: Player 1 refuses
             await match.connect(player1).refuseChallenge()
 
-            let state: TrucoMatch.Match  = await match.currentMatch()
+            let state: TrucoMatch.Match = await match.currentMatch()
 
             expect(state.gameState.currentChallenge.challenge).to.be.equal(
                 BigNumber.from(ChallengeEnum.FaltaEnvido)
