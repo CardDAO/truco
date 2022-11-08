@@ -153,6 +153,38 @@ contract TrucoMatch {
         ];
     }
 
+    function spellTruco() public {
+        IERC3333.Transaction memory transaction = buildTransaction(
+            IERC3333.Action.Challenge,
+            uint8(IERC3333.Challenge.Truco)
+        );
+        currentMatch.gameState = trucoEngine.transact(transaction);
+
+        // Turn should change, since it's will be waiting for the other player to accept or deny the challenge
+        switchTurn();
+    }
+
+    function spellReTruco() public {
+        IERC3333.Transaction memory transaction = buildTransaction(
+            IERC3333.Action.Challenge,
+            uint8(IERC3333.Challenge.ReTruco)
+        );
+        currentMatch.gameState = trucoEngine.transact(transaction);
+
+        // Turn should change, since it's will be waiting for the other player to accept or deny the challenge
+        switchTurn();
+    }
+
+    function playCard(uint8 _card) public {
+        IERC3333.Transaction memory transaction = buildTransaction(
+            IERC3333.Action.PlayCard,
+            _card
+        );
+        currentMatch.gameState = trucoEngine.transact(transaction);
+
+        switchTurn();
+    }
+
     function spellEnvido() public {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,

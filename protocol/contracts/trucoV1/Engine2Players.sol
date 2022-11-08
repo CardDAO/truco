@@ -57,6 +57,10 @@ contract Engine2Players is IERC3333, Ownable {
         // Set to an invalid envido count to signal that envido was not spelled with an out of bonds value
         _gameState.envido.playerCount[0] = ENVIDO_NOT_SPELLED_OOB;
         _gameState.envido.playerCount[1] = ENVIDO_NOT_SPELLED_OOB;
+
+        // Set all masked played cards
+        _gameState.revealedCardsByPlayer = new uint8[3][](2);
+
     }
 
     function transact(IERC3333.Transaction calldata transaction)
