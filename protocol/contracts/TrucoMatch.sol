@@ -3,7 +3,6 @@ pragma solidity 0.8.16;
 
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import './trucoV1/interfaces/IERC3333.sol';
-import 'hardhat/console.sol';
 
 contract TrucoMatch {
     struct player {
