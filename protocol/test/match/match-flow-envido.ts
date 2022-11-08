@@ -510,4 +510,32 @@ describe('Multi Transaction Test: Envido', function () {
             )
         })
     })
+    describe('Corner cases', function () {
+        it('Spelling 0 as envido count (should go ok)', async function () {
+
+            const { match, player1, player2 } = await loadFixture(
+                deployContract
+            )
+
+            await match.connect(player1).spellEnvido()
+            await match.connect(player2).acceptChallenge()
+
+            await match.connect(player2).spellEnvidoCount(BigNumber.from(0))
+            await match.connect(player1).spellEnvidoCount(BigNumber.from(33))
+
+            let envidoCount = await match.getEnvidoCountPerPlayer()
+            let state = await match.currentMatch()
+
+            expect(envidoCount[0]).to.be.equal(BigNumber.from(33))
+            expect(envidoCount[1]).to.be.equal(BigNumber.from(0))
+
+            expect(state.gameState.envido.pointsRewarded).to.be.equal(
+                BigNumber.from(2)
+            )
+            expect(state.gameState.playerTurn).to.be.equal(
+                await match.connect(player2).currentPlayerIdx()
+            )
+        })
+    })
+
 })

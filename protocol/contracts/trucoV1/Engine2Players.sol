@@ -16,6 +16,7 @@ contract Engine2Players is IERC3333, Ownable {
     EngineQueries internal engineQueries;
 
     uint8 internal constant POINTS_NO_CHALLENGE = 1;
+    uint8 internal constant ENVIDO_NOT_SPELLED_OOB = 99;
 
     constructor(
         IERC20 _trucoin,
@@ -53,6 +54,9 @@ contract Engine2Players is IERC3333, Ownable {
 
         // Init envido count
         _gameState.envido.playerCount = new uint8[](2);
+        // Set to an invalid envido count to signal that envido was not spelled with an out of bonds value
+        _gameState.envido.playerCount[0] = ENVIDO_NOT_SPELLED_OOB;
+        _gameState.envido.playerCount[1] = ENVIDO_NOT_SPELLED_OOB;
     }
 
     function transact(IERC3333.Transaction calldata transaction)

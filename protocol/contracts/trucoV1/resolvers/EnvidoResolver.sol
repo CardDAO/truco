@@ -53,11 +53,10 @@ contract EnvidoResolver is IChallengeResolver {
             }
 
             require(
-                _gameState.envido.playerCount[_gameState.playerTurn] == 0 &&
-                    _gameState.envido.playerCount[
+                validEnvido(_gameState.envido.playerCount[_gameState.playerTurn]) == false &&
+                validEnvido(_gameState.envido.playerCount[
                         reversePlayer(_gameState.playerTurn)
-                    ] ==
-                    0
+                    ]) == false
             );
 
             require(
@@ -170,18 +169,19 @@ contract EnvidoResolver is IChallengeResolver {
             ) {
                 // Current player challenged envido, so we must ensure other player already cast it's envido count
                 require(
+                    validEnvido(
                     _gameState.envido.playerCount[
                         reversePlayer(_gameState.playerTurn)
-                    ] != 0
+                    ])
                 );
                 require(
-                    _gameState.envido.playerCount[_gameState.playerTurn] == 0
+                    validEnvido(_gameState.envido.playerCount[_gameState.playerTurn]) == false
                 );
             }
 
             // Check envido count is valid
             require(
-                _move.parameters[0] > 0 && _move.parameters[0] <= 33,
+                validEnvido(_move.parameters[0]),
                 'Invalid envido count'
             );
 
@@ -315,15 +315,19 @@ contract EnvidoResolver is IChallengeResolver {
         returns (bool)
     {
         if (
-            _gameState.envido.playerCount[_gameState.playerTurn] == 0 ||
-            _gameState.envido.playerCount[
+            validEnvido(_gameState.envido.playerCount[_gameState.playerTurn]) &&
+            validEnvido(_gameState.envido.playerCount[
                 reversePlayer(_gameState.playerTurn)
-            ] ==
-            0
+            ])
         ) {
-            return false;
+            return true;
         }
 
-        return true;
+        return false;
+    }
+
+    // Check if envido count is valid, if not it means that player didn't spell it's points
+    function validEnvido(uint8 _envidoCount) internal pure returns (bool) {
+        return _envidoCount >= 0 && _envidoCount <= 33;
     }
 }
