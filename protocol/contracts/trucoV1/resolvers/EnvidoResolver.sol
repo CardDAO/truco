@@ -41,9 +41,6 @@ contract EnvidoResolver is IChallengeResolver {
             // - Player is not the challenger
             // - No points were previously spoken
             // - Haven't reach maximum challenges spelled
-            require(
-                _gameState.currentChallenge.waitingChallengeResponse == false
-            );
 
             // Check challenger only if it's a raise (comes from a state of no current challenge)
             if (
@@ -54,6 +51,7 @@ contract EnvidoResolver is IChallengeResolver {
                         _gameState.currentChallenge.challenger
                 );
             }
+
             require(
                 _gameState.envido.playerCount[_gameState.playerTurn] == 0 &&
                     _gameState.envido.playerCount[
@@ -163,8 +161,12 @@ contract EnvidoResolver is IChallengeResolver {
                 _gameState.currentChallenge.response == IERC3333.Response.Accept
             );
 
+            // Check if player is in place for spelling his points: if it's not "mano" then other
+            // player should have spelled it's points
             if (
-                _gameState.playerTurn == _gameState.currentChallenge.challenger
+                _gameState.playerTurn ==
+                _gameState.currentChallenge.challenger &&
+                _gameState.playerTurn == _gameState.playerWhoShuffled
             ) {
                 // Current player challenged envido, so we must ensure other player already cast it's envido count
                 require(
