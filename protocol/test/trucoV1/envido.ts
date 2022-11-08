@@ -1074,7 +1074,6 @@ describe('Envido Resolver', function () {
                 move.parameters = [BigNumber.from(100)]
                 await expect(engine.executeTransaction(transaction)).to.be
                     .reverted
-
             })
 
             it('Spell envido count being the player who shuffled deck - OK', async function () {

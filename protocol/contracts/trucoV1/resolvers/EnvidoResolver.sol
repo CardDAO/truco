@@ -53,10 +53,16 @@ contract EnvidoResolver is IChallengeResolver {
             }
 
             require(
-                validEnvido(_gameState.envido.playerCount[_gameState.playerTurn]) == false &&
-                validEnvido(_gameState.envido.playerCount[
-                        reversePlayer(_gameState.playerTurn)
-                    ]) == false
+                validEnvido(
+                    _gameState.envido.playerCount[_gameState.playerTurn]
+                ) ==
+                    false &&
+                    validEnvido(
+                        _gameState.envido.playerCount[
+                            reversePlayer(_gameState.playerTurn)
+                        ]
+                    ) ==
+                    false
             );
 
             require(
@@ -170,20 +176,20 @@ contract EnvidoResolver is IChallengeResolver {
                 // Current player challenged envido, so we must ensure other player already cast it's envido count
                 require(
                     validEnvido(
-                    _gameState.envido.playerCount[
-                        reversePlayer(_gameState.playerTurn)
-                    ])
+                        _gameState.envido.playerCount[
+                            reversePlayer(_gameState.playerTurn)
+                        ]
+                    )
                 );
                 require(
-                    validEnvido(_gameState.envido.playerCount[_gameState.playerTurn]) == false
+                    validEnvido(
+                        _gameState.envido.playerCount[_gameState.playerTurn]
+                    ) == false
                 );
             }
 
             // Check envido count is valid
-            require(
-                validEnvido(_move.parameters[0]),
-                'Invalid envido count'
-            );
+            require(validEnvido(_move.parameters[0]), 'Invalid envido count');
 
             //Do envido count
             uint8 envidoCount = _move.parameters[0];
@@ -316,9 +322,11 @@ contract EnvidoResolver is IChallengeResolver {
     {
         if (
             validEnvido(_gameState.envido.playerCount[_gameState.playerTurn]) &&
-            validEnvido(_gameState.envido.playerCount[
-                reversePlayer(_gameState.playerTurn)
-            ])
+            validEnvido(
+                _gameState.envido.playerCount[
+                    reversePlayer(_gameState.playerTurn)
+                ]
+            )
         ) {
             return true;
         }

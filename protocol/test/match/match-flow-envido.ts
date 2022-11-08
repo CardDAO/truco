@@ -512,7 +512,6 @@ describe('Multi Transaction Test: Envido', function () {
     })
     describe('Corner cases', function () {
         it('Spelling 0 as envido count (should go ok)', async function () {
-
             const { match, player1, player2 } = await loadFixture(
                 deployContract
             )
@@ -537,5 +536,4 @@ describe('Multi Transaction Test: Envido', function () {
             )
         })
     })
-
 })
