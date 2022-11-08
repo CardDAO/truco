@@ -16,6 +16,7 @@ contract Engine2Players is IERC3333, Ownable {
     EngineQueries internal engineQueries;
 
     uint8 internal constant POINTS_NO_CHALLENGE = 1;
+    uint8 internal constant ENVIDO_NOT_SPELLED_OOB = 99;
 
     constructor(
         IERC20 _trucoin,
@@ -47,6 +48,15 @@ contract Engine2Players is IERC3333, Ownable {
         _gameState.currentChallenge.challenge = IERC3333.Challenge.None;
         _gameState.currentChallenge.pointsAtStake = POINTS_NO_CHALLENGE;
         _gameState.currentChallenge.response = IERC3333.Response.None;
+
+        // Init team points
+        _gameState.teamPoints = new uint8[](2);
+
+        // Init envido count
+        _gameState.envido.playerCount = new uint8[](2);
+        // Set to an invalid envido count to signal that envido was not spelled with an out of bonds value
+        _gameState.envido.playerCount[0] = ENVIDO_NOT_SPELLED_OOB;
+        _gameState.envido.playerCount[1] = ENVIDO_NOT_SPELLED_OOB;
     }
 
     function transact(IERC3333.Transaction calldata transaction)
@@ -66,13 +76,6 @@ contract Engine2Players is IERC3333, Ownable {
         // Loops betweeen moves
         for (uint256 i = 0; i < transaction.moves.length; i++) {
             gameState = resolveMove(gameState, transaction.moves[i]);
-        }
-
-        // Player switch before returning state
-        if (gameState.playerTurn == 0) {
-            gameState.playerTurn = 1;
-        } else {
-            gameState.playerTurn = 0;
         }
 
         return gameState;

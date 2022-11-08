@@ -58,13 +58,13 @@ interface IERC3333 {
 
     // Game state representation
     struct GameState {
-        uint8 playerTurn; // player index
-        uint8 playerWhoShuffled;
-        uint8 pointsToWin;
-        CurrentChallenge currentChallenge;
-        uint8[3][] revealedCardsByPlayer;
-        EnvidoState envido;
-        uint8[] teamPoints; //points indexed by team id (in this case a player is a team)
+        uint8 playerTurn; // player index, NOT managed by engine
+        uint8 playerWhoShuffled; // player index, NOT managed by engine
+        uint8 pointsToWin; // points to win, NOT managed by engine
+        CurrentChallenge currentChallenge; // engine managed state
+        uint8[3][] revealedCardsByPlayer; // engine managed state
+        EnvidoState envido; // engine managed state
+        uint8[] teamPoints; //points indexed by team id (in this case a player is a team) NOT managed by engine
     }
 
     // Represents a transaction (defined as a series of moves) which is meant to be applied to the given game state

@@ -41,9 +41,6 @@ contract EnvidoResolver is IChallengeResolver {
             // - Player is not the challenger
             // - No points were previously spoken
             // - Haven't reach maximum challenges spelled
-            require(
-                _gameState.currentChallenge.waitingChallengeResponse == false
-            );
 
             // Check challenger only if it's a raise (comes from a state of no current challenge)
             if (
@@ -54,12 +51,18 @@ contract EnvidoResolver is IChallengeResolver {
                         _gameState.currentChallenge.challenger
                 );
             }
+
             require(
-                _gameState.envido.playerCount[_gameState.playerTurn] == 0 &&
-                    _gameState.envido.playerCount[
-                        reversePlayer(_gameState.playerTurn)
-                    ] ==
-                    0
+                validEnvido(
+                    _gameState.envido.playerCount[_gameState.playerTurn]
+                ) ==
+                    false &&
+                    validEnvido(
+                        _gameState.envido.playerCount[
+                            reversePlayer(_gameState.playerTurn)
+                        ]
+                    ) ==
+                    false
             );
 
             require(
@@ -163,25 +166,30 @@ contract EnvidoResolver is IChallengeResolver {
                 _gameState.currentChallenge.response == IERC3333.Response.Accept
             );
 
+            // Check if player is in place for spelling his points: if it's not "mano" then other
+            // player should have spelled it's points
             if (
-                _gameState.playerTurn == _gameState.currentChallenge.challenger
+                _gameState.playerTurn ==
+                _gameState.currentChallenge.challenger &&
+                _gameState.playerTurn == _gameState.playerWhoShuffled
             ) {
                 // Current player challenged envido, so we must ensure other player already cast it's envido count
                 require(
-                    _gameState.envido.playerCount[
-                        reversePlayer(_gameState.playerTurn)
-                    ] != 0
+                    validEnvido(
+                        _gameState.envido.playerCount[
+                            reversePlayer(_gameState.playerTurn)
+                        ]
+                    )
                 );
                 require(
-                    _gameState.envido.playerCount[_gameState.playerTurn] == 0
+                    validEnvido(
+                        _gameState.envido.playerCount[_gameState.playerTurn]
+                    ) == false
                 );
             }
 
             // Check envido count is valid
-            require(
-                _move.parameters[0] > 0 && _move.parameters[0] <= 33,
-                'Invalid envido count'
-            );
+            require(validEnvido(_move.parameters[0]), 'Invalid envido count');
 
             //Do envido count
             uint8 envidoCount = _move.parameters[0];
@@ -313,15 +321,21 @@ contract EnvidoResolver is IChallengeResolver {
         returns (bool)
     {
         if (
-            _gameState.envido.playerCount[_gameState.playerTurn] == 0 ||
-            _gameState.envido.playerCount[
-                reversePlayer(_gameState.playerTurn)
-            ] ==
-            0
+            validEnvido(_gameState.envido.playerCount[_gameState.playerTurn]) &&
+            validEnvido(
+                _gameState.envido.playerCount[
+                    reversePlayer(_gameState.playerTurn)
+                ]
+            )
         ) {
-            return false;
+            return true;
         }
 
-        return true;
+        return false;
+    }
+
+    // Check if envido count is valid, if not it means that player didn't spell it's points
+    function validEnvido(uint8 _envidoCount) internal pure returns (bool) {
+        return _envidoCount >= 0 && _envidoCount <= 33;
     }
 }

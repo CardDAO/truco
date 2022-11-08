@@ -18,7 +18,7 @@ contract TrucoMatch {
 
     IERC3333 trucoEngine;
     IERC20 truCoin;
-    Match currentMatch;
+    Match public currentMatch;
     bool isDealOpen;
 
     // Events
@@ -151,5 +151,141 @@ contract TrucoMatch {
             currentMatch.players[0].playerAddress,
             currentMatch.players[1].playerAddress
         ];
+    }
+
+    function spellEnvido() public {
+        IERC3333.Transaction memory transaction = buildTransaction(
+            IERC3333.Action.Challenge,
+            uint8(IERC3333.Challenge.Envido)
+        );
+        currentMatch.gameState = trucoEngine.transact(transaction);
+
+        // Turn should change, since it's will be waiting for the other player to accept or deny the challenge
+        switchTurn();
+    }
+
+    function spellEnvidoEnvido() public {
+        IERC3333.Transaction memory transaction = buildTransaction(
+            IERC3333.Action.Challenge,
+            uint8(IERC3333.Challenge.EnvidoEnvido)
+        );
+        currentMatch.gameState = trucoEngine.transact(transaction);
+
+        // Turn should change, since it's will be waiting for the other player to accept or deny the challenge
+        switchTurn();
+    }
+
+    function spellRealEnvido() public {
+        IERC3333.Transaction memory transaction = buildTransaction(
+            IERC3333.Action.Challenge,
+            uint8(IERC3333.Challenge.RealEnvido)
+        );
+        currentMatch.gameState = trucoEngine.transact(transaction);
+
+        // Turn should change, since it's will be waiting for the other player to accept or deny the challenge
+        switchTurn();
+    }
+
+    function spellFaltaEnvido() public {
+        IERC3333.Transaction memory transaction = buildTransaction(
+            IERC3333.Action.Challenge,
+            uint8(IERC3333.Challenge.FaltaEnvido)
+        );
+        currentMatch.gameState = trucoEngine.transact(transaction);
+
+        // Turn should change, since it's will be waiting for the other player to accept or deny the challenge
+        switchTurn();
+    }
+
+    function spellEnvidoCount(uint8 _points) public {
+        IERC3333.Transaction memory transaction = buildTransaction(
+            IERC3333.Action.EnvidoCount,
+            _points
+        );
+        currentMatch.gameState = trucoEngine.transact(transaction);
+
+        // If current envido count spell resolved envido, then change turn only if not mano
+        if (currentMatch.gameState.envido.pointsRewarded > 0) {
+            switchTurnIfNotMano();
+            return;
+        }
+
+        // We should wait for other player to spell it's envido points
+        switchTurn();
+    }
+
+    // Accepts challenge and switches turn
+    function acceptChallenge() public {
+        acceptChallengeForRaising();
+        switchTurnIfNotMano();
+    }
+
+    // Accept for raising, do not switch turn
+    function acceptChallengeForRaising() public {
+        IERC3333.Transaction memory transaction = buildTransaction(
+            IERC3333.Action.Response,
+            uint8(IERC3333.Response.Accept)
+        );
+        currentMatch.gameState = trucoEngine.transact(transaction);
+    }
+
+    function refuseChallenge() public {
+        IERC3333.Transaction memory transaction = buildTransaction(
+            IERC3333.Action.Response,
+            uint8(IERC3333.Response.Refuse)
+        );
+        currentMatch.gameState = trucoEngine.transact(transaction);
+        switchTurnIfNotMano();
+    }
+
+    // INTERNAL METHODS -------------------------------------------------------------------------
+
+    // Change turn
+    function switchTurn() internal {
+        currentMatch.gameState.playerTurn =
+            currentMatch.gameState.playerTurn ^
+            1;
+    }
+
+    // Change turn only if i'm not mano
+    function switchTurnIfNotMano() internal {
+        if (
+            currentMatch.gameState.playerTurn ==
+            currentMatch.gameState.playerWhoShuffled
+        ) {
+            switchTurn();
+        }
+    }
+
+    function buildTransaction(IERC3333.Action _action, uint8 _param)
+        internal
+        returns (IERC3333.Transaction memory)
+    {
+        uint8[] memory params = new uint8[](1);
+        params[0] = _param;
+
+        IERC3333.Move memory move;
+        move.action = _action;
+        move.parameters = params;
+
+        IERC3333.Move[] memory moves = new IERC3333.Move[](1);
+        moves[0] = move;
+
+        IERC3333.Transaction memory transaction;
+        transaction.playerIdx = getPlayerIdx();
+        transaction.state = currentMatch.gameState;
+        transaction.moves = moves;
+
+        return transaction;
+    }
+
+    function getPlayerIdx() internal view returns (uint8) {
+        if (msg.sender == currentMatch.players[0].playerAddress) {
+            return 0;
+        } else if (msg.sender == currentMatch.players[1].playerAddress) {
+            return 1;
+        }
+
+        revert('You are not a player in this match');
     }
 }

@@ -891,26 +891,6 @@ describe('Envido Resolver', function () {
                 await expect(engine.executeTransaction(transaction)).to.be
                     .reverted
             })
-
-            it("Can't spell envido count being challenger and other party didn't spell it's count first ", async function () {
-                const { engine } = await deployEngineContract()
-
-                let state: GameStateStruct = gameStateWithEnvidoSpell()
-
-                let move: MoveStruct = {
-                    action: BigNumber.from(ActionEnum.EnvidoCount),
-                    parameters: [BigNumber.from(33)],
-                }
-
-                let transaction: TransactionStruct = {
-                    playerIdx: state.playerTurn,
-                    moves: [move],
-                    state: state,
-                }
-
-                await expect(engine.executeTransaction(transaction)).to.be
-                    .reverted
-            })
         })
 
         describe('Raising the challenge', function () {
@@ -1094,32 +1074,6 @@ describe('Envido Resolver', function () {
                 move.parameters = [BigNumber.from(100)]
                 await expect(engine.executeTransaction(transaction)).to.be
                     .reverted
-
-                // 0 is a reserved value to indicate that the player didn't spell envido count
-                move.parameters = [BigNumber.from(0)]
-                await expect(engine.executeTransaction(transaction)).to.be
-                    .reverted
-            })
-
-            it("Spell envido count being the player who shuffled deck, but other player didn't cast it's envido count first", async function () {
-                const { engine } = await deployEngineContract()
-
-                let state: GameStateStruct = gameStateWithEnvidoSpell()
-
-                let move: MoveStruct = {
-                    action: BigNumber.from(ActionEnum.EnvidoCount),
-                    parameters: [BigNumber.from(33)],
-                }
-
-                let transaction: TransactionStruct = {
-                    playerIdx: state.playerTurn,
-                    moves: [move],
-                    state: state,
-                }
-
-                // Spell envido count should fail because other player didn't cast their envido count
-                await expect(engine.executeTransaction(transaction)).to.be
-                    .reverted
             })
 
             it('Spell envido count being the player who shuffled deck - OK', async function () {
@@ -1155,10 +1109,12 @@ describe('Envido Resolver', function () {
                 )
             })
 
-            it("Spell envido count being the player who didn't shuffle deck", async function () {
+            it('Spell envido count being the player who shuffled the deck - Not OK', async function () {
                 const { engine } = await deployEngineContract()
 
                 let state: GameStateStruct = gameStateWithEnvidoSpell()
+
+                state.playerWhoShuffled = state.playerTurn
 
                 let move: MoveStruct = {
                     action: BigNumber.from(ActionEnum.EnvidoCount),
@@ -1209,7 +1165,7 @@ describe('Envido Resolver', function () {
                 // Check counterparty envido points
                 expect(
                     result.envido.playerCount[currentPlayerIdx.toNumber()]
-                ).to.be.equal(BigNumber.from(0))
+                ).to.be.equal(BigNumber.from(99)) // unspelled
 
                 // No points rewarded yet, since envido count from other player is yet to be spelled
                 expect(result.envido.pointsRewarded).to.be.equal(
