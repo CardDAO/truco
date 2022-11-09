@@ -7,10 +7,7 @@ import MoveStruct = IERC3333.MoveStruct
 import TransactionStruct = IERC3333.TransactionStruct
 import GameStateStruct = IERC3333.GameStateStruct
 
-import {
-    deployDeckContract,
-    deployEngineContract,
-} from '../deploy-engine-contract'
+import { deployDeckContract, deployEngineContract } from '../deploy-contracts'
 import { basicGameState } from '../basic-game-state'
 
 import { BigNumber } from 'ethers'
