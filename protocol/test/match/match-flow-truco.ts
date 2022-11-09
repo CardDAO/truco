@@ -137,6 +137,33 @@ describe('Multi Transaction Test: Truco', function () {
         })
     })
 
+    describe('Turn Handling', function () {
+
+        it('Spelling Truco out of turn', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployContract
+            )
+
+            // TRANSACTION: Player 1 should be the first to play
+            expect(match.connect(player2).spellTruco()).to.be.reverted
+        })
+
+        it('Raising out of turn', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployContract
+            )
+
+            await match.setPlayerTurn(BigNumber.from(1))
+
+            // TRANSACTION: Player 2 is the first to play (mano)
+            await match.connect(player2).spellTruco()
+
+            // TRANSACTION: Player 2 accepts the challenge but not for rising
+            await match.connect(player1).acceptChallenge()
+            expect(match.connect(player2).spellReTruco()).to.be.reverted
+        })
+
+    })
     describe('Refusals', function () {
         it('Truco from None', async function () {
             const { match, player1, player2 } = await loadFixture(
@@ -227,7 +254,7 @@ describe('Multi Transaction Test: Truco', function () {
             await match.connect(player1).acceptChallengeForRaising()
             await match.connect(player1).spellValeCuatro()
 
-            // TRANSACTION: Player 2 accepts
+            // TRANSACTION: Player 2 refuses
             await match.connect(player2).refuseChallenge()
 
             let state = await match.currentMatch()
@@ -269,6 +296,9 @@ describe('Multi Transaction Test: Truco', function () {
             expect(state.gameState.currentChallenge.response).to.be.equal(
                 BigNumber.from(ResponseEnum.Accept)
             )
+            expect(state.gameState.currentChallenge.pointsAtStake).to.be.equal(
+                BigNumber.from(2)
+            )
         })
 
         it('Truco raising to ReTruco', async function () {
@@ -285,15 +315,57 @@ describe('Multi Transaction Test: Truco', function () {
             await match.connect(player2).acceptChallenge()
             await match.connect(player2).spellReTruco()
 
+            // TRANSACTION: Player 1 accepts and raises to Vale4
+            await match.connect(player1).acceptChallenge()
+
             state = await match.currentMatch()
 
             expect(state.gameState.currentChallenge.challenge).to.be.equal(
                 BigNumber.from(ChallengeEnum.ReTruco)
             )
             expect(state.gameState.currentChallenge.waitingChallengeResponse).to
-                .be.true
+                .be.false
             expect(state.gameState.currentChallenge.response).to.be.equal(
-                BigNumber.from(ResponseEnum.None)
+                BigNumber.from(ResponseEnum.Accept)
+            )
+            expect(state.gameState.currentChallenge.pointsAtStake).to.be.equal(
+                BigNumber.from(3)
+            )
+        })
+
+        it('Retruco raising to Vale4', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployContract
+            )
+
+            let state: TrucoMatch.Match = await match.currentMatch()
+
+            // TRANSACTION: Player 1 is the first to play (mano)
+            await match.connect(player1).spellTruco()
+
+            // TRANSACTION: Player 2 accepts the challenge
+            await match.connect(player2).acceptChallengeForRaising()
+            await match.connect(player2).spellReTruco()
+
+            // TRANSACTION: Player 1 accepts and raises to Vale4
+            await match.connect(player1).acceptChallengeForRaising()
+            await match.connect(player1).spellValeCuatro()
+
+            // TRANSACTION: Player 2 accepts
+            await match.connect(player2).acceptChallenge()
+
+            state = await match.currentMatch()
+
+            expect(state.gameState.currentChallenge.challenge).to.be.equal(
+                BigNumber.from(ChallengeEnum.ValeCuatro)
+            )
+            expect(state.gameState.currentChallenge.waitingChallengeResponse).to
+                .be.false
+            expect(state.gameState.currentChallenge.response).to.be.equal(
+                BigNumber.from(ResponseEnum.Accept)
+            )
+            expect(state.gameState.currentChallenge.pointsAtStake).to.be.equal(
+                BigNumber.from(4)
             )
         })
     })

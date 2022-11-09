@@ -28,6 +28,11 @@ contract TrucoMatch {
     event DealStarted(address shuffler);
     event DealEnded();
 
+    modifier enforceTurn {
+        require(getPlayerIdx() == currentMatch.gameState.playerTurn);
+        _;
+    }
+
     constructor(
         IERC3333 _trucoEngine,
         IERC20 _truCoin,
@@ -146,7 +151,7 @@ contract TrucoMatch {
         ];
     }
 
-    function spellTruco() public {
+    function spellTruco() enforceTurn public {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.Truco)
@@ -157,7 +162,7 @@ contract TrucoMatch {
         switchTurn();
     }
 
-    function spellReTruco() public {
+    function spellReTruco() enforceTurn public {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.ReTruco)
@@ -168,7 +173,7 @@ contract TrucoMatch {
         switchTurn();
     }
 
-    function spellValeCuatro() public {
+    function spellValeCuatro() enforceTurn public {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.ValeCuatro)
@@ -179,7 +184,7 @@ contract TrucoMatch {
         switchTurn();
     }
 
-    function playCard(uint8 _card) public {
+    function playCard(uint8 _card) enforceTurn public {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.PlayCard,
             _card
@@ -189,7 +194,7 @@ contract TrucoMatch {
         switchTurn();
     }
 
-    function spellEnvido() public {
+    function spellEnvido() enforceTurn public {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.Envido)
@@ -200,7 +205,7 @@ contract TrucoMatch {
         switchTurn();
     }
 
-    function spellEnvidoEnvido() public {
+    function spellEnvidoEnvido() enforceTurn public {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.EnvidoEnvido)
@@ -211,7 +216,7 @@ contract TrucoMatch {
         switchTurn();
     }
 
-    function spellRealEnvido() public {
+    function spellRealEnvido() enforceTurn public {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.RealEnvido)
@@ -222,7 +227,7 @@ contract TrucoMatch {
         switchTurn();
     }
 
-    function spellFaltaEnvido() public {
+    function spellFaltaEnvido() enforceTurn public {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.FaltaEnvido)
@@ -233,7 +238,7 @@ contract TrucoMatch {
         switchTurn();
     }
 
-    function spellEnvidoCount(uint8 _points) public {
+    function spellEnvidoCount(uint8 _points) enforceTurn public {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.EnvidoCount,
             _points
@@ -251,13 +256,13 @@ contract TrucoMatch {
     }
 
     // Accepts challenge and switches turn
-    function acceptChallenge() public {
+    function acceptChallenge() enforceTurn public {
         acceptChallengeForRaising();
         switchTurnIfNotMano();
     }
 
     // Accept for raising, do not switch turn
-    function acceptChallengeForRaising() public {
+    function acceptChallengeForRaising() enforceTurn public {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Response,
             uint8(IERC3333.Response.Accept)
@@ -265,7 +270,7 @@ contract TrucoMatch {
         currentMatch.gameState = trucoEngine.transact(transaction);
     }
 
-    function refuseChallenge() public {
+    function refuseChallenge() enforceTurn public {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Response,
             uint8(IERC3333.Response.Refuse)

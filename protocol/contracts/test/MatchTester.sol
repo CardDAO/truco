@@ -22,4 +22,8 @@ contract TrucoMatchTester is TrucoMatch {
     function currentPlayerIdx() public view returns (uint8) {
         return getPlayerIdx();
     }
+
+    function setPlayerTurn(uint8 _playerTurnIdx) public {
+        currentMatch.gameState.playerTurn = _playerTurnIdx;
+    }
 }
