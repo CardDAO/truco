@@ -10,6 +10,16 @@ declare global {
 
     type Card = PromiseOrValue<BytesLike>
 
+    type MentalPokerCard = {
+        cardIndex: number,
+        keys: [any]
+    }
+
+
+    type AssignedCards = {
+        cards: MentalPokerCard[]
+    }
+
     type Shuffling = {
         cards: Card
     }
