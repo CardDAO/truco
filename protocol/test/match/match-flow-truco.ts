@@ -138,7 +138,6 @@ describe('Multi Transaction Test: Truco', function () {
     })
 
     describe('Turn Handling', function () {
-
         it('Spelling Truco out of turn', async function () {
             const { match, player1, player2 } = await loadFixture(
                 deployContract
@@ -162,7 +161,6 @@ describe('Multi Transaction Test: Truco', function () {
             await match.connect(player1).acceptChallenge()
             expect(match.connect(player2).spellReTruco()).to.be.reverted
         })
-
     })
     describe('Refusals', function () {
         it('Truco from None', async function () {
