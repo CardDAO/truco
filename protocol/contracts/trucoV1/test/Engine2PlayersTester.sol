@@ -9,13 +9,13 @@ contract Engine2PlayersTester is Engine2Players {
         IERC20 _trucoin,
         IChallengeResolver _trucoResolver,
         IChallengeResolver _envidoResolver,
-        EngineQueries _engineQueries
+        GameStateQueries _gameStateQueries
     )
         Engine2Players(
             _trucoin,
             _trucoResolver,
             _envidoResolver,
-            _engineQueries
+            _gameStateQueries
         )
     {}
 

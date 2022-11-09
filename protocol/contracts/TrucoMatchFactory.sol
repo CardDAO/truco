@@ -5,12 +5,14 @@ pragma solidity 0.8.16;
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import './trucoV1/interfaces/IERC3333.sol';
+import './trucoV1/GameStateQueries.sol';
 import './TrucoMatch.sol';
 
 contract TrucoMatchFactory is OwnableUpgradeable {
     // State variables
     TrucoMatch[] public matches;
     IERC3333 internal trucoEngine;
+    GameStateQueries internal gameStateQueries;
     IERC20 internal truCoin;
     uint256 public minBet;
 
@@ -25,10 +27,12 @@ contract TrucoMatchFactory is OwnableUpgradeable {
     function initialize(
         IERC3333 _trucoEngine,
         IERC20 _truCoin,
+        GameStateQueries _gameStateQueries,
         uint256 _minBet
     ) public initializer {
         trucoEngine = _trucoEngine;
         truCoin = _truCoin;
+        gameStateQueries = _gameStateQueries;
         minBet = _minBet;
     }
 
@@ -45,7 +49,7 @@ contract TrucoMatchFactory is OwnableUpgradeable {
         );
 
         // Create new match
-        TrucoMatch deployedMatch = new TrucoMatch(trucoEngine, truCoin, _bet);
+        TrucoMatch deployedMatch = new TrucoMatch(trucoEngine, truCoin, gameStateQueries, _bet);
         matches.push(deployedMatch);
 
         // Transfer tokens to match

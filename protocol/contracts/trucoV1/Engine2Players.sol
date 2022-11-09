@@ -7,13 +7,13 @@ import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import './interfaces/IERC3333.sol';
 import './interfaces/IChallengeResolver.sol';
 import './interfaces/ICardsDeck.sol';
-import './EngineQueries.sol';
+import './GameStateQueries.sol';
 
 contract Engine2Players is IERC3333, Ownable {
     IERC20 internal trucoin;
     IChallengeResolver internal envidoResolver;
     IChallengeResolver internal trucoResolver;
-    EngineQueries internal engineQueries;
+    GameStateQueries internal gameStateQueries;
 
     uint8 internal constant POINTS_NO_CHALLENGE = 1;
     uint8 internal constant ENVIDO_NOT_SPELLED_OOB = 99;
@@ -22,12 +22,12 @@ contract Engine2Players is IERC3333, Ownable {
         IERC20 _trucoin,
         IChallengeResolver _trucoResolver,
         IChallengeResolver _envidoResolver,
-        EngineQueries _engineQueries
+        GameStateQueries _gameStateQueries
     ) {
         trucoin = _trucoin;
         envidoResolver = _envidoResolver;
         trucoResolver = _trucoResolver;
-        engineQueries = _engineQueries;
+        gameStateQueries = _gameStateQueries;
     }
 
     function startGame() external returns (IERC3333.GameState memory) {
@@ -51,6 +51,9 @@ contract Engine2Players is IERC3333, Ownable {
 
         // Init team points
         _gameState.teamPoints = new uint8[](2);
+
+        // Turn should be the opponent of shuffler
+        _gameState.playerTurn = _gameState.playerWhoShuffled ^1;
 
         // Init envido count
         _gameState.envido.playerCount = new uint8[](2);
@@ -87,7 +90,7 @@ contract Engine2Players is IERC3333, Ownable {
     ) internal view returns (IERC3333.GameState memory) {
         // Verify if it's a valid move
         require(
-            engineQueries.isMoveValid(_gameState, _move),
+            gameStateQueries.isMoveValid(_gameState, _move),
             'Move is invalid'
         );
 
@@ -103,14 +106,14 @@ contract Engine2Players is IERC3333, Ownable {
 
         if (
             envidoResolver.canResolve(_gameState.currentChallenge.challenge) ||
-            engineQueries.isMoveAChallengeForEnvido(_move)
+            gameStateQueries.isMoveAChallengeForEnvido(_move)
         ) {
             return envidoResolver.resolve(_gameState, _move);
         }
 
         if (
             trucoResolver.canResolve(_gameState.currentChallenge.challenge) ||
-            engineQueries.isMoveAChallengeForTruco(_move)
+            gameStateQueries.isMoveAChallengeForTruco(_move)
         ) {
             return trucoResolver.resolve(_gameState, _move);
         }
@@ -131,6 +134,6 @@ contract Engine2Players is IERC3333, Ownable {
         view
         returns (bool)
     {
-        return engineQueries.isGameEnded(gameState);
+        return gameStateQueries.isGameEnded(gameState);
     }
 }

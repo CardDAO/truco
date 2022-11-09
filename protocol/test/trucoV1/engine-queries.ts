@@ -14,8 +14,8 @@ describe('Engine Queries', function () {
         const CardsDeck = await ethers.getContractFactory('CastillianDeck')
         const cardsDeck = await CardsDeck.deploy()
 
-        const EngineQueries = await ethers.getContractFactory('EngineQueries')
-        const sut = await EngineQueries.deploy(
+        const GameStateQueries = await ethers.getContractFactory('GameStateQueries')
+        const sut = await GameStateQueries.deploy(
             trucoResolver.address,
             envidoResolver.address,
             cardsDeck.address

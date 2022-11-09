@@ -4,7 +4,7 @@ pragma solidity 0.8.16;
 import './interfaces/IChallengeResolver.sol';
 import './interfaces/ICardsDeck.sol';
 
-contract EngineQueries {
+contract GameStateQueries {
     IChallengeResolver internal envidoResolver;
     IChallengeResolver internal trucoResolver;
     ICardsDeck internal cardsDeck;
@@ -50,6 +50,35 @@ contract EngineQueries {
     {
         // Implement this
         return false;
+    }
+
+    // Return wich player should be play next
+    function whichPlayerShouldPlayCard(IERC3333.GameState memory gameState)
+    external
+    view
+    returns (uint8)
+    {
+        // For each round check if it's incomplete, in that case return the player that should play
+        for (uint8 i; i < 3; i++) {
+            if (! this.roundComplete(gameState, i)) {
+                return this.getPlayerTurnAtRound(gameState, i);
+            }
+        }
+
+        return gameState.playerTurn;
+    }
+
+    function roundComplete(IERC3333.GameState memory gameState, uint8 _roundId) external view returns (bool) {
+        // Cards does not repeat, so special case is when both cards are the same they should be masked
+        return gameState.revealedCardsByPlayer[0][_roundId] !=  gameState.revealedCardsByPlayer[1][_roundId];
+    }
+
+    function getPlayerTurnAtRound(IERC3333.GameState memory gameState, uint8 _roundId) external view returns (uint8) {
+        // Round 1 is still at play
+        if (gameState.revealedCardsByPlayer[0][0] == 0) {
+            return 0;
+        }
+        return 1;
     }
 
     // Check if envido can be spelled at this game

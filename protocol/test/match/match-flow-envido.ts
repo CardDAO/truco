@@ -15,7 +15,7 @@ describe('Multi Transaction Test: Envido', function () {
         // Contracts are deployed using the first signer/account by default
         const [player1, player2, invalid_player] = await ethers.getSigners()
 
-        const { trucoin, engine } = await deployEngineContract()
+        const { trucoin, engine, gameStateQueries } = await deployEngineContract()
 
         // Transfer trucoins to players
         await trucoin.mint(player1.address, tokenAtStake)
@@ -25,6 +25,7 @@ describe('Multi Transaction Test: Envido', function () {
         const match = await TrucoMatch.deploy(
             engine.address,
             trucoin.address,
+            gameStateQueries.address,
             tokenAtStake
         )
 
@@ -47,10 +48,10 @@ describe('Multi Transaction Test: Envido', function () {
                 deployContract
             )
 
-            await match.connect(player1).spellEnvido()
+            await match.connect(player2).spellEnvido()
 
-            await match.connect(player2).acceptChallengeForRaising()
-            expect(match.connect(player2).spellEnvido()).to.be.reverted
+            await match.connect(player1).acceptChallengeForRaising()
+            expect(match.connect(player1).spellEnvido()).to.be.reverted
         })
 
         it('Raising without accepting', async function () {
@@ -58,9 +59,9 @@ describe('Multi Transaction Test: Envido', function () {
                 deployContract
             )
 
-            await match.connect(player1).spellEnvido()
+            await match.connect(player2).spellEnvido()
 
-            expect(match.connect(player2).spellRealEnvido()).to.be.reverted
+            expect(match.connect(player1).spellRealEnvido()).to.be.reverted
         })
 
         it('Lowering challenge', async function () {
@@ -68,10 +69,10 @@ describe('Multi Transaction Test: Envido', function () {
                 deployContract
             )
 
-            await match.connect(player1).spellRealEnvido()
+            await match.connect(player2).spellRealEnvido()
 
-            await match.connect(player2).acceptChallengeForRaising()
-            expect(match.connect(player2).spellEnvido()).to.be.reverted
+            await match.connect(player1).acceptChallengeForRaising()
+            expect(match.connect(player1).spellEnvido()).to.be.reverted
         })
 
         it('Spelling envido count without accepting', async function () {
@@ -79,9 +80,9 @@ describe('Multi Transaction Test: Envido', function () {
                 deployContract
             )
 
-            await match.connect(player1).spellEnvido()
+            await match.connect(player2).spellEnvido()
 
-            expect(match.connect(player2).spellEnvidoCount(BigNumber.from(33)))
+            expect(match.connect(player1).spellEnvidoCount(BigNumber.from(33)))
                 .to.be.reverted
         })
 
@@ -90,10 +91,10 @@ describe('Multi Transaction Test: Envido', function () {
                 deployContract
             )
 
-            await match.connect(player1).spellEnvido()
-            await match.connect(player2).refuseChallenge()
+            await match.connect(player2).spellEnvido()
+            await match.connect(player1).refuseChallenge()
 
-            expect(match.connect(player1).spellEnvido()).to.be.reverted
+            expect(match.connect(player2).spellEnvido()).to.be.reverted
         })
 
         it('Spelling invalid envido count', async function () {
@@ -101,10 +102,10 @@ describe('Multi Transaction Test: Envido', function () {
                 deployContract
             )
 
-            await match.connect(player1).spellEnvido()
-            await match.connect(player2).refuseChallenge()
+            await match.connect(player2).spellEnvido()
+            await match.connect(player1).refuseChallenge()
 
-            expect(match.connect(player2).spellEnvidoCount(BigNumber.from(34)))
+            expect(match.connect(player1).spellEnvidoCount(BigNumber.from(34)))
                 .to.be.reverted
         })
 
@@ -113,10 +114,10 @@ describe('Multi Transaction Test: Envido', function () {
                 deployContract
             )
 
-            await match.connect(player1).spellEnvido()
-            await match.connect(player2).refuseChallenge()
+            await match.connect(player2).spellEnvido()
+            await match.connect(player1).refuseChallenge()
 
-            expect(match.connect(player2).spellEnvidoCount(BigNumber.from(99)))
+            expect(match.connect(player1).spellEnvidoCount(BigNumber.from(99)))
                 .to.be.reverted
         })
 
@@ -125,9 +126,9 @@ describe('Multi Transaction Test: Envido', function () {
                 deployContract
             )
 
-            await match.connect(player1).spellEnvido()
-            await match.connect(player2).acceptChallenge()
-            expect(match.connect(player2).refuseChallenge()).to.be.reverted
+            await match.connect(player2).spellEnvido()
+            await match.connect(player1).acceptChallenge()
+            expect(match.connect(player1).refuseChallenge()).to.be.reverted
         })
 
         it('Out of turn Envido Count spelling', async function () {
@@ -135,9 +136,9 @@ describe('Multi Transaction Test: Envido', function () {
                 deployContract
             )
 
-            await match.connect(player1).spellEnvido()
-            await match.connect(player2).acceptChallenge()
-            expect(match.connect(player1).spellEnvidoCount(BigNumber.from(33)))
+            await match.connect(player2).spellEnvido()
+            await match.connect(player1).acceptChallenge()
+            expect(match.connect(player2).spellEnvidoCount(BigNumber.from(33)))
                 .to.be.reverted
         })
     })
@@ -151,20 +152,20 @@ describe('Multi Transaction Test: Envido', function () {
             let state: TrucoMatch.Match = await match.currentMatch()
 
             expect(state.gameState.playerTurn).to.be.equal(
-                await match.connect(player1).currentPlayerIdx()
+                await match.connect(player2).currentPlayerIdx()
             )
             expect(state.gameState.currentChallenge.challenge).to.be.equal(
                 BigNumber.from(ChallengeEnum.None)
             )
 
-            // TRANSACTION: Player 1 is the first to play (mano)
-            await match.connect(player1).spellEnvido()
+            // TRANSACTION: Player 2 is the first to play (mano)
+            await match.connect(player2).spellEnvido()
 
             state = await match.currentMatch()
 
-            // Player 2 should respond
+            // Player 1 should respond
             expect(state.gameState.playerTurn).to.be.equal(
-                await match.connect(player2).currentPlayerIdx()
+                await match.connect(player1).currentPlayerIdx()
             )
 
             // State should be as follows
@@ -177,8 +178,8 @@ describe('Multi Transaction Test: Envido', function () {
                 BigNumber.from(ResponseEnum.None)
             )
 
-            // TRANSACTION: Player 2 refuses challenge
-            await match.connect(player2).refuseChallenge()
+            // TRANSACTION: Player 1 refuses challenge
+            await match.connect(player1).refuseChallenge()
 
             state = await match.currentMatch()
 
@@ -207,14 +208,14 @@ describe('Multi Transaction Test: Envido', function () {
             )
 
             // TRANSACTION: Player 1 is the first to play (mano)
-            await match.connect(player1).spellEnvido()
+            await match.connect(player2).spellEnvido()
 
             // TRANSACTION: Player 2 accepts and raises the challenge
-            await match.connect(player2).acceptChallengeForRaising()
-            await match.connect(player2).spellEnvidoEnvido()
+            await match.connect(player1).acceptChallengeForRaising()
+            await match.connect(player1).spellEnvidoEnvido()
 
             // TRANSACTION: Player 2 refuses
-            await match.connect(player1).refuseChallenge()
+            await match.connect(player2).refuseChallenge()
 
             let state: TrucoMatch.Match = await match.currentMatch()
 
@@ -238,10 +239,10 @@ describe('Multi Transaction Test: Envido', function () {
             )
 
             // TRANSACTION: Player 1 is the first to play (mano)
-            await match.connect(player1).spellFaltaEnvido()
+            await match.connect(player2).spellFaltaEnvido()
 
             // TRANSACTION: Player 2 accepts and raises the challenge
-            await match.connect(player2).refuseChallenge()
+            await match.connect(player1).refuseChallenge()
 
             let state: TrucoMatch.Match = await match.currentMatch()
 
@@ -265,14 +266,14 @@ describe('Multi Transaction Test: Envido', function () {
             )
 
             // TRANSACTION: Player 1 is the first to play (mano)
-            await match.connect(player1).spellRealEnvido()
+            await match.connect(player2).spellRealEnvido()
 
             // TRANSACTION: Player 2 accepts and raises the challenge
-            await match.connect(player2).acceptChallengeForRaising()
-            await match.connect(player2).spellFaltaEnvido()
+            await match.connect(player1).acceptChallengeForRaising()
+            await match.connect(player1).spellFaltaEnvido()
 
             // TRANSACTION: Player 1 refuses
-            await match.connect(player1).refuseChallenge()
+            await match.connect(player2).refuseChallenge()
 
             let state: TrucoMatch.Match = await match.currentMatch()
 
@@ -298,11 +299,11 @@ describe('Multi Transaction Test: Envido', function () {
 
             let state: TrucoMatch.Match = await match.currentMatch()
 
-            // TRANSACTION: Player 1 is the first to play (mano)
-            await match.connect(player1).spellRealEnvido()
+            // TRANSACTION: Player 2 is the first to play (mano)
+            await match.connect(player2).spellRealEnvido()
 
-            // TRANSACTION: Player 2 accepts the challenge
-            await match.connect(player2).acceptChallenge()
+            // TRANSACTION: Player 1 accepts the challenge
+            await match.connect(player1).acceptChallenge()
 
             state = await match.currentMatch()
 
@@ -323,11 +324,11 @@ describe('Multi Transaction Test: Envido', function () {
 
             let state: TrucoMatch.Match = await match.currentMatch()
 
-            // TRANSACTION: Player 1 is the first to play (mano)
-            await match.connect(player1).spellRealEnvido()
+            // TRANSACTION: Player 2 is the first to play (mano)
+            await match.connect(player2).spellRealEnvido()
 
-            // TRANSACTION: Player 2 accepts the challenge
-            await match.connect(player2).acceptChallenge()
+            // TRANSACTION: Player 1 accepts the challenge
+            await match.connect(player1).acceptChallenge()
 
             state = await match.currentMatch()
 
@@ -349,10 +350,10 @@ describe('Multi Transaction Test: Envido', function () {
             let state: TrucoMatch.Match = await match.currentMatch()
 
             // TRANSACTION: Player 1 is the first to play (mano)
-            await match.connect(player1).spellEnvido()
+            await match.connect(player2).spellEnvido()
 
             // TRANSACTION: Player 2 accepts the challenge
-            await match.connect(player2).spellEnvidoEnvido()
+            await match.connect(player1).spellEnvidoEnvido()
 
             state = await match.currentMatch()
 
@@ -371,20 +372,20 @@ describe('Multi Transaction Test: Envido', function () {
                 deployContract
             )
 
-            // TRANSACTION: Player 1 is the first to play (mano)
-            await match.connect(player1).spellEnvido()
+            // TRANSACTION: Player 2 is the first to play (mano)
+            await match.connect(player2).spellEnvido()
 
-            // TRANSACTION: Player 2 accepts and raises to RealEnvido
-            await match.connect(player2).acceptChallengeForRaising()
-            await match.connect(player2).spellRealEnvido()
+            // TRANSACTION: Player 1 accepts and raises to RealEnvido
+            await match.connect(player1).acceptChallengeForRaising()
+            await match.connect(player1).spellRealEnvido()
 
-            // TRANSACTION: Player 1 accepts challenge
-            await match.connect(player1).acceptChallenge()
+            // TRANSACTION: Player 2 accepts challenge
+            await match.connect(player2).acceptChallenge()
 
-            // TRANSACTION: Player 2 spells envido count
+            // TRANSACTION: Player 2 spells envido count (its mano)
             await match.connect(player2).spellEnvidoCount(BigNumber.from(20))
 
-            // TRANSACTION: Player 2 spells envido count and resolves envido
+            // TRANSACTION: Player 1 spells envido count and resolves envido
             await match.connect(player1).spellEnvidoCount(BigNumber.from(33))
 
             let envidoCount = await match.getEnvidoCountPerPlayer()
@@ -405,28 +406,32 @@ describe('Multi Transaction Test: Envido', function () {
                 deployContract
             )
 
-            // TRANSACTION: Player 1 is the first to play (mano)
-            await match.connect(player1).spellEnvido()
+            // TRANSACTION: Player 2 is the first to play (mano)
+            await match.connect(player2).spellEnvido()
 
-            // TRANSACTION: Player 2 accepts and raises to RealEnvido
-            await match.connect(player2).acceptChallengeForRaising()
-            await match.connect(player2).spellEnvidoEnvido()
-
-            // TRANSACTION: Player 1 accepts challenge and raises to FaltaEnvido
+            // TRANSACTION: Player 1 accepts and raises to RealEnvido
             await match.connect(player1).acceptChallengeForRaising()
-            await match.connect(player1).spellFaltaEnvido()
+            await match.connect(player1).spellEnvidoEnvido()
 
-            // TRANSACTION: Player 2 accepts and waits for envido count
-            await match.connect(player2).acceptChallenge()
-            await match.connect(player2).spellEnvidoCount(BigNumber.from(20))
+            // TRANSACTION: Player 2 accepts challenge and raises to FaltaEnvido
+            await match.connect(player2).acceptChallengeForRaising()
+            await match.connect(player2).spellFaltaEnvido()
+
+            // TRANSACTION: Player 1 accepts and waits for envido count
+            await match.connect(player1).acceptChallenge()
+
+            // TRANSACTION: Player 2 spells envido count
+            await match.connect(player2).spellEnvidoCount(BigNumber.from(33))
 
             // TRANSACTION: Player 1 spells envido count
-            await match.connect(player1).spellEnvidoCount(BigNumber.from(33))
+            await match.connect(player1).spellEnvidoCount(BigNumber.from(20))
 
             let envidoCount = await match.getEnvidoCountPerPlayer()
             let state = await match.currentMatch()
 
-            expect(envidoCount[0]).to.be.equal(BigNumber.from(33))
+            expect(envidoCount[0]).to.be.equal(BigNumber.from(20))
+            expect(envidoCount[1]).to.be.equal(BigNumber.from(33))
+
             expect(state.gameState.envido.pointsRewarded).to.be.equal(
                 state.gameState.pointsToWin
             )
@@ -441,8 +446,8 @@ describe('Multi Transaction Test: Envido', function () {
                 deployContract
             )
 
-            await match.connect(player1).spellEnvido()
-            await match.connect(player2).acceptChallenge()
+            await match.connect(player2).spellEnvido()
+            await match.connect(player1).acceptChallenge()
 
             await match.connect(player2).spellEnvidoCount(BigNumber.from(0))
             await match.connect(player1).spellEnvidoCount(BigNumber.from(33))
@@ -474,15 +479,15 @@ describe('Multi Transaction Test: Envido', function () {
             expect(await engine.isEnvidoFinal()).to.be.false
 
             expect(state.gameState.playerTurn).to.be.equal(
-                await match.connect(player1).currentPlayerIdx()
+                await match.connect(player2).currentPlayerIdx()
             )
 
             expect(state.gameState.currentChallenge.challenge).to.be.equal(
                 BigNumber.from(ChallengeEnum.None)
             )
 
-            // TRANSACTION: Player 1 is the first to play (mano)
-            await match.connect(player1).spellEnvido()
+            // TRANSACTION: Player 2 is the first to play (mano)
+            await match.connect(player2).spellEnvido()
 
             state = await match.currentMatch()
 
@@ -490,9 +495,9 @@ describe('Multi Transaction Test: Envido', function () {
             await engine.setGameState(state.gameState)
             expect(await engine.isEnvidoFinal()).to.be.false
 
-            // Player 2 should respond
+            // Player 1 should respond
             expect(state.gameState.playerTurn).to.be.equal(
-                await match.connect(player2).currentPlayerIdx()
+                await match.connect(player1).currentPlayerIdx()
             )
 
             // State should be as follows
@@ -505,15 +510,15 @@ describe('Multi Transaction Test: Envido', function () {
                 BigNumber.from(ResponseEnum.None)
             )
 
-            // TRANSACTION: Player 2 accepts the challenge
-            await match.connect(player2).acceptChallenge()
+            // TRANSACTION: Player 1 accepts the challenge
+            await match.connect(player1).acceptChallenge()
+
+            state = await match.currentMatch()
 
             // PLayer 2 is mano, so it should hold the turn to spell envido count
             expect(state.gameState.playerTurn).to.be.equal(
                 await match.connect(player2).currentPlayerIdx()
             )
-
-            state = await match.currentMatch()
 
             // Envido should not be final at this step
             await engine.setGameState(state.gameState)

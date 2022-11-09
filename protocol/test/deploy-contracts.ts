@@ -20,8 +20,8 @@ export async function deployEngineContract() {
 
     const { cardsDeck } = await deployDeckContract()
 
-    const EngineQueries = await ethers.getContractFactory('EngineQueries')
-    const engineQueries = await EngineQueries.deploy(
+    const GameStateQueries = await ethers.getContractFactory('GameStateQueries')
+    const gameStateQueries = await GameStateQueries.deploy(
         trucoResolver.address,
         envidoResolver.address,
         cardsDeck.address
@@ -32,10 +32,10 @@ export async function deployEngineContract() {
         trucoin.address,
         trucoResolver.address,
         envidoResolver.address,
-        engineQueries.address
+        gameStateQueries.address
     )
 
-    return { engine, trucoin }
+    return { engine, trucoin, gameStateQueries }
 }
 
 export async function deployMatchContract() {
@@ -44,7 +44,7 @@ export async function deployMatchContract() {
     // Contracts are deployed using the first signer/account by default
     const [owner, player2, invalid_player] = await ethers.getSigners()
 
-    const { trucoin, engine } = await deployEngineContract()
+    const { trucoin, engine, gameStateQueries } = await deployEngineContract()
 
     // Transfer trucoins to players
     await trucoin.mint(owner.address, bet)
@@ -52,7 +52,7 @@ export async function deployMatchContract() {
     await trucoin.mint(invalid_player.address, bet)
 
     const TrucoMatch = await ethers.getContractFactory('TrucoMatch')
-    const match = await TrucoMatch.deploy(engine.address, trucoin.address, bet)
+    const match = await TrucoMatch.deploy(engine.address, trucoin.address, gameStateQueries.address, bet)
 
     return { match, engine, trucoin, owner, player2, invalid_player, bet }
 }
@@ -60,7 +60,7 @@ export async function deployMatchContract() {
 export async function deployFactoryContract() {
     const [owner] = await ethers.getSigners()
 
-    const { trucoin, engine } = await deployEngineContract()
+    const { trucoin, engine, gameStateQueries } = await deployEngineContract()
 
     const min_bet = BigNumber.from('10000')
 
@@ -70,6 +70,7 @@ export async function deployFactoryContract() {
     const factory = await upgrades.deployProxy(TrucoMatchFactory, [
         engine.address,
         trucoin.address,
+        gameStateQueries.address,
         min_bet,
     ])
     await factory.deployed()
