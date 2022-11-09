@@ -30,6 +30,11 @@ contract TrucoMatch {
     event DealStarted(address shuffler);
     event DealEnded();
 
+    modifier enforceTurn() {
+        require(getPlayerIdx() == currentMatch.gameState.playerTurn);
+        _;
+    }
+
     constructor(
         IERC3333 _trucoEngine,
         IERC20 _truCoin,
@@ -150,7 +155,50 @@ contract TrucoMatch {
         ];
     }
 
-    function spellEnvido() public {
+    function spellTruco() public enforceTurn {
+        IERC3333.Transaction memory transaction = buildTransaction(
+            IERC3333.Action.Challenge,
+            uint8(IERC3333.Challenge.Truco)
+        );
+        currentMatch.gameState = trucoEngine.transact(transaction);
+
+        // Turn should change, since it's will be waiting for the other player to accept or deny the challenge
+        switchTurn();
+    }
+
+    function spellReTruco() public enforceTurn {
+        IERC3333.Transaction memory transaction = buildTransaction(
+            IERC3333.Action.Challenge,
+            uint8(IERC3333.Challenge.ReTruco)
+        );
+        currentMatch.gameState = trucoEngine.transact(transaction);
+
+        // Turn should change, since it's will be waiting for the other player to accept or deny the challenge
+        switchTurn();
+    }
+
+    function spellValeCuatro() public enforceTurn {
+        IERC3333.Transaction memory transaction = buildTransaction(
+            IERC3333.Action.Challenge,
+            uint8(IERC3333.Challenge.ValeCuatro)
+        );
+        currentMatch.gameState = trucoEngine.transact(transaction);
+
+        // Turn should change, since it's will be waiting for the other player to accept or deny the challenge
+        switchTurn();
+    }
+
+    function playCard(uint8 _card) public enforceTurn {
+        IERC3333.Transaction memory transaction = buildTransaction(
+            IERC3333.Action.PlayCard,
+            _card
+        );
+        currentMatch.gameState = trucoEngine.transact(transaction);
+
+        switchTurn();
+    }
+
+    function spellEnvido() public enforceTurn {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.Envido)
@@ -161,7 +209,7 @@ contract TrucoMatch {
         switchTurn();
     }
 
-    function spellEnvidoEnvido() public {
+    function spellEnvidoEnvido() public enforceTurn {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.EnvidoEnvido)
@@ -172,7 +220,7 @@ contract TrucoMatch {
         switchTurn();
     }
 
-    function spellRealEnvido() public {
+    function spellRealEnvido() public enforceTurn {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.RealEnvido)
@@ -183,7 +231,7 @@ contract TrucoMatch {
         switchTurn();
     }
 
-    function spellFaltaEnvido() public {
+    function spellFaltaEnvido() public enforceTurn {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.FaltaEnvido)
@@ -194,7 +242,7 @@ contract TrucoMatch {
         switchTurn();
     }
 
-    function spellEnvidoCount(uint8 _points) public {
+    function spellEnvidoCount(uint8 _points) public enforceTurn {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.EnvidoCount,
             _points
@@ -212,13 +260,13 @@ contract TrucoMatch {
     }
 
     // Accepts challenge and switches turn
-    function acceptChallenge() public {
+    function acceptChallenge() public enforceTurn {
         acceptChallengeForRaising();
         switchTurnIfNotMano();
     }
 
     // Accept for raising, do not switch turn
-    function acceptChallengeForRaising() public {
+    function acceptChallengeForRaising() public enforceTurn {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Response,
             uint8(IERC3333.Response.Accept)
@@ -226,7 +274,7 @@ contract TrucoMatch {
         currentMatch.gameState = trucoEngine.transact(transaction);
     }
 
-    function refuseChallenge() public {
+    function refuseChallenge() public enforceTurn {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Response,
             uint8(IERC3333.Response.Refuse)

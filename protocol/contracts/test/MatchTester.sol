@@ -16,7 +16,15 @@ contract TrucoMatchTester is TrucoMatch {
         return currentMatch.gameState.envido.playerCount;
     }
 
+    function getRevealedCards() public view returns (uint8[3][] memory) {
+        return currentMatch.gameState.revealedCardsByPlayer;
+    }
+
     function currentPlayerIdx() public view returns (uint8) {
         return getPlayerIdx();
+    }
+
+    function setPlayerTurn(uint8 _playerTurnIdx) public {
+        currentMatch.gameState.playerTurn = _playerTurnIdx;
     }
 }
