@@ -36,11 +36,9 @@ describe('Truco Match Factory', function () {
 
             // Mint trucoins to player1
             trucoin.mint(player1.address, min_bet)
-            console.log('Trucoins minted')
 
             // Approve trucoins to be used by the match contract
             await trucoin.connect(player1).approve(factory.address, min_bet)
-            console.log('Trucoins approved')
 
             // Create a new match and get the address
             const tx = await factory.connect(player1).newMatch(min_bet)
