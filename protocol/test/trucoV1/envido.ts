@@ -88,6 +88,35 @@ describe('Envido Resolver', function () {
 
             await expect(engine.executeTransaction(transaction)).to.be.reverted
         })
+
+        it("Challenging any Envido type when first round of cards are revealed shouldn't be possible", async function () {
+            const { engine } = await deployEngineContract()
+
+            let state: GameStateStruct = basicGameState()
+
+            // Set current state to envido challenge
+            state.currentChallenge.challenge = BigNumber.from(
+                ChallengeEnum.Envido
+            )
+
+            state.revealedCardsByPlayer[0][0] = BigNumber.from(1)
+            state.revealedCardsByPlayer[1][0] = BigNumber.from(11)
+
+            await engine.setGameState(state)
+
+            let move = {
+                action: BigNumber.from(ActionEnum.Challenge),
+                parameters: [ChallengeEnum.Envido],
+            }
+
+            let transaction: TransactionStruct = {
+                playerIdx: state.playerTurn,
+                moves: [move],
+                state: state,
+            }
+
+            await expect(engine.executeTransaction(transaction)).to.be.reverted
+        })
     })
 
     /**
@@ -188,6 +217,29 @@ describe('Envido Resolver', function () {
 
             // Check that envido points were not rewarded at this point
             expect(result.envido.pointsRewarded).to.be.equal(BigNumber.from(0))
+        })
+
+        it('Challenging Envido when first round is partially played should be possible', async function () {
+            const { engine } = await deployEngineContract()
+
+            let state: GameStateStruct = basicGameState()
+
+            state.revealedCardsByPlayer[0][0] = BigNumber.from(1)
+
+            await engine.setGameState(state)
+
+            let move = {
+                action: BigNumber.from(ActionEnum.Challenge),
+                parameters: [ChallengeEnum.Envido],
+            }
+
+            let transaction: TransactionStruct = {
+                playerIdx: state.playerTurn,
+                moves: [move],
+                state: state,
+            }
+
+            await engine.executeTransaction(transaction)
         })
     })
 
