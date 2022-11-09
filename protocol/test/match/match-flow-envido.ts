@@ -463,11 +463,15 @@ describe('Multi Transaction Test: Envido', function () {
     })
     describe('Full State Assertions', function () {
         it('Complete Envido Flow: Spell envido, accept it, spell envido counts for each player', async function () {
-            const { match, player1, player2 } = await loadFixture(
+            const { match, player1, player2, engine } = await loadFixture(
                 deployContract
             )
 
             let state: TrucoMatch.Match = await match.currentMatch()
+
+            // Envido should not be final at this step
+            await engine.setGameState(state.gameState)
+            expect(await engine.isEnvidoFinal()).to.be.false
 
             expect(state.gameState.playerTurn).to.be.equal(
                 await match.connect(player1).currentPlayerIdx()
@@ -481,6 +485,10 @@ describe('Multi Transaction Test: Envido', function () {
             await match.connect(player1).spellEnvido()
 
             state = await match.currentMatch()
+
+            // Envido should not be final at this step
+            await engine.setGameState(state.gameState)
+            expect(await engine.isEnvidoFinal()).to.be.false
 
             // Player 2 should respond
             expect(state.gameState.playerTurn).to.be.equal(
@@ -507,6 +515,10 @@ describe('Multi Transaction Test: Envido', function () {
 
             state = await match.currentMatch()
 
+            // Envido should not be final at this step
+            await engine.setGameState(state.gameState)
+            expect(await engine.isEnvidoFinal()).to.be.false
+
             expect(state.gameState.currentChallenge.challenge).to.be.equal(
                 BigNumber.from(ChallengeEnum.Envido)
             )
@@ -523,6 +535,10 @@ describe('Multi Transaction Test: Envido', function () {
 
             state = await match.currentMatch()
 
+            // Envido should not be final at this step
+            await engine.setGameState(state.gameState)
+            expect(await engine.isEnvidoFinal()).to.be.false
+
             expect(state.gameState.playerTurn).to.be.equal(
                 await match.connect(player1).currentPlayerIdx()
             )
@@ -535,6 +551,12 @@ describe('Multi Transaction Test: Envido', function () {
 
             // TRANSACTION: Player 1 spells envido count and resolves envido
             await match.connect(player1).spellEnvidoCount(BigNumber.from(33))
+
+            state = await match.currentMatch()
+
+            // Envido SHOULD BE final at this step
+            await engine.setGameState(state.gameState)
+            expect(await engine.isEnvidoFinal()).to.be.true
 
             envidoCount = await match.getEnvidoCountPerPlayer()
             state = await match.currentMatch()
