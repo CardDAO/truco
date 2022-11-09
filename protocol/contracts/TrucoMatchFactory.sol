@@ -4,8 +4,8 @@ pragma solidity 0.8.16;
 // Imports
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-import './interfaces/IERC3333.sol';
-import '../TrucoMatch.sol';
+import './trucoV1/interfaces/IERC3333.sol';
+import './TrucoMatch.sol';
 
 contract TrucoMatchFactory is OwnableUpgradeable {
     // State variables
@@ -33,7 +33,7 @@ contract TrucoMatchFactory is OwnableUpgradeable {
     }
 
     // New Match
-    function newMatch(uint256 _bet) public returns (address) {
+    function newMatch(uint256 _bet) public returns (TrucoMatch) {
         require(_bet >= minBet, 'Bet is too low');
         require(
             IERC20(truCoin).balanceOf(msg.sender) >= _bet,
@@ -46,15 +46,14 @@ contract TrucoMatchFactory is OwnableUpgradeable {
 
         // Create new match
         TrucoMatch deployedMatch = new TrucoMatch(trucoEngine, truCoin, _bet);
-        address newMatchAddress = address(deployedMatch);
         matches.push(deployedMatch);
 
         // Transfer tokens to match
-        IERC20(truCoin).transferFrom(msg.sender, newMatchAddress, _bet);
+        IERC20(truCoin).transferFrom(msg.sender, address(deployedMatch), _bet);
 
-        emit TrucoMatchCreated(newMatchAddress, msg.sender, _bet);
+        emit TrucoMatchCreated(address(deployedMatch), msg.sender, _bet);
 
-        return newMatchAddress;
+        return deployedMatch;
     }
 
     // Method for getting all matches
