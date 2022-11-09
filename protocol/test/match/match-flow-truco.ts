@@ -211,7 +211,6 @@ describe('Multi Transaction Test: Truco', function () {
             )
         })
 
-
         it('Vale4 declined', async function () {
             const { match, player1, player2 } = await loadFixture(
                 deployContract

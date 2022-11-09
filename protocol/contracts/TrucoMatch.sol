@@ -179,7 +179,6 @@ contract TrucoMatch {
         switchTurn();
     }
 
-
     function playCard(uint8 _card) public {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.PlayCard,
