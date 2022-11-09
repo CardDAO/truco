@@ -183,7 +183,7 @@ describe('Multi Transaction Test: Envido', function () {
 
             state = await match.currentMatch()
 
-            // PLayer 2 is mano, so it should hold the turn to spell envido count
+            // PLayer 2 is mano, so it remains his turn
             expect(state.gameState.playerTurn).to.be.equal(
                 await match.connect(player2).currentPlayerIdx()
             )
