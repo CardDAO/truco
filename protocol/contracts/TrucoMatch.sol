@@ -3,7 +3,7 @@ pragma solidity 0.8.16;
 
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import './trucoV1/interfaces/IERC3333.sol';
-import "./trucoV1/GameStateQueries.sol";
+import './trucoV1/GameStateQueries.sol';
 
 contract TrucoMatch {
     struct player {
@@ -30,7 +30,7 @@ contract TrucoMatch {
     event DealStarted(address shuffler);
     event DealEnded();
 
-    modifier enforceTurnSwitching {
+    modifier enforceTurnSwitching() {
         require(getPlayerIdx() == currentMatch.gameState.playerTurn);
         _;
         switchTurn();
@@ -156,7 +156,7 @@ contract TrucoMatch {
         ];
     }
 
-    function spellTruco() enforceTurnSwitching public {
+    function spellTruco() public enforceTurnSwitching {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.Truco)
@@ -167,7 +167,7 @@ contract TrucoMatch {
         switchTurn();
     }
 
-    function spellReTruco() enforceTurnSwitching public {
+    function spellReTruco() public enforceTurnSwitching {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.ReTruco)
@@ -175,7 +175,7 @@ contract TrucoMatch {
         currentMatch.gameState = trucoEngine.transact(transaction);
     }
 
-    function spellValeCuatro() enforceTurnSwitching public {
+    function spellValeCuatro() public enforceTurnSwitching {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.ValeCuatro)
@@ -183,7 +183,7 @@ contract TrucoMatch {
         currentMatch.gameState = trucoEngine.transact(transaction);
     }
 
-    function playCard(uint8 _card) enforceTurnSwitching public {
+    function playCard(uint8 _card) public enforceTurnSwitching {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.PlayCard,
             _card
@@ -191,7 +191,7 @@ contract TrucoMatch {
         currentMatch.gameState = trucoEngine.transact(transaction);
     }
 
-    function spellEnvido() enforceTurnSwitching public {
+    function spellEnvido() public enforceTurnSwitching {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.Envido)
@@ -199,7 +199,7 @@ contract TrucoMatch {
         currentMatch.gameState = trucoEngine.transact(transaction);
     }
 
-    function spellEnvidoEnvido() enforceTurnSwitching public {
+    function spellEnvidoEnvido() public enforceTurnSwitching {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.EnvidoEnvido)
@@ -207,7 +207,7 @@ contract TrucoMatch {
         currentMatch.gameState = trucoEngine.transact(transaction);
     }
 
-    function spellRealEnvido() enforceTurnSwitching public {
+    function spellRealEnvido() public enforceTurnSwitching {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.RealEnvido)
@@ -215,7 +215,7 @@ contract TrucoMatch {
         currentMatch.gameState = trucoEngine.transact(transaction);
     }
 
-    function spellFaltaEnvido() enforceTurnSwitching public {
+    function spellFaltaEnvido() public enforceTurnSwitching {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.FaltaEnvido)
@@ -223,7 +223,7 @@ contract TrucoMatch {
         currentMatch.gameState = trucoEngine.transact(transaction);
     }
 
-    function spellEnvidoCount(uint8 _points) enforceTurnSwitching public {
+    function spellEnvidoCount(uint8 _points) public enforceTurnSwitching {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.EnvidoCount,
             _points
@@ -232,12 +232,12 @@ contract TrucoMatch {
     }
 
     // Accepts challenge and switches turn
-    function acceptChallenge() enforceTurnSwitching public {
+    function acceptChallenge() public enforceTurnSwitching {
         acceptChallengeForRaising();
     }
 
     // Accept for raising, do not switch turn
-    function acceptChallengeForRaising() enforceTurnSwitching public {
+    function acceptChallengeForRaising() public enforceTurnSwitching {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Response,
             uint8(IERC3333.Response.Accept)
@@ -245,7 +245,7 @@ contract TrucoMatch {
         currentMatch.gameState = trucoEngine.transact(transaction);
     }
 
-    function refuseChallenge() enforceTurnSwitching public {
+    function refuseChallenge() public enforceTurnSwitching {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Response,
             uint8(IERC3333.Response.Refuse)
@@ -257,7 +257,6 @@ contract TrucoMatch {
 
     // Change turn
     function switchTurn() internal {
-
         if (gameStateQueries.isGameEnded(currentMatch.gameState)) {
             // Game ended, do not switch turn
             return;
@@ -271,15 +270,21 @@ contract TrucoMatch {
             return;
         }
 
-        uint8 playerWhoShouldPlayCard = gameStateQueries.whichPlayerShouldPlayCard(currentMatch.gameState);
+        uint8 playerWhoShouldPlayCard = gameStateQueries
+            .whichPlayerShouldPlayCard(currentMatch.gameState);
 
         // If we're playing envido challenge apply specific logic
-        if (gameStateQueries.isEnvidoChallenge(currentMatch.gameState.currentChallenge.challenge)) {
-
+        if (
+            gameStateQueries.isEnvidoChallenge(
+                currentMatch.gameState.currentChallenge.challenge
+            )
+        ) {
             // If challenge was refused or envido ended we should fallback to the player who should play card
-            if (currentMatch.gameState.currentChallenge.response == IERC3333.Response.Refuse ||
+            if (
+                currentMatch.gameState.currentChallenge.response ==
+                IERC3333.Response.Refuse ||
                 gameStateQueries.isEnvidoEnded(currentMatch.gameState)
-            ){
+            ) {
                 currentMatch.gameState.playerTurn = playerWhoShouldPlayCard;
                 return;
             }

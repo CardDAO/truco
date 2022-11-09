@@ -15,7 +15,8 @@ describe('Multi Transaction Test: Truco', function () {
         // Contracts are deployed using the first signer/account by default
         const [player1, player2, invalid_player] = await ethers.getSigners()
 
-        const { trucoin, engine, gameStateQueries } = await deployEngineContract()
+        const { trucoin, engine, gameStateQueries } =
+            await deployEngineContract()
 
         // Transfer trucoins to players
         await trucoin.mint(player1.address, tokenAtStake)
@@ -140,9 +141,7 @@ describe('Multi Transaction Test: Truco', function () {
 
     describe('Turn Handling', function () {
         it('Spelling Truco out of turn', async function () {
-            const { match, player1 } = await loadFixture(
-                deployContract
-            )
+            const { match, player1 } = await loadFixture(deployContract)
 
             // TRANSACTION: Player 1 should be the first to play
             expect(match.connect(player1).spellTruco()).to.be.reverted

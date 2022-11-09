@@ -53,7 +53,7 @@ contract Engine2Players is IERC3333, Ownable {
         _gameState.teamPoints = new uint8[](2);
 
         // Turn should be the opponent of shuffler
-        _gameState.playerTurn = _gameState.playerWhoShuffled ^1;
+        _gameState.playerTurn = _gameState.playerWhoShuffled ^ 1;
 
         // Init envido count
         _gameState.envido.playerCount = new uint8[](2);

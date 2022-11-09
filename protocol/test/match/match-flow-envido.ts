@@ -15,7 +15,8 @@ describe('Multi Transaction Test: Envido', function () {
         // Contracts are deployed using the first signer/account by default
         const [player1, player2, invalid_player] = await ethers.getSigners()
 
-        const { trucoin, engine, gameStateQueries } = await deployEngineContract()
+        const { trucoin, engine, gameStateQueries } =
+            await deployEngineContract()
 
         // Transfer trucoins to players
         await trucoin.mint(player1.address, tokenAtStake)

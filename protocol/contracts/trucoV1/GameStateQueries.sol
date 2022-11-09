@@ -48,7 +48,7 @@ contract GameStateQueries {
         view
         returns (bool)
     {
-        if (! this.isEnvidoChallenge(gameState.currentChallenge.challenge)) {
+        if (!this.isEnvidoChallenge(gameState.currentChallenge.challenge)) {
             return trucoResolver.isFinal(gameState);
         }
 
@@ -58,9 +58,9 @@ contract GameStateQueries {
 
     // Return wich player should be play next
     function whichPlayerShouldPlayCard(IERC3333.GameState memory gameState)
-    external
-    view
-    returns (uint8)
+        external
+        view
+        returns (uint8)
     {
         if (this.roundEmpty(gameState, 0)) {
             // Player mano should play first
@@ -68,16 +68,15 @@ contract GameStateQueries {
         }
 
         // Check for round completness
-        if (! this.roundComplete(gameState, 0)) {
+        if (!this.roundComplete(gameState, 0)) {
             return this.getPlayerTurnAtRound(gameState, 0);
         }
 
         // At this stage round 0 should be complete, check round 1 status
-        if (! this.roundComplete(gameState, 1)) {
-
+        if (!this.roundComplete(gameState, 1)) {
             if (this.roundEmpty(gameState, 1)) {
                 //TODO:  Winner of previous round should play, if it was a draw mano should play
-                return gameState.playerWhoShuffled ^1;
+                return gameState.playerWhoShuffled ^ 1;
             }
 
             return this.getPlayerTurnAtRound(gameState, 1);
@@ -85,7 +84,7 @@ contract GameStateQueries {
 
         if (this.roundEmpty(gameState, 2)) {
             // TODO: Winner of previous round should play, if it was a draw mano should play
-            return gameState.playerWhoShuffled ^1;
+            return gameState.playerWhoShuffled ^ 1;
         }
 
         return this.getPlayerTurnAtRound(gameState, 1);
@@ -101,13 +100,22 @@ contract GameStateQueries {
             gameState.revealedCardsByPlayer[1][_round] == 0;
     }
 
-    function roundComplete(IERC3333.GameState memory gameState, uint8 _roundId) external view returns (bool) {
+    function roundComplete(IERC3333.GameState memory gameState, uint8 _roundId)
+        external
+        view
+        returns (bool)
+    {
         // Cards does not repeat, so special case is when both cards are the same they should be masked
-        return gameState.revealedCardsByPlayer[0][_roundId] !=  gameState.revealedCardsByPlayer[1][_roundId];
+        return
+            gameState.revealedCardsByPlayer[0][_roundId] !=
+            gameState.revealedCardsByPlayer[1][_roundId];
     }
 
-    function getPlayerTurnAtRound(IERC3333.GameState memory gameState, uint8 _roundId) external view returns (uint8) {
-        require (! this.roundComplete(gameState, _roundId));
+    function getPlayerTurnAtRound(
+        IERC3333.GameState memory gameState,
+        uint8 _roundId
+    ) external view returns (uint8) {
+        require(!this.roundComplete(gameState, _roundId));
 
         if (gameState.revealedCardsByPlayer[0][_roundId] == 0) {
             return 0;
@@ -115,14 +123,23 @@ contract GameStateQueries {
         return 1;
     }
 
-    function isEnvidoChallenge(IERC3333.Challenge _challenge) external pure returns (bool) {
-        return _challenge == IERC3333.Challenge.Envido ||
-        _challenge == IERC3333.Challenge.EnvidoEnvido ||
-        _challenge == IERC3333.Challenge.RealEnvido ||
-        _challenge == IERC3333.Challenge.FaltaEnvido;
+    function isEnvidoChallenge(IERC3333.Challenge _challenge)
+        external
+        pure
+        returns (bool)
+    {
+        return
+            _challenge == IERC3333.Challenge.Envido ||
+            _challenge == IERC3333.Challenge.EnvidoEnvido ||
+            _challenge == IERC3333.Challenge.RealEnvido ||
+            _challenge == IERC3333.Challenge.FaltaEnvido;
     }
 
-    function isEnvidoEnded(IERC3333.GameState memory gameState) external view returns (bool) {
+    function isEnvidoEnded(IERC3333.GameState memory gameState)
+        external
+        view
+        returns (bool)
+    {
         return envidoResolver.isFinal(gameState);
     }
 
@@ -133,7 +150,8 @@ contract GameStateQueries {
         returns (bool)
     {
         return
-            !envidoResolver.isFinal(gameState) && ! this.roundComplete(gameState, 0);
+            !envidoResolver.isFinal(gameState) &&
+            !this.roundComplete(gameState, 0);
     }
 
     // Get envido points of a given set of cards

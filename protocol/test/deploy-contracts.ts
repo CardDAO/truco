@@ -52,7 +52,12 @@ export async function deployMatchContract() {
     await trucoin.mint(invalid_player.address, bet)
 
     const TrucoMatch = await ethers.getContractFactory('TrucoMatch')
-    const match = await TrucoMatch.deploy(engine.address, trucoin.address, gameStateQueries.address, bet)
+    const match = await TrucoMatch.deploy(
+        engine.address,
+        trucoin.address,
+        gameStateQueries.address,
+        bet
+    )
 
     return { match, engine, trucoin, owner, player2, invalid_player, bet }
 }

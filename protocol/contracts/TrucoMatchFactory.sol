@@ -49,7 +49,12 @@ contract TrucoMatchFactory is OwnableUpgradeable {
         );
 
         // Create new match
-        TrucoMatch deployedMatch = new TrucoMatch(trucoEngine, truCoin, gameStateQueries, _bet);
+        TrucoMatch deployedMatch = new TrucoMatch(
+            trucoEngine,
+            truCoin,
+            gameStateQueries,
+            _bet
+        );
         matches.push(deployedMatch);
 
         // Transfer tokens to match
