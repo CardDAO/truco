@@ -54,4 +54,8 @@ contract Engine2PlayersTester is Engine2Players {
     function isTrucoFinal() public view returns (bool) {
         return trucoResolver.isFinal(gameState);
     }
+
+    function isEnvidoFinal() public view returns (bool) {
+        return envidoResolver.isFinal(gameState);
+    }
 }
