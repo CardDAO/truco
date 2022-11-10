@@ -2,8 +2,8 @@
 pragma solidity 0.8.16;
 
 import './interfaces/ICardsDeck.sol';
-import "./resolvers/TrucoResolver.sol";
-import "./resolvers/EnvidoResolver.sol";
+import './resolvers/TrucoResolver.sol';
+import './resolvers/EnvidoResolver.sol';
 
 contract GameStateQueries {
     EnvidoResolver internal envidoResolver;
@@ -68,13 +68,15 @@ contract GameStateQueries {
 
         // Truco is being played
         if (trucoResolver.roundEmpty(gameState, roundAtPlay)) {
-
             if (roundAtPlay == 0) {
                 // First round, no player played yet. Mano should play first
                 return playerMano;
             }
 
-            int8 roundWinner = trucoResolver.roundWinner(gameState.revealedCardsByPlayer, roundAtPlay - 1);
+            int8 roundWinner = trucoResolver.roundWinner(
+                gameState.revealedCardsByPlayer,
+                roundAtPlay - 1
+            );
 
             // Check if it was a draw, in that case the player who is mano should play first
             if (roundWinner < 0) {
@@ -88,7 +90,6 @@ contract GameStateQueries {
         // If the round is not empty, the player who is left to play should play next
         return trucoResolver.getPlayerTurnAtRound(gameState, roundAtPlay);
     }
-
 
     function isEnvidoChallenge(IERC3333.Challenge _challenge)
         external

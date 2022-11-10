@@ -152,7 +152,9 @@ describe('Multi Transaction Test: Truco', function () {
                 deployContract
             )
 
-            await match.setPlayerTurn(await match.connect(player2).currentPlayerIdx())
+            await match.setPlayerTurn(
+                await match.connect(player2).currentPlayerIdx()
+            )
 
             // TRANSACTION: Player 2 is the first to play (mano)
             await match.connect(player2).spellTruco()
@@ -167,7 +169,9 @@ describe('Multi Transaction Test: Truco', function () {
                 deployContract
             )
 
-            await match.setPlayerTurn(await match.connect(player2).currentPlayerIdx())
+            await match.setPlayerTurn(
+                await match.connect(player2).currentPlayerIdx()
+            )
 
             // Player 2 is the first to play (mano)
             await match.connect(player2).spellTruco()
@@ -180,7 +184,8 @@ describe('Multi Transaction Test: Truco', function () {
             await match.connect(player1).playCard(BigNumber.from(3)) // 3 of Coins
 
             // Player 1 won first round, so it's player1 turn
-            expect(match.connect(player2).playCard(BigNumber.from(5))).to.be.reverted
+            expect(match.connect(player2).playCard(BigNumber.from(5))).to.be
+                .reverted
         })
 
         it('Playing card out of turn: after round 2', async function () {
@@ -188,7 +193,9 @@ describe('Multi Transaction Test: Truco', function () {
                 deployContract
             )
 
-            await match.setPlayerTurn(await match.connect(player2).currentPlayerIdx())
+            await match.setPlayerTurn(
+                await match.connect(player2).currentPlayerIdx()
+            )
 
             // Player 2 is the first to play (mano)
             await match.connect(player2).spellTruco()
@@ -205,16 +212,18 @@ describe('Multi Transaction Test: Truco', function () {
             await match.connect(player2).playCard(BigNumber.from(5))
 
             // Player 2 won round 2, so it's player 2 turn
-            expect(match.connect(player1).playCard(BigNumber.from(7))).to.be.reverted
+            expect(match.connect(player1).playCard(BigNumber.from(7))).to.be
+                .reverted
         })
-
 
         it('No truco spelled, but playing cards', async function () {
             const { match, player1, player2, engine } = await loadFixture(
                 deployContract
             )
 
-            await match.setPlayerTurn(await match.connect(player2).currentPlayerIdx())
+            await match.setPlayerTurn(
+                await match.connect(player2).currentPlayerIdx()
+            )
 
             // Round 1
             await match.connect(player2).playCard(BigNumber.from(2)) // 2 of Coins
@@ -233,8 +242,12 @@ describe('Multi Transaction Test: Truco', function () {
             await engine.setGameState(state.gameState)
 
             expect(await engine.isTrucoFinal()).to.be.true
-            expect(await engine.getTrucoWinner()).to.equal(await match.connect(player2).currentPlayerIdx())
-            expect(state.gameState.currentChallenge.pointsAtStake).to.be.equal(BigNumber.from(1))
+            expect(await engine.getTrucoWinner()).to.equal(
+                await match.connect(player2).currentPlayerIdx()
+            )
+            expect(state.gameState.currentChallenge.pointsAtStake).to.be.equal(
+                BigNumber.from(1)
+            )
         })
 
         it('No truco spelled, but playing cards, draw on first round', async function () {
@@ -242,14 +255,17 @@ describe('Multi Transaction Test: Truco', function () {
                 deployContract
             )
 
-            await match.setPlayerTurn(await match.connect(player2).currentPlayerIdx())
+            await match.setPlayerTurn(
+                await match.connect(player2).currentPlayerIdx()
+            )
 
             // Round 1
             await match.connect(player2).playCard(BigNumber.from(2)) // 2 of Coins
             await match.connect(player1).playCard(BigNumber.from(12)) // 2 of Cups
 
             // Previous round was a draw, mano should play next
-            expect(match.connect(player1).playCard(BigNumber.from(14))).to.be.reverted
+            expect(match.connect(player1).playCard(BigNumber.from(14))).to.be
+                .reverted
         })
 
         it('No truco spelled, but playing cards, draw on first round', async function () {
@@ -257,7 +273,9 @@ describe('Multi Transaction Test: Truco', function () {
                 deployContract
             )
 
-            await match.setPlayerTurn(await match.connect(player2).currentPlayerIdx())
+            await match.setPlayerTurn(
+                await match.connect(player2).currentPlayerIdx()
+            )
 
             // Round 1
             await match.connect(player2).playCard(BigNumber.from(2)) // 2 of Coins
@@ -273,8 +291,12 @@ describe('Multi Transaction Test: Truco', function () {
             await engine.setGameState(state.gameState)
 
             expect(await engine.isTrucoFinal()).to.be.true
-            expect(await engine.getTrucoWinner()).to.equal(await match.connect(player2).currentPlayerIdx())
-            expect(state.gameState.currentChallenge.pointsAtStake).to.be.equal(BigNumber.from(1))
+            expect(await engine.getTrucoWinner()).to.equal(
+                await match.connect(player2).currentPlayerIdx()
+            )
+            expect(state.gameState.currentChallenge.pointsAtStake).to.be.equal(
+                BigNumber.from(1)
+            )
         })
 
         it('No truco spelled, draw on 1st and 2nd round ', async function () {
@@ -282,7 +304,9 @@ describe('Multi Transaction Test: Truco', function () {
                 deployContract
             )
 
-            await match.setPlayerTurn(await match.connect(player2).currentPlayerIdx())
+            await match.setPlayerTurn(
+                await match.connect(player2).currentPlayerIdx()
+            )
 
             // Round 1
             await match.connect(player2).playCard(BigNumber.from(2)) // 2 of Coins
@@ -293,8 +317,8 @@ describe('Multi Transaction Test: Truco', function () {
             await match.connect(player1).playCard(BigNumber.from(23)) // 5 of Coins
 
             // Previous round was a draw, mano should play next
-            expect(match.connect(player1).playCard(BigNumber.from(14))).to.be.reverted
-
+            expect(match.connect(player1).playCard(BigNumber.from(14))).to.be
+                .reverted
         })
 
         it('No truco spelled, draw on 1st and 2nd round and 3rd round, mano should win', async function () {
@@ -302,7 +326,9 @@ describe('Multi Transaction Test: Truco', function () {
                 deployContract
             )
 
-            await match.setPlayerTurn(await match.connect(player2).currentPlayerIdx())
+            await match.setPlayerTurn(
+                await match.connect(player2).currentPlayerIdx()
+            )
 
             // Round 1
             await match.connect(player2).playCard(BigNumber.from(2)) // 2 of Coins
@@ -321,9 +347,13 @@ describe('Multi Transaction Test: Truco', function () {
             await engine.setGameState(state.gameState)
 
             expect(await engine.isTrucoFinal()).to.be.true
-            expect(await engine.getTrucoWinner()).to.equal(await match.connect(player2).currentPlayerIdx())
+            expect(await engine.getTrucoWinner()).to.equal(
+                await match.connect(player2).currentPlayerIdx()
+            )
 
-            expect(state.gameState.currentChallenge.pointsAtStake).to.be.equal(BigNumber.from(1))
+            expect(state.gameState.currentChallenge.pointsAtStake).to.be.equal(
+                BigNumber.from(1)
+            )
         })
     })
     describe('Refusals', function () {

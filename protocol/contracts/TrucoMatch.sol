@@ -234,7 +234,7 @@ contract TrucoMatch {
     }
 
     // Accept for raising, do not switch turn
-    function acceptChallengeForRaising() public  {
+    function acceptChallengeForRaising() public {
         require(getPlayerIdx() == currentMatch.gameState.playerTurn);
 
         IERC3333.Transaction memory transaction = buildTransaction(
@@ -266,7 +266,7 @@ contract TrucoMatch {
         // if we are waiting for challenge response it should switch to opponent no matter what
         if (currentMatch.gameState.currentChallenge.waitingChallengeResponse) {
             currentMatch.gameState.playerTurn = inversePlayer;
-        return;
+            return;
         }
 
         uint8 playerWhoShouldPlayCard = gameStateQueries

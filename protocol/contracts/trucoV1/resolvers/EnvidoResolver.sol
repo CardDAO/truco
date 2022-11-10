@@ -242,7 +242,7 @@ contract EnvidoResolver is IChallengeResolver {
         }
 
         // Check if points were already rewarded
-        if (_gameState.envido.pointsRewarded > 0 ) {
+        if (_gameState.envido.pointsRewarded > 0) {
             return true;
         }
 

@@ -290,7 +290,6 @@ contract TrucoResolver {
         return _player ^ 1;
     }
 
-
     // Check if card is not repeated in the array
     function cardNotRepeated(uint8[3][] memory _revealedCards, uint8 _card)
         internal
@@ -330,39 +329,38 @@ contract TrucoResolver {
     }
 
     function roundEmpty(IERC3333.GameState memory gameState, uint8 _roundId)
-    public
-    view
-    returns (bool)
+        public
+        view
+        returns (bool)
     {
         return
-        gameState.revealedCardsByPlayer[0][_roundId] == 0 &&
-        gameState.revealedCardsByPlayer[1][_roundId] == 0;
+            gameState.revealedCardsByPlayer[0][_roundId] == 0 &&
+            gameState.revealedCardsByPlayer[1][_roundId] == 0;
     }
 
     function roundComplete(IERC3333.GameState memory gameState, uint8 _roundId)
-    external
-    view
-    returns (bool)
+        external
+        view
+        returns (bool)
     {
-
         // Cards does not repeat, so special case is when both cards are the same they should be masked
-        return this.roundEmpty(gameState, _roundId) &&
-        gameState.revealedCardsByPlayer[0][_roundId] !=
-        gameState.revealedCardsByPlayer[1][_roundId];
+        return
+            this.roundEmpty(gameState, _roundId) &&
+            gameState.revealedCardsByPlayer[0][_roundId] !=
+            gameState.revealedCardsByPlayer[1][_roundId];
     }
 
     function getPlayerTurnAtRound(
         IERC3333.GameState memory gameState,
         uint8 _roundId
     ) public view returns (uint8) {
-        require(! this.roundComplete(gameState, _roundId));
+        require(!this.roundComplete(gameState, _roundId));
 
         if (gameState.revealedCardsByPlayer[0][_roundId] == 0) {
             return 0;
         }
         return 1;
     }
-
 
     // Return points that should be at stake for a given challenge
     function pointsPerChallenge(
