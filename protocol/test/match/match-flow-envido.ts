@@ -505,7 +505,7 @@ describe('Multi Transaction Test: Envido', function () {
             )
         })
         it('Spelling  envido after truco was accepted (should not go ok)', async function () {
-            const { match, player1, player2, engine } = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployContract
             )
 
