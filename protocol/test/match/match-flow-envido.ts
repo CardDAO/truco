@@ -504,6 +504,17 @@ describe('Multi Transaction Test: Envido', function () {
                 await match.connect(player1).currentPlayerIdx()
             )
         })
+        it('Spelling  envido after truco was accepted (should not go ok)', async function () {
+            const { match, player1, player2, engine } = await loadFixture(
+                deployContract
+            )
+
+            await match.connect(player2).spellTruco()
+            await match.connect(player1).acceptChallenge()
+
+            expect(match.connect(player2).spellEnvido()).to.be.reverted
+        })
+
     })
     describe('Full State Assertions', function () {
         it('Complete Envido Flow: Spell envido, accept it, spell envido counts for each player', async function () {
