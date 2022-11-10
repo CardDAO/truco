@@ -200,6 +200,11 @@ contract EnvidoResolver is IChallengeResolver {
                 _gameState.envido.pointsRewarded = _gameState
                     .currentChallenge
                     .pointsAtStake;
+
+                // Reset current challenge
+                _gameState.currentChallenge.challenge = IERC3333.Challenge.None;
+                _gameState.currentChallenge.waitingChallengeResponse = false;
+                _gameState.currentChallenge.response = IERC3333.Response.None;
             }
 
             return _gameState;
@@ -236,12 +241,15 @@ contract EnvidoResolver is IChallengeResolver {
             return false;
         }
 
+        // Check if points were already rewarded
+        if (_gameState.envido.pointsRewarded > 0 ) {
+            return true;
+        }
+
         // Check challenge for refusal
         if (_gameState.currentChallenge.response == IERC3333.Response.Refuse) {
             return true;
         }
-
-        // At this point we can assume challenge was accepted
 
         // Check if any of the players remain to spell their envido count
         return isEnvidoCountFinished(_gameState);
@@ -335,7 +343,7 @@ contract EnvidoResolver is IChallengeResolver {
     }
 
     // Check if envido count is valid, if not it means that player didn't spell it's points
-    function validEnvido(uint8 _envidoCount) internal pure returns (bool) {
+    function validEnvido(uint8 _envidoCount) public pure returns (bool) {
         return _envidoCount >= 0 && _envidoCount <= 33;
     }
 }

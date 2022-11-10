@@ -381,7 +381,7 @@ describe('Multi Transaction Test: Envido', function () {
             await match.connect(player1).spellRealEnvido()
 
             // TRANSACTION: Player 2 accepts challenge
-            await match.connect(player2).acceptChallenge()
+            await match.connect(player2).acceptChallengeForRaising()
 
             // TRANSACTION: Player 2 spells envido count (its mano)
             await match.connect(player2).spellEnvidoCount(BigNumber.from(20))

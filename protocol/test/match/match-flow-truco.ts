@@ -152,7 +152,7 @@ describe('Multi Transaction Test: Truco', function () {
                 deployContract
             )
 
-            await match.setPlayerTurn(BigNumber.from(1))
+            await match.setPlayerTurn(await match.connect(player2).currentPlayerIdx())
 
             // TRANSACTION: Player 2 is the first to play (mano)
             await match.connect(player2).spellTruco()
@@ -160,6 +160,170 @@ describe('Multi Transaction Test: Truco', function () {
             // TRANSACTION: Player 2 accepts the challenge but not for rising
             await match.connect(player1).acceptChallenge()
             expect(match.connect(player1).spellReTruco()).to.be.reverted
+        })
+
+        it('Playing card out of turn: after round 1', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployContract
+            )
+
+            await match.setPlayerTurn(await match.connect(player2).currentPlayerIdx())
+
+            // Player 2 is the first to play (mano)
+            await match.connect(player2).spellTruco()
+
+            // Player 2 accepts the challenge but not for rising
+            await match.connect(player1).acceptChallenge()
+
+            // First round of cards wins player 1
+            await match.connect(player2).playCard(BigNumber.from(2)) // 2 of Coins
+            await match.connect(player1).playCard(BigNumber.from(3)) // 3 of Coins
+
+            // Player 1 won first round, so it's player1 turn
+            expect(match.connect(player2).playCard(BigNumber.from(5))).to.be.reverted
+        })
+
+        it('Playing card out of turn: after round 2', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployContract
+            )
+
+            await match.setPlayerTurn(await match.connect(player2).currentPlayerIdx())
+
+            // Player 2 is the first to play (mano)
+            await match.connect(player2).spellTruco()
+
+            // Player 2 accepts the challenge but not for rising
+            await match.connect(player1).acceptChallenge()
+
+            // Round 1
+            await match.connect(player2).playCard(BigNumber.from(2)) // 2 of Coins
+            await match.connect(player1).playCard(BigNumber.from(3)) // 3 of Coins
+
+            // Round 2: Player 1 won first round, so it's player1 turn
+            await match.connect(player1).playCard(BigNumber.from(14))
+            await match.connect(player2).playCard(BigNumber.from(5))
+
+            // Player 2 won round 2, so it's player 2 turn
+            expect(match.connect(player1).playCard(BigNumber.from(7))).to.be.reverted
+        })
+
+
+        it('No truco spelled, but playing cards', async function () {
+            const { match, player1, player2, engine } = await loadFixture(
+                deployContract
+            )
+
+            await match.setPlayerTurn(await match.connect(player2).currentPlayerIdx())
+
+            // Round 1
+            await match.connect(player2).playCard(BigNumber.from(2)) // 2 of Coins
+            await match.connect(player1).playCard(BigNumber.from(3)) // 3 of Coins
+
+            // Round 2: Player 1 won first round, so it's player1 turn
+            await match.connect(player1).playCard(BigNumber.from(14)) // 4 of Cups
+            await match.connect(player2).playCard(BigNumber.from(5)) // 5 of Coins
+
+            // Player 2 won round 2, so it's player 2 turn
+            await match.connect(player2).playCard(BigNumber.from(13)) // 3 of Cups
+            await match.connect(player1).playCard(BigNumber.from(22)) // 2 of Swords
+
+            let state = await match.currentMatch()
+
+            await engine.setGameState(state.gameState)
+
+            expect(await engine.isTrucoFinal()).to.be.true
+            expect(await engine.getTrucoWinner()).to.equal(await match.connect(player2).currentPlayerIdx())
+            expect(state.gameState.currentChallenge.pointsAtStake).to.be.equal(BigNumber.from(1))
+        })
+
+        it('No truco spelled, but playing cards, draw on first round', async function () {
+            const { match, player1, player2, engine } = await loadFixture(
+                deployContract
+            )
+
+            await match.setPlayerTurn(await match.connect(player2).currentPlayerIdx())
+
+            // Round 1
+            await match.connect(player2).playCard(BigNumber.from(2)) // 2 of Coins
+            await match.connect(player1).playCard(BigNumber.from(12)) // 2 of Cups
+
+            // Previous round was a draw, mano should play next
+            expect(match.connect(player1).playCard(BigNumber.from(14))).to.be.reverted
+        })
+
+        it('No truco spelled, but playing cards, draw on first round', async function () {
+            const { match, player1, player2, engine } = await loadFixture(
+                deployContract
+            )
+
+            await match.setPlayerTurn(await match.connect(player2).currentPlayerIdx())
+
+            // Round 1
+            await match.connect(player2).playCard(BigNumber.from(2)) // 2 of Coins
+            await match.connect(player1).playCard(BigNumber.from(12)) // 2 of Cups
+
+            // Round 2
+            await match.connect(player2).playCard(BigNumber.from(3)) // 3 of Coins
+            await match.connect(player1).playCard(BigNumber.from(15)) // 5 of Cups
+
+            // Match finalized at round 2
+            let state = await match.currentMatch()
+
+            await engine.setGameState(state.gameState)
+
+            expect(await engine.isTrucoFinal()).to.be.true
+            expect(await engine.getTrucoWinner()).to.equal(await match.connect(player2).currentPlayerIdx())
+            expect(state.gameState.currentChallenge.pointsAtStake).to.be.equal(BigNumber.from(1))
+        })
+
+        it('No truco spelled, draw on 1st and 2nd round ', async function () {
+            const { match, player1, player2, engine } = await loadFixture(
+                deployContract
+            )
+
+            await match.setPlayerTurn(await match.connect(player2).currentPlayerIdx())
+
+            // Round 1
+            await match.connect(player2).playCard(BigNumber.from(2)) // 2 of Coins
+            await match.connect(player1).playCard(BigNumber.from(22)) // 3 of Coins
+
+            // Round 2 - (Draw on round 1)
+            await match.connect(player2).playCard(BigNumber.from(3)) // 4 of Cups
+            await match.connect(player1).playCard(BigNumber.from(23)) // 5 of Coins
+
+            // Previous round was a draw, mano should play next
+            expect(match.connect(player1).playCard(BigNumber.from(14))).to.be.reverted
+
+        })
+
+        it('No truco spelled, draw on 1st and 2nd round and 3rd round, mano should win', async function () {
+            const { match, player1, player2, engine } = await loadFixture(
+                deployContract
+            )
+
+            await match.setPlayerTurn(await match.connect(player2).currentPlayerIdx())
+
+            // Round 1
+            await match.connect(player2).playCard(BigNumber.from(2)) // 2 of Coins
+            await match.connect(player1).playCard(BigNumber.from(22)) // 3 of Coins
+
+            // Round 2: Player 1 won first round, so it's player1 turn
+            await match.connect(player2).playCard(BigNumber.from(3)) // 4 of Cups
+            await match.connect(player1).playCard(BigNumber.from(23)) // 5 of Coins
+
+            // Player 2 won round 2, so it's player 2 turn
+            await match.connect(player2).playCard(BigNumber.from(4)) // 3 of Cups
+            await match.connect(player1).playCard(BigNumber.from(14)) // 2 of Swords
+
+            let state = await match.currentMatch()
+
+            await engine.setGameState(state.gameState)
+
+            expect(await engine.isTrucoFinal()).to.be.true
+            expect(await engine.getTrucoWinner()).to.equal(await match.connect(player2).currentPlayerIdx())
+
+            expect(state.gameState.currentChallenge.pointsAtStake).to.be.equal(BigNumber.from(1))
         })
     })
     describe('Refusals', function () {
@@ -502,7 +666,7 @@ describe('Multi Transaction Test: Truco', function () {
 
             // Now it's player 1 turn
             expect(state.gameState.playerTurn).to.be.equal(
-                await match.connect(player2).currentPlayerIdx()
+                await match.connect(player1).currentPlayerIdx()
             )
 
             revealedCards = await match.getRevealedCards()
@@ -524,13 +688,13 @@ describe('Multi Transaction Test: Truco', function () {
             expect(await engine.isTrucoFinal()).to.be.false
 
             // TRANSACTION
-            await match.connect(player2).playCard(BigNumber.from(12)) // 2 of Cups
+            await match.connect(player1).playCard(BigNumber.from(1)) // 1 of Cups
 
             state = await match.currentMatch()
 
-            // Now it's player 1 turn
+            // Now it's player 2 turn
             expect(state.gameState.playerTurn).to.be.equal(
-                await match.connect(player1).currentPlayerIdx()
+                await match.connect(player2).currentPlayerIdx()
             )
 
             revealedCards = await match.getRevealedCards()
@@ -538,15 +702,15 @@ describe('Multi Transaction Test: Truco', function () {
                 revealedCards[
                     await match.connect(player1).currentPlayerIdx()
                 ][2]
-            ).to.be.equal(BigNumber.from(0)) // Masked
+            ).to.be.equal(BigNumber.from(1)) // Masked
             expect(
                 revealedCards[
                     await match.connect(player2).currentPlayerIdx()
                 ][2]
-            ).to.be.equal(BigNumber.from(12)) // Just played
+            ).to.be.equal(BigNumber.from(0)) // Just played
 
             // TRANSACTION
-            await match.connect(player1).playCard(BigNumber.from(1)) // 1 of Cups
+            await match.connect(player2).playCard(BigNumber.from(12)) // 2 of Cups
 
             state = await match.currentMatch()
 

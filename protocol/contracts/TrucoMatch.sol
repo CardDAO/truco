@@ -162,9 +162,6 @@ contract TrucoMatch {
             uint8(IERC3333.Challenge.Truco)
         );
         currentMatch.gameState = trucoEngine.transact(transaction);
-
-        // Turn should change, since it's will be waiting for the other player to accept or deny the challenge
-        switchTurn();
     }
 
     function spellReTruco() public enforceTurnSwitching {
@@ -237,7 +234,9 @@ contract TrucoMatch {
     }
 
     // Accept for raising, do not switch turn
-    function acceptChallengeForRaising() public enforceTurnSwitching {
+    function acceptChallengeForRaising() public  {
+        require(getPlayerIdx() == currentMatch.gameState.playerTurn);
+
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Response,
             uint8(IERC3333.Response.Accept)
@@ -267,7 +266,7 @@ contract TrucoMatch {
         // if we are waiting for challenge response it should switch to opponent no matter what
         if (currentMatch.gameState.currentChallenge.waitingChallengeResponse) {
             currentMatch.gameState.playerTurn = inversePlayer;
-            return;
+        return;
         }
 
         uint8 playerWhoShouldPlayCard = gameStateQueries
