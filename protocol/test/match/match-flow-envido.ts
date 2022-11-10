@@ -98,6 +98,31 @@ describe('Multi Transaction Test: Envido', function () {
             expect(match.connect(player2).spellEnvido()).to.be.reverted
         })
 
+        it('Spelling envido after first round of cards were revealed', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployContract
+            )
+
+            await match.connect(player2).playCard(BigNumber.from(22))
+            await match.connect(player1).playCard(BigNumber.from(33))
+
+            expect(match.connect(player2).spellEnvido()).to.be.reverted
+        })
+
+        it('Spelling envido after second round of cards were revealed', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployContract
+            )
+
+            await match.connect(player2).playCard(BigNumber.from(22))
+            await match.connect(player1).playCard(BigNumber.from(33))
+
+            await match.connect(player1).playCard(BigNumber.from(11))
+            await match.connect(player2).playCard(BigNumber.from(12))
+
+            expect(match.connect(player2).spellEnvido()).to.be.reverted
+        })
+
         it('Spelling invalid envido count', async function () {
             const { match, player1, player2 } = await loadFixture(
                 deployContract

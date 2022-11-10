@@ -40,7 +40,15 @@ describe('Multi Transaction Test: Truco', function () {
         // Player2 joins the match
         await match.connect(player2).join()
 
-        return { match, engine, trucoin, player1, player2, invalid_player }
+        return {
+            match,
+            engine,
+            trucoin,
+            player1,
+            player2,
+            invalid_player,
+            gameStateQueries,
+        }
     }
 
     describe('Invalid Moves', function () {
@@ -353,6 +361,81 @@ describe('Multi Transaction Test: Truco', function () {
 
             expect(state.gameState.currentChallenge.pointsAtStake).to.be.equal(
                 BigNumber.from(1)
+            )
+        })
+
+        it('Spelling Truco after an Envido refused', async function () {
+            const { match, player1, player2, engine } = await loadFixture(
+                deployContract
+            )
+
+            await match.setPlayerTurn(
+                await match.connect(player2).currentPlayerIdx()
+            )
+
+            await match.connect(player2).spellTruco()
+
+            await match.connect(player1).spellEnvido()
+            await match.connect(player2).refuseChallenge()
+
+            let state = await match.currentMatch()
+
+            await engine.setGameState(state.gameState)
+
+            expect(await engine.isEnvidoFinal()).to.be.true
+            expect(state.gameState.currentChallenge.waitingChallengeResponse).to
+                .be.false
+            expect(state.gameState.currentChallenge.challenge).to.be.equal(
+                BigNumber.from(ChallengeEnum.Envido)
+            )
+            expect(state.gameState.currentChallenge.response).to.be.equal(
+                BigNumber.from(ResponseEnum.Refuse)
+            )
+
+            // After envido refusal, player 2 plays a card
+            await match.connect(player2).playCard(BigNumber.from(2)) // 2 of Coins
+
+            // After card was played Envido state should be resetEnvido
+            state = await match.currentMatch()
+
+            expect(state.gameState.currentChallenge.challenge).to.be.equal(
+                BigNumber.from(ChallengeEnum.None)
+            )
+            expect(state.gameState.currentChallenge.response).to.be.equal(
+                BigNumber.from(ResponseEnum.None)
+            )
+        })
+
+        it('Spelling Truco after an Envido refused, and spell it again', async function () {
+            const { match, player1, player2, gameStateQueries } =
+                await loadFixture(deployContract)
+
+            await match.setPlayerTurn(
+                await match.connect(player2).currentPlayerIdx()
+            )
+
+            await match.connect(player2).spellTruco()
+
+            await match.connect(player1).spellEnvido()
+            await match.connect(player2).refuseChallenge()
+
+            let state = await match.currentMatch()
+            expect(await gameStateQueries.isEnvidoEnded(state.gameState)).to.be
+                .true
+
+            // After envido refusal, player 2 plays a card
+            await match.connect(player2).spellTruco()
+
+            // After card was played Envido state should be resetEnvido
+            state = await match.currentMatch()
+
+            expect(state.gameState.currentChallenge.challenge).to.be.equal(
+                BigNumber.from(ChallengeEnum.Truco)
+            )
+            expect(state.gameState.currentChallenge.waitingChallengeResponse).to
+                .be.true
+            expect(state.gameState.currentChallenge.response).to.be.equal(
+                BigNumber.from(ResponseEnum.None)
             )
         })
     })
