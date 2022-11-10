@@ -36,6 +36,32 @@ contract TrucoMatch {
         switchTurn();
     }
 
+    modifier resetFinalEnvido() {
+        if (
+            currentMatch.gameState.currentChallenge.response ==
+            IERC3333.Response.None
+        ) {
+            // No response to a challenge, we don't have anything to do
+            _;
+            return;
+        }
+
+        if (
+            gameStateQueries.isEnvidoChallenge(
+                currentMatch.gameState.currentChallenge.challenge
+            ) && gameStateQueries.isEnvidoEnded(currentMatch.gameState)
+        ) {
+            // Envido was challenged and state must be reset
+            currentMatch.gameState.currentChallenge.challenge = IERC3333
+                .Challenge
+                .None;
+            currentMatch.gameState.currentChallenge.response = IERC3333
+                .Response
+                .None;
+        }
+        _;
+    }
+
     constructor(
         IERC3333 _trucoEngine,
         IERC20 _truCoin,
@@ -156,7 +182,7 @@ contract TrucoMatch {
         ];
     }
 
-    function spellTruco() public enforceTurnSwitching {
+    function spellTruco() public resetFinalEnvido enforceTurnSwitching {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.Truco)
@@ -180,7 +206,11 @@ contract TrucoMatch {
         currentMatch.gameState = trucoEngine.transact(transaction);
     }
 
-    function playCard(uint8 _card) public enforceTurnSwitching {
+    function playCard(uint8 _card)
+        public
+        resetFinalEnvido
+        enforceTurnSwitching
+    {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.PlayCard,
             _card
