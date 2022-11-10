@@ -394,7 +394,7 @@ describe('Multi Transaction Test: Envido', function () {
         })
 
         it('Complete Envido Flow with raising from Envido to RealEnvido', async function () {
-            const { match, player1, player2 } = await loadFixture(
+            const { match, player1, player2, engine } = await loadFixture(
                 deployContract
             )
 
@@ -421,14 +421,17 @@ describe('Multi Transaction Test: Envido', function () {
             expect(state.gameState.envido.pointsRewarded).to.be.equal(
                 BigNumber.from(5)
             )
-
             expect(state.gameState.playerTurn).to.be.equal(
                 await match.connect(player2).currentPlayerIdx()
+            )
+            engine.setGameState(state.gameState)
+            expect(await engine.getEnvidoWinner()).to.be.equal(
+                await match.connect(player1).currentPlayerIdx()
             )
         })
 
         it('Complete Envido Flow with raising 2 times: from Envido, to EnvidoEnvido to FaltaEnvido', async function () {
-            const { match, player1, player2 } = await loadFixture(
+            const { match, player1, player2, engine } = await loadFixture(
                 deployContract
             )
 
@@ -464,11 +467,16 @@ describe('Multi Transaction Test: Envido', function () {
             expect(state.gameState.playerTurn).to.be.equal(
                 await match.connect(player2).currentPlayerIdx()
             )
+
+            engine.setGameState(state.gameState)
+            expect(await engine.getEnvidoWinner()).to.be.equal(
+                await match.connect(player2).currentPlayerIdx()
+            )
         })
     })
     describe('Corner cases', function () {
         it('Spelling 0 as envido count (should go ok)', async function () {
-            const { match, player1, player2 } = await loadFixture(
+            const { match, player1, player2, engine } = await loadFixture(
                 deployContract
             )
 
@@ -489,6 +497,11 @@ describe('Multi Transaction Test: Envido', function () {
             )
             expect(state.gameState.playerTurn).to.be.equal(
                 await match.connect(player2).currentPlayerIdx()
+            )
+
+            engine.setGameState(state.gameState)
+            expect(await engine.getEnvidoWinner()).to.be.equal(
+                await match.connect(player1).currentPlayerIdx()
             )
         })
     })
@@ -588,6 +601,9 @@ describe('Multi Transaction Test: Envido', function () {
             // Envido SHOULD BE final at this step
             await engine.setGameState(state.gameState)
             expect(await engine.isEnvidoFinal()).to.be.true
+            expect(await engine.getEnvidoWinner()).to.be.equal(
+                await match.connect(player1).currentPlayerIdx()
+            )
 
             envidoCount = await match.getEnvidoCountPerPlayer()
             state = await match.currentMatch()
