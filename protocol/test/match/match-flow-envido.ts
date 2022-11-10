@@ -515,6 +515,31 @@ describe('Multi Transaction Test: Envido', function () {
             expect(match.connect(player2).spellEnvido()).to.be.reverted
         })
 
+        it('Spelling envido when truco was challenged: Envido in first place!!', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployContract
+            )
+
+            await match.connect(player2).playCard(BigNumber.from(1))
+            await match.connect(player1).spellTruco()
+
+            // Envido is in first place, baby! ;)
+            await match.connect(player2).spellEnvido()
+
+            let state = await match.currentMatch()
+
+            expect(state.gameState.currentChallenge.challenge).to.be.equal(
+                BigNumber.from(ChallengeEnum.Envido)
+            )
+            expect(state.gameState.currentChallenge.waitingChallengeResponse).to.be.true
+            expect(state.gameState.currentChallenge.response).to.be.equal(
+                BigNumber.from(ChallengeEnum.None)
+            )
+            expect(state.gameState.playerTurn).to.be.equal(
+                await match.connect(player1).currentPlayerIdx()
+            )
+        })
+
     })
     describe('Full State Assertions', function () {
         it('Complete Envido Flow: Spell envido, accept it, spell envido counts for each player', async function () {
