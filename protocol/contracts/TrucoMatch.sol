@@ -3,7 +3,7 @@ pragma solidity 0.8.16;
 
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import './trucoV1/interfaces/IERC3333.sol';
-import "./trucoV1/GameStateQueries.sol";
+import './trucoV1/GameStateQueries.sol';
 
 contract TrucoMatch {
     struct player {
@@ -30,9 +30,10 @@ contract TrucoMatch {
     event DealStarted(address shuffler);
     event DealEnded();
 
-    modifier enforceTurn() {
+    modifier enforceTurnSwitching() {
         require(getPlayerIdx() == currentMatch.gameState.playerTurn);
         _;
+        switchTurn();
     }
 
     constructor(
@@ -155,118 +156,87 @@ contract TrucoMatch {
         ];
     }
 
-    function spellTruco() public enforceTurn {
+    function spellTruco() public enforceTurnSwitching {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.Truco)
         );
         currentMatch.gameState = trucoEngine.transact(transaction);
-
-        // Turn should change, since it's will be waiting for the other player to accept or deny the challenge
-        switchTurn();
     }
 
-    function spellReTruco() public enforceTurn {
+    function spellReTruco() public enforceTurnSwitching {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.ReTruco)
         );
         currentMatch.gameState = trucoEngine.transact(transaction);
-
-        // Turn should change, since it's will be waiting for the other player to accept or deny the challenge
-        switchTurn();
     }
 
-    function spellValeCuatro() public enforceTurn {
+    function spellValeCuatro() public enforceTurnSwitching {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.ValeCuatro)
         );
         currentMatch.gameState = trucoEngine.transact(transaction);
-
-        // Turn should change, since it's will be waiting for the other player to accept or deny the challenge
-        switchTurn();
     }
 
-    function playCard(uint8 _card) public enforceTurn {
+    function playCard(uint8 _card) public enforceTurnSwitching {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.PlayCard,
             _card
         );
         currentMatch.gameState = trucoEngine.transact(transaction);
-
-        switchTurn();
     }
 
-    function spellEnvido() public enforceTurn {
+    function spellEnvido() public enforceTurnSwitching {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.Envido)
         );
         currentMatch.gameState = trucoEngine.transact(transaction);
-
-        // Turn should change, since it's will be waiting for the other player to accept or deny the challenge
-        switchTurn();
     }
 
-    function spellEnvidoEnvido() public enforceTurn {
+    function spellEnvidoEnvido() public enforceTurnSwitching {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.EnvidoEnvido)
         );
         currentMatch.gameState = trucoEngine.transact(transaction);
-
-        // Turn should change, since it's will be waiting for the other player to accept or deny the challenge
-        switchTurn();
     }
 
-    function spellRealEnvido() public enforceTurn {
+    function spellRealEnvido() public enforceTurnSwitching {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.RealEnvido)
         );
         currentMatch.gameState = trucoEngine.transact(transaction);
-
-        // Turn should change, since it's will be waiting for the other player to accept or deny the challenge
-        switchTurn();
     }
 
-    function spellFaltaEnvido() public enforceTurn {
+    function spellFaltaEnvido() public enforceTurnSwitching {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.FaltaEnvido)
         );
         currentMatch.gameState = trucoEngine.transact(transaction);
-
-        // Turn should change, since it's will be waiting for the other player to accept or deny the challenge
-        switchTurn();
     }
 
-    function spellEnvidoCount(uint8 _points) public enforceTurn {
+    function spellEnvidoCount(uint8 _points) public enforceTurnSwitching {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.EnvidoCount,
             _points
         );
         currentMatch.gameState = trucoEngine.transact(transaction);
-
-        // If current envido count spell resolved envido, then change turn only if not mano
-        if (currentMatch.gameState.envido.pointsRewarded > 0) {
-            switchTurnIfNotMano();
-            return;
-        }
-
-        // We should wait for other player to spell it's envido points
-        switchTurn();
     }
 
     // Accepts challenge and switches turn
-    function acceptChallenge() public enforceTurn {
+    function acceptChallenge() public enforceTurnSwitching {
         acceptChallengeForRaising();
-        switchTurnIfNotMano();
     }
 
     // Accept for raising, do not switch turn
-    function acceptChallengeForRaising() public enforceTurn {
+    function acceptChallengeForRaising() public {
+        require(getPlayerIdx() == currentMatch.gameState.playerTurn);
+
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Response,
             uint8(IERC3333.Response.Accept)
@@ -274,32 +244,57 @@ contract TrucoMatch {
         currentMatch.gameState = trucoEngine.transact(transaction);
     }
 
-    function refuseChallenge() public enforceTurn {
+    function refuseChallenge() public enforceTurnSwitching {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Response,
             uint8(IERC3333.Response.Refuse)
         );
         currentMatch.gameState = trucoEngine.transact(transaction);
-        switchTurnIfNotMano();
     }
 
     // INTERNAL METHODS -------------------------------------------------------------------------
 
     // Change turn
     function switchTurn() internal {
-        currentMatch.gameState.playerTurn =
-            currentMatch.gameState.playerTurn ^
-            1;
-    }
-
-    // Change turn only if i'm not mano
-    function switchTurnIfNotMano() internal {
-        if (
-            currentMatch.gameState.playerTurn ==
-            currentMatch.gameState.playerWhoShuffled
-        ) {
-            switchTurn();
+        if (gameStateQueries.isGameEnded(currentMatch.gameState)) {
+            // Game ended, do not switch turn
+            return;
         }
+
+        uint8 inversePlayer = currentMatch.gameState.playerTurn ^ 1;
+
+        // if we are waiting for challenge response it should switch to opponent no matter what
+        if (currentMatch.gameState.currentChallenge.waitingChallengeResponse) {
+            currentMatch.gameState.playerTurn = inversePlayer;
+            return;
+        }
+
+        uint8 playerWhoShouldPlayCard = gameStateQueries
+            .whichPlayerShouldPlayCard(currentMatch.gameState);
+
+        // If we're playing envido challenge apply specific logic
+        if (
+            gameStateQueries.isEnvidoChallenge(
+                currentMatch.gameState.currentChallenge.challenge
+            )
+        ) {
+            // If challenge was refused or envido ended we should fallback to the player who should play card
+            if (
+                currentMatch.gameState.currentChallenge.response ==
+                IERC3333.Response.Refuse ||
+                gameStateQueries.isEnvidoEnded(currentMatch.gameState)
+            ) {
+                currentMatch.gameState.playerTurn = playerWhoShouldPlayCard;
+                return;
+            }
+
+            // Inverse player, since we are at spelling points stage
+            currentMatch.gameState.playerTurn = inversePlayer;
+            return;
+        }
+
+        // We are at a truco challenge (or None), so return which player should play card
+        currentMatch.gameState.playerTurn = playerWhoShouldPlayCard;
     }
 
     function buildTransaction(IERC3333.Action _action, uint8 _param)

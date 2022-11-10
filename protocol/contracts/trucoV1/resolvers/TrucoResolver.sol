@@ -244,17 +244,9 @@ contract TrucoResolver {
     // END: IFace impl
     // ---------------------------------------------------------------------------------------------------------
 
-    function reversePlayer(uint8 _player) internal pure returns (uint8) {
-        if (_player == 0) {
-            return 1;
-        }
-
-        return 0;
-    }
-
     // Checks if round is considered finished
     function roundFinished(uint8[3][] memory _revealedCards, uint8 round)
-        internal
+        public
         pure
         returns (bool)
     {
@@ -268,14 +260,14 @@ contract TrucoResolver {
     }
 
     // Returns the winner player idx or -1 on draw or
-    function roundWinner(uint8[3][] memory _revealedCards, uint8 round)
-        internal
+    function roundWinner(uint8[3][] memory _revealedCards, uint8 _roundId)
+        public
         pure
         returns (int8)
     {
         uint8[41] memory cardsHierachy = getCardsHierarchy();
-        uint8 cardPlayer0AtCurrentRound = _revealedCards[0][round];
-        uint8 cardPlayer1AtCurrentRound = _revealedCards[1][round];
+        uint8 cardPlayer0AtCurrentRound = _revealedCards[0][_roundId];
+        uint8 cardPlayer1AtCurrentRound = _revealedCards[1][_roundId];
 
         if (
             cardsHierachy[cardPlayer0AtCurrentRound] ==
@@ -292,6 +284,10 @@ contract TrucoResolver {
         }
 
         return int8(1);
+    }
+
+    function reversePlayer(uint8 _player) internal pure returns (uint8) {
+        return _player ^ 1;
     }
 
     // Check if card is not repeated in the array
@@ -313,7 +309,7 @@ contract TrucoResolver {
 
     // Get current round id at play
     function roundAtPlay(IERC3333.GameState memory _gameState)
-        internal
+        public
         pure
         returns (uint8)
     {
@@ -324,12 +320,46 @@ contract TrucoResolver {
                 _gameState.revealedCardsByPlayer[0][i] == 0 ||
                 _gameState.revealedCardsByPlayer[1][i] == 0
             ) {
-                return 3;
+                return i;
             }
 
             i++;
         }
         return i;
+    }
+
+    function roundEmpty(IERC3333.GameState memory gameState, uint8 _roundId)
+        public
+        view
+        returns (bool)
+    {
+        return
+            gameState.revealedCardsByPlayer[0][_roundId] == 0 &&
+            gameState.revealedCardsByPlayer[1][_roundId] == 0;
+    }
+
+    function roundComplete(IERC3333.GameState memory gameState, uint8 _roundId)
+        external
+        view
+        returns (bool)
+    {
+        // Cards does not repeat, so special case is when both cards are the same they should be masked
+        return
+            this.roundEmpty(gameState, _roundId) &&
+            gameState.revealedCardsByPlayer[0][_roundId] !=
+            gameState.revealedCardsByPlayer[1][_roundId];
+    }
+
+    function getPlayerTurnAtRound(
+        IERC3333.GameState memory gameState,
+        uint8 _roundId
+    ) public view returns (uint8) {
+        require(!this.roundComplete(gameState, _roundId));
+
+        if (gameState.revealedCardsByPlayer[0][_roundId] == 0) {
+            return 0;
+        }
+        return 1;
     }
 
     // Return points that should be at stake for a given challenge

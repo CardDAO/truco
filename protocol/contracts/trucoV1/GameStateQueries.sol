@@ -1,17 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-import './interfaces/IChallengeResolver.sol';
 import './interfaces/ICardsDeck.sol';
+import './resolvers/TrucoResolver.sol';
+import './resolvers/EnvidoResolver.sol';
 
 contract GameStateQueries {
-    IChallengeResolver internal envidoResolver;
-    IChallengeResolver internal trucoResolver;
+    EnvidoResolver internal envidoResolver;
+    TrucoResolver internal trucoResolver;
     ICardsDeck internal cardsDeck;
 
     constructor(
-        IChallengeResolver _trucoResolver,
-        IChallengeResolver _envidoResolver,
+        TrucoResolver _trucoResolver,
+        EnvidoResolver _envidoResolver,
         ICardsDeck _cardsDeck
     ) {
         envidoResolver = _envidoResolver;
@@ -48,37 +49,62 @@ contract GameStateQueries {
         view
         returns (bool)
     {
-        // Implement this
+        if (!this.isEnvidoChallenge(gameState.currentChallenge.challenge)) {
+            return trucoResolver.isFinal(gameState);
+        }
+
+        // Envido is still playing
         return false;
     }
 
     // Return wich player should be play next
     function whichPlayerShouldPlayCard(IERC3333.GameState memory gameState)
-    external
-    view
-    returns (uint8)
+        external
+        view
+        returns (uint8)
     {
-        // For each round check if it's incomplete, in that case return the player that should play
-        for (uint8 i; i < 3; i++) {
-            if (! this.roundComplete(gameState, i)) {
-                return this.getPlayerTurnAtRound(gameState, i);
+        uint8 roundAtPlay = trucoResolver.roundAtPlay(gameState);
+        uint8 playerMano = gameState.playerWhoShuffled ^ 1;
+
+        // Truco is being played
+        if (trucoResolver.roundEmpty(gameState, roundAtPlay)) {
+            if (roundAtPlay == 0) {
+                // First round, no player played yet. Mano should play first
+                return playerMano;
             }
+
+            int8 roundWinner = trucoResolver.roundWinner(
+                gameState.revealedCardsByPlayer,
+                roundAtPlay - 1
+            );
+
+            // Check if it was a draw, in that case the player who is mano should play first
+            if (roundWinner < 0) {
+                return playerMano;
+            }
+
+            // Previous round winnner should play first
+            return uint8(roundWinner);
         }
 
-        return gameState.playerTurn;
+        // If the round is not empty, the player who is left to play should play next
+        return trucoResolver.getPlayerTurnAtRound(gameState, roundAtPlay);
     }
 
-    function roundComplete(IERC3333.GameState memory gameState, uint8 _roundId) external view returns (bool) {
-        // Cards does not repeat, so special case is when both cards are the same they should be masked
-        return gameState.revealedCardsByPlayer[0][_roundId] !=  gameState.revealedCardsByPlayer[1][_roundId];
+    function isEnvidoChallenge(IERC3333.Challenge _challenge)
+        external
+        view
+        returns (bool)
+    {
+        return envidoResolver.canResolve(_challenge);
     }
 
-    function getPlayerTurnAtRound(IERC3333.GameState memory gameState, uint8 _roundId) external view returns (uint8) {
-        // Round 1 is still at play
-        if (gameState.revealedCardsByPlayer[0][0] == 0) {
-            return 0;
-        }
-        return 1;
+    function isEnvidoEnded(IERC3333.GameState memory gameState)
+        external
+        view
+        returns (bool)
+    {
+        return envidoResolver.isFinal(gameState);
     }
 
     // Check if envido can be spelled at this game
@@ -89,8 +115,7 @@ contract GameStateQueries {
     {
         return
             !envidoResolver.isFinal(gameState) &&
-            (gameState.revealedCardsByPlayer[0][0] == 0 ||
-                gameState.revealedCardsByPlayer[1][0] == 0);
+            !trucoResolver.roundComplete(gameState, 0);
     }
 
     // Get envido points of a given set of cards

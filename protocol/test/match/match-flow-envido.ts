@@ -15,7 +15,8 @@ describe('Multi Transaction Test: Envido', function () {
         // Contracts are deployed using the first signer/account by default
         const [player1, player2, invalid_player] = await ethers.getSigners()
 
-        const { trucoin, engine, gameStateQueries } = await deployEngineContract()
+        const { trucoin, engine, gameStateQueries } =
+            await deployEngineContract()
 
         // Transfer trucoins to players
         await trucoin.mint(player1.address, tokenAtStake)
@@ -183,7 +184,7 @@ describe('Multi Transaction Test: Envido', function () {
 
             state = await match.currentMatch()
 
-            // PLayer 2 is mano, so it should hold the turn to spell envido count
+            // PLayer 2 is mano, so it remains his turn
             expect(state.gameState.playerTurn).to.be.equal(
                 await match.connect(player2).currentPlayerIdx()
             )
@@ -380,7 +381,7 @@ describe('Multi Transaction Test: Envido', function () {
             await match.connect(player1).spellRealEnvido()
 
             // TRANSACTION: Player 2 accepts challenge
-            await match.connect(player2).acceptChallenge()
+            await match.connect(player2).acceptChallengeForRaising()
 
             // TRANSACTION: Player 2 spells envido count (its mano)
             await match.connect(player2).spellEnvidoCount(BigNumber.from(20))
