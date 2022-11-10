@@ -62,7 +62,7 @@ export const Dashboard = ({ address, inSession }: any) => {
                     if (newMessage.message.data?.cardCodewordFragments) {
                         if (opponents[signer] === undefined) {
                             const newOpponents = opponents
-                            newOpponents[signer] = { cardCodewordFragments: arrayToBuffer(newMessage.message.data.cardCodewordFragments)  }
+                            newOpponents[signer] = { dealedCards: [], cardCodewordFragments: arrayToBuffer(newMessage.message.data.cardCodewordFragments)  }
                             setOpponents(newOpponents)
                             setSharedCodewordFragments((oldSharedCodewordsList: any) => [...oldSharedCodewordsList, newMessage.message.data.cardCodewordFragments!!])
                             setState(StateEnum.CREATING_DECK)
@@ -111,11 +111,20 @@ export const Dashboard = ({ address, inSession }: any) => {
                         // DEAL CARDS
                         const dealedCards: MentalPokerCard[] = dealCards(finalDeck, usedCardsIndexes, selfPlayer, latestNonce, signMessage)
                         
+                        const dealedCardIndexes = dealedCards.map((dealCard: MentalPokerCard) => dealCard.cardIndex)
                         setUsedCardsIndexes(
                             oldUsedCardsIndexes => [
                                 ...oldUsedCardsIndexes,
-                                ...dealedCards.map((dealCard: MentalPokerCard) => dealCard.cardIndex)
+                                ...dealedCardIndexes
                             ])
+
+                        setOpponents(oldOpponents => {
+                            const opponentToDeal = oldOpponents[signer]
+                            opponentToDeal.cardsIndexes = dealedCardIndexes
+                            oldOpponents[signer] = opponentToDeal
+
+                            return oldOpponents
+                        })
 
                         setState(StateEnum.START_GAME)
                     }
@@ -127,12 +136,20 @@ export const Dashboard = ({ address, inSession }: any) => {
 
                         // DEAL CARDS
                         const dealedCards: MentalPokerCard[] = dealCards(deck, usedCardsIndexes, selfPlayer, latestNonce, signMessage)
+                        const dealedCardIndexes = dealedCards.map((dealCard: MentalPokerCard) => dealCard.cardIndex)
                         
                         setUsedCardsIndexes(
                             oldUsedCardsIndexes => [
                                 ...oldUsedCardsIndexes,
                                 ...dealedCards.map((dealCard: MentalPokerCard) => dealCard.cardIndex)
                             ])
+                        setOpponents(oldOpponents => {
+                            const opponentToDeal = oldOpponents[signer]
+                            opponentToDeal.cardsIndexes = dealedCardIndexes
+                            oldOpponents[signer] = opponentToDeal
+
+                            return oldOpponents
+                        })
                         setState(StateEnum.START_GAME)
                     }
                     break
