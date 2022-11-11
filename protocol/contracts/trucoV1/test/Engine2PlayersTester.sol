@@ -34,6 +34,10 @@ contract Engine2PlayersTester is Engine2Players {
         return gameState.teamPoints;
     }
 
+    function getTxCountForClient(address _client) public view returns (uint8) {
+        return clientMatches[_client].txCount;
+    }
+
     function getRevealedCardsByPlayer()
         public
         view

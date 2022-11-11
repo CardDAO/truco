@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 
 import { IERC3333 } from '../../typechain-types/contracts/trucoV1/interfaces/IERC3333'
-import { ChallengeEnum } from './struct-enums'
+import {ActionEnum, ChallengeEnum} from './struct-enums'
 import { deployEngineContract } from '../deploy-contracts'
 
 import MoveStruct = IERC3333.MoveStruct
@@ -18,8 +18,8 @@ describe('Engine Main Logic', function () {
             let state = await engine.initialGameState()
 
             let move: MoveStruct = {
-                action: BigNumber.from(ChallengeEnum.None),
-                parameters: [],
+                action: BigNumber.from(ActionEnum.Challenge),
+                parameters: [BigNumber.from(ChallengeEnum.Truco)],
             }
 
             let transaction: TransactionStruct = {
@@ -124,6 +124,41 @@ describe('Engine Main Logic', function () {
             ).withArgs(signer.address, fees)
             .to.changeTokenBalances(trucoin, [signer.address, engine.address], [fees.mul(-1), fees])
         })
+    })
 
+    describe('Transaction count', function () {
+        it('Check zero transaction', async function () {
+            const { engine } = await deployEngineContract()
+
+            expect(await engine.getTxCountForClient(engine.address)).to.equal(0)
+        })
+
+        it('Check transaction accountability', async function () {
+            const { engine } = await deployEngineContract()
+
+            let state = await engine.initialGameState()
+
+            let move: MoveStruct = {
+                action: BigNumber.from(ActionEnum.PlayCard),
+                parameters: [BigNumber.from(1)],
+            }
+
+            let transaction: TransactionStruct = {
+                playerIdx: state.playerTurn,
+                moves: [move],
+                state: state,
+            }
+
+            await engine.executeTransaction(transaction)
+
+            expect(await engine.getTxCountForClient(engine.address)).to.equal(1)
+
+            move.action = BigNumber.from(ActionEnum.PlayCard),
+            move.parameters = [BigNumber.from(2)]
+
+            await engine.executeTransaction(transaction)
+
+            expect(await engine.getTxCountForClient(engine.address)).to.equal(2)
+        })
     })
 })
