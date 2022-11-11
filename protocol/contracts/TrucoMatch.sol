@@ -133,8 +133,11 @@ contract TrucoMatch {
             currentMatch.players[0].tokensAtStake == currentMatch.bet &&
             currentMatch.players[1].tokensAtStake == currentMatch.bet
         ) {
-            bool result = truCoin.approve(address(trucoEngine), trucoEngine.getFees());
-            require (result, 'Approval failed');
+            bool result = truCoin.approve(
+                address(trucoEngine),
+                trucoEngine.getFees()
+            );
+            require(result, 'Approval failed');
 
             currentMatch.gameState = trucoEngine.startGame();
             emit MatchStarted(

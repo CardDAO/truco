@@ -54,7 +54,9 @@ contract EnvidoResolver is IChallengeResolver {
             }
 
             // PLayer can't challenge if he already played a card
-            require(_gameState.revealedCardsByPlayer[_gameState.playerTurn][0] == 0);
+            require(
+                _gameState.revealedCardsByPlayer[_gameState.playerTurn][0] == 0
+            );
 
             require(
                 validEnvido(

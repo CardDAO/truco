@@ -39,7 +39,6 @@ export async function deployEngineContract() {
 }
 
 export async function deployMatchContract() {
-
     // Contracts are deployed using the first signer/account by default
     const [owner, player2, invalid_player] = await ethers.getSigners()
 
