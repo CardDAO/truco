@@ -89,4 +89,6 @@ interface IERC3333 {
         external
         view
         returns (bool);
+
+    function getFees() external view returns (uint256);
 }

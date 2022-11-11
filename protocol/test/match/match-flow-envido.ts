@@ -30,6 +30,8 @@ describe('Multi Transaction Test: Envido', function () {
             tokenAtStake
         )
 
+        await engine.setWhiteListed(match.address, true)
+
         // Approve trucoins to be used by the match contract
         await trucoin.connect(player1).approve(match.address, tokenAtStake)
         await trucoin.connect(player2).approve(match.address, tokenAtStake)
@@ -529,7 +531,8 @@ describe('Multi Transaction Test: Envido', function () {
             expect(state.gameState.currentChallenge.challenge).to.be.equal(
                 BigNumber.from(ChallengeEnum.Envido)
             )
-            expect(state.gameState.currentChallenge.waitingChallengeResponse).to.be.true
+            expect(state.gameState.currentChallenge.waitingChallengeResponse).to
+                .be.true
             expect(state.gameState.currentChallenge.response).to.be.equal(
                 BigNumber.from(ChallengeEnum.None)
             )
@@ -549,7 +552,6 @@ describe('Multi Transaction Test: Envido', function () {
             // Envido can't be spelled if player already played a card
             expect(match.connect(player2).spellEnvido()).to.be.reverted
         })
-
     })
     describe('Full State Assertions', function () {
         it('Complete Envido Flow: Spell envido, accept it, spell envido counts for each player', async function () {

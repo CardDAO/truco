@@ -17,7 +17,12 @@ contract Engine2PlayersTester is Engine2Players {
             _envidoResolver,
             _gameStateQueries
         )
-    {}
+    {
+        // Since transactions are executed using current executeTransaction implementation and this
+        // call makes an external call to ERC3333 'execute()' method interface current contract will
+        // be the caller. So for testing purposes we whitelist this contract address
+        setWhiteListed(address(this), true);
+    }
 
     IERC3333.GameState public gameState;
 
