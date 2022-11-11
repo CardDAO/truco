@@ -33,10 +33,15 @@ contract Engine2Players is IERC3333, Ownable {
     event MatchStarted(address match_address, uint256 fee);
 
     modifier checkFeesAndTrackUsage() {
-
-        if (! clientMatches[msg.sender].whiteListed) {
-            require(clientMatches[msg.sender].matchStarted, 'Match not started');
-            require(clientMatches[msg.sender].txCount <= MAX_TRANSACTIONS, 'Max transaction limit reached');
+        if (!clientMatches[msg.sender].whiteListed) {
+            require(
+                clientMatches[msg.sender].matchStarted,
+                'Match not started'
+            );
+            require(
+                clientMatches[msg.sender].txCount <= MAX_TRANSACTIONS,
+                'Max transaction limit reached'
+            );
         }
         _;
         clientMatches[msg.sender].txCount++;
@@ -194,8 +199,8 @@ contract Engine2Players is IERC3333, Ownable {
 
     // [Owner] Set a client as whitelisted for fees collection
     function setWhiteListed(address _client, bool _whiteListed)
-    public
-    onlyOwner
+        public
+        onlyOwner
     {
         clientMatches[_client].whiteListed = _whiteListed;
     }
