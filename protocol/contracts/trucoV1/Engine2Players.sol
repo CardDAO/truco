@@ -105,8 +105,6 @@ contract Engine2Players is IERC3333, Ownable {
         checkFeesAndTrackUsage
         returns (IERC3333.GameState memory gameState)
     {
-        // check if game is started for current call
-
         // Check correct turn
         require(
             transaction.state.playerTurn == transaction.playerIdx,
