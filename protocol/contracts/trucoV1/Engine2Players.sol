@@ -131,13 +131,12 @@ contract Engine2Players is IERC3333, Ownable {
             'Game already started'
         );
 
-        uint256 clientBalance = trucoin.balanceOf(msg.sender);
         uint256 fee = this.getFees();
 
-        require(clientBalance >= fee, 'Not enough TRU to start game');
-
         // Transfer fee to contract address with a minimum
-        trucoin.transferFrom(msg.sender, address(this), fee);
+        bool result = trucoin.transferFrom(msg.sender, address(this), fee);
+
+        require(result, 'Fee transfer failed');
 
         return fee;
     }
