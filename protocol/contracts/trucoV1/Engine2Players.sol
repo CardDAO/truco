@@ -106,13 +106,6 @@ contract Engine2Players is IERC3333, Ownable {
         return gameState;
     }
 
-    function setWhiteListed(address _client, bool _whiteListed)
-        external
-        onlyOwner
-    {
-        clientMatches[_client].whiteListed = _whiteListed;
-    }
-
     // Collects fees and returns amount collected
     function collectFees() internal returns (uint256) {
         // Check that consumer contract has not already payed for game
@@ -187,6 +180,14 @@ contract Engine2Players is IERC3333, Ownable {
         onlyOwner
     {
         trucoin.transfer(_recipient, _amount);
+    }
+
+    // [Owner] Set a client as whitelisted for fees collection
+    function setWhiteListed(address _client, bool _whiteListed)
+    external
+    onlyOwner
+    {
+        clientMatches[_client].whiteListed = _whiteListed;
     }
 
     function isGameEnded(IERC3333.GameState memory gameState)
