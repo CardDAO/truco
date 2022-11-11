@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 
-export async function deployEnvidoResolverContract(
+export async function deployEngineContract(
     trucoin: Trucoin,
     trucoResolver: TrucoResolver,
     envidoResolver: envidoResolver,
