@@ -107,8 +107,6 @@ describe('Truco Match', function () {
                 deployMatchContract
             )
 
-            console.log(bet)
-
             // Allow trucoin transfer
             await trucoin.connect(owner).approve(match.address, bet)
             await trucoin.connect(player2).approve(match.address, bet)
