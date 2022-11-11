@@ -1,5 +1,4 @@
 import { ethers, upgrades } from 'hardhat'
-import { BigNumber } from 'ethers'
 
 export async function deployDeckContract() {
     const CardsDeck = await ethers.getContractFactory('CastillianDeck')

@@ -11,7 +11,7 @@ import './GameStateQueries.sol';
 
 contract Engine2Players is IERC3333, Ownable {
     struct ClientMatch {
-        bool feesCollected;
+        bool matchStarted;
         bool whiteListed;
         uint8 txCount;
     }
@@ -20,10 +20,9 @@ contract Engine2Players is IERC3333, Ownable {
     IChallengeResolver internal envidoResolver;
     IChallengeResolver internal trucoResolver;
     GameStateQueries internal gameStateQueries;
-
     mapping(address => ClientMatch) internal clientMatches;
 
-    int8 public constant MAX_TRANSACTIONS = 100;
+    uint8 public constant MAX_TRANSACTIONS = 100;
     uint256 public constant MINIMUM_FEE = 1000;
     uint256 public constant FEE_PERCENT = 1;
 
@@ -32,6 +31,16 @@ contract Engine2Players is IERC3333, Ownable {
 
     // Events
     event MatchStarted(address match_address, uint256 fee);
+
+    modifier checkFeesAndTrackUsage() {
+
+        if (! clientMatches[msg.sender].whiteListed) {
+            require(clientMatches[msg.sender].matchStarted, 'Match not started');
+            require(clientMatches[msg.sender].txCount <= MAX_TRANSACTIONS, 'Max transaction limit reached');
+        }
+        _;
+        clientMatches[msg.sender].txCount++;
+    }
 
     constructor(
         IERC20 _trucoin,
@@ -53,6 +62,8 @@ contract Engine2Players is IERC3333, Ownable {
         }
 
         emit MatchStarted(msg.sender, collectedFees);
+
+        clientMatches[msg.sender].matchStarted = true;
 
         // Init game state
         return this.initialGameState();
@@ -86,6 +97,7 @@ contract Engine2Players is IERC3333, Ownable {
 
     function transact(IERC3333.Transaction calldata transaction)
         external
+        checkFeesAndTrackUsage
         returns (IERC3333.GameState memory gameState)
     {
         // check if game is started for current call
@@ -110,7 +122,7 @@ contract Engine2Players is IERC3333, Ownable {
     function collectFees() internal returns (uint256) {
         // Check that consumer contract has not already payed for game
         require(
-            clientMatches[msg.sender].feesCollected == false,
+            clientMatches[msg.sender].matchStarted == false,
             'Game already started'
         );
 
@@ -121,8 +133,6 @@ contract Engine2Players is IERC3333, Ownable {
 
         // Transfer fee to contract address with a minimum
         trucoin.transferFrom(msg.sender, address(this), fee);
-
-        clientMatches[msg.sender].feesCollected = true;
 
         return fee;
     }
@@ -184,7 +194,7 @@ contract Engine2Players is IERC3333, Ownable {
 
     // [Owner] Set a client as whitelisted for fees collection
     function setWhiteListed(address _client, bool _whiteListed)
-    external
+    public
     onlyOwner
     {
         clientMatches[_client].whiteListed = _whiteListed;
