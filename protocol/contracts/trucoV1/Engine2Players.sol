@@ -10,13 +10,29 @@ import './interfaces/ICardsDeck.sol';
 import './GameStateQueries.sol';
 
 contract Engine2Players is IERC3333, Ownable {
+
+    struct ClientMatch {
+        bool feesCollected;
+        bool whiteListed;
+        uint8 txCount;
+    }
+
     IERC20 internal trucoin;
     IChallengeResolver internal envidoResolver;
     IChallengeResolver internal trucoResolver;
     GameStateQueries internal gameStateQueries;
 
+    mapping(address => ClientMatch) internal clientMatches;
+
+    int8 public constant MAX_TRANSACTIONS = 100;
+    uint256 public constant MINIMUM_FEE = 1000;
+    uint256 public constant FEE_PERCENT = 1;
+
     uint8 internal constant POINTS_NO_CHALLENGE = 1;
     uint8 internal constant ENVIDO_NOT_SPELLED_OOB = 99;
+
+    // Events
+    event MatchStarted(address match_address, uint256 fee);
 
     constructor(
         IERC20 _trucoin,
@@ -31,9 +47,14 @@ contract Engine2Players is IERC3333, Ownable {
     }
 
     function startGame() external returns (IERC3333.GameState memory) {
-        // Check that consumer contract has not already payed for game
 
-        // If not, transfer 1% of caller contract balance on Trucoins
+        uint256 collectedFees;
+
+        if (clientMatches[msg.sender].whiteListed == false) {
+            collectedFees = collectFees();
+        }
+
+        emit MatchStarted(msg.sender, collectedFees);
 
         // Init game state
         return this.initialGameState();
@@ -85,6 +106,37 @@ contract Engine2Players is IERC3333, Ownable {
         }
 
         return gameState;
+    }
+
+    function setWhiteListed(address _client, bool _whiteListed) external onlyOwner {
+        clientMatches[_client].whiteListed = _whiteListed;
+    }
+
+    // Collects fees and returns amount collected
+    function collectFees() internal returns (uint256)
+    {
+        // Check that consumer contract has not already payed for game
+        require (clientMatches[msg.sender].feesCollected == false, 'Game already started');
+
+        uint256 clientBalance = trucoin.balanceOf(msg.sender);
+        uint256 fee = this.getFees();
+
+        require (clientBalance >= fee, 'Not enough TRU to start game');
+
+        // Transfer fee to contract address with a minimum
+        trucoin.transferFrom(msg.sender, address(this), fee);
+
+        clientMatches[msg.sender].feesCollected = true;
+
+        return fee;
+    }
+
+    function getFees() external view returns (uint256)
+    {
+        uint256 clientBalance = trucoin.balanceOf(msg.sender);
+        uint256 balanceFeePercentage = clientBalance * FEE_PERCENT / 100;
+
+        return balanceFeePercentage > MINIMUM_FEE ? balanceFeePercentage : MINIMUM_FEE;
     }
 
     function resolveMove(

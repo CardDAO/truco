@@ -30,6 +30,8 @@ describe('Multi Transaction Test: Truco', function () {
             tokenAtStake
         )
 
+        await engine.setWhiteListed(match.address, true);
+
         // Approve trucoins to be used by the match contract
         await trucoin.connect(player1).approve(match.address, tokenAtStake)
         await trucoin.connect(player2).approve(match.address, tokenAtStake)

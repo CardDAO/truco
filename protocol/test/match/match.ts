@@ -16,7 +16,7 @@ describe('Truco Match', function () {
         await trucoin.connect(player2).approve(match.address, bet)
 
         // Owner stakes tokens
-        await match.connect(owner).stake(0)
+        await match.connect(owner).stake()
 
         // Player2 joins the match
         await match.connect(player2).join()
@@ -106,6 +106,8 @@ describe('Truco Match', function () {
             const { match, trucoin, owner, player2, bet } = await loadFixture(
                 deployMatchContract
             )
+
+            console.log(bet)
 
             // Allow trucoin transfer
             await trucoin.connect(owner).approve(match.address, bet)
