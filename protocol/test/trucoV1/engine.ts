@@ -121,7 +121,8 @@ describe('Engine Main Logic', function () {
             await expect(engine.startGame()).to.emit(
                 engine,
                 'MatchStarted'
-            ).withArgs(signer.address, fees);
+            ).withArgs(signer.address, fees)
+            .to.changeTokenBalance(engine, fees);
         })
 
     })
