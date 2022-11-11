@@ -122,7 +122,8 @@ describe('Engine Main Logic', function () {
                 engine,
                 'MatchStarted'
             ).withArgs(signer.address, fees)
-            .to.changeTokenBalance(engine, fees);
+            .to.changeTokenBalance(trucoin, signer.address, fees.mul(-1))
+            .to.changeTokenBalance(trucoin, engine.address, fees)
         })
 
     })
