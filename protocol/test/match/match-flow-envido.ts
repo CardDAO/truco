@@ -36,9 +36,6 @@ describe('Multi Transaction Test: Envido', function () {
         await trucoin.connect(player1).approve(match.address, tokenAtStake)
         await trucoin.connect(player2).approve(match.address, tokenAtStake)
 
-        // Owner stakes tokens
-        await match.connect(player1).stake(0)
-
         // Player2 joins the match
         await match.connect(player2).join()
 
