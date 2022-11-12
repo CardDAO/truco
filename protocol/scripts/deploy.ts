@@ -1,6 +1,7 @@
 import { ethers } from "hardhat";
 import { deployDeckContract } from "./helpers/deck-deploy"
 import { deployEnvidoResolverContract } from "./helpers/envido-resolver-deploy"
+import { deployFrontMatchFacadeContract } from "./helpers/front-match-facade-deploy"
 import { deployGameStateQueriesContract } from "./helpers/game-state-queries-deploy"
 import { deployEngineContract } from "./helpers/truco-engine-deploy"
 import { deployTrucoResolverContract } from "./helpers/truco-resolver-deploy"
@@ -21,6 +22,9 @@ async function main() {
 
     const { gameStateQueries } = await deployGameStateQueriesContract(cardsDeck, envidoResolver, trucoResolver)
     console.log(`GameStateQueries deployed in address: ${gameStateQueries.address}`)
+
+    const { frontMatchFacade } = await deployFrontMatchFacadeContract(gameStateQueries)
+    console.log(`FrontMatchFacade deployed in address: ${frontMatchFacade.address}`)
 
     const { engine } = await deployEngineContract(trucoin, trucoResolver, envidoResolver, gameStateQueries)
     console.log(`Engine deployed in address: ${engine.address}`)
