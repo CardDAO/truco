@@ -18,9 +18,15 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "typeRoots": [
+        "node_modules/@types",
+        "./custom-types"
+    ]
   },
   "include": [
-    "src"
+    "src/**/*",
+    "custom-types/index.d.ts"
+    "custom-types/mental-poker.d.ts"
   ]
 }

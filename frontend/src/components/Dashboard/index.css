@@ -1,0 +1,11 @@
+.Dashboard-Grid {
+    @apply grid grid-cols-1 grid-rows-2 md:grid-rows-none md:grid-cols-3 gap-4 w-screen;
+}
+
+.Chat-Column {
+    @apply text-center align-middle mx-4 order-2 md:order-1 col-auto;
+}
+
+.Game-View {
+    @apply bg-gray-800/50 order-1 md:order-2 md:col-span-2 mx-4;
+}
