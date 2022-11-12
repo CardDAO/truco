@@ -6,27 +6,35 @@ import './interfaces/IERC3333.sol';
 import '../TrucoMatch.sol';
 
 contract FrontMatchFacade {
-
     GameStateQueries internal gameStateQueries;
 
-    constructor(
-        GameStateQueries _gameStateQueries
-    ) {
+    constructor(GameStateQueries _gameStateQueries) {
         gameStateQueries = _gameStateQueries;
     }
 
-    function canSpellEnvido(TrucoMatch _contractMatch) external view returns (bool) {
+    function canSpellEnvido(TrucoMatch _contractMatch)
+        external
+        view
+        returns (bool)
+    {
         IERC3333.Move memory move = prepareMove(
             IERC3333.Action.Challenge,
             IERC3333.Challenge.Envido
         );
 
-        return 
+        return
             isPlayerTurn(_contractMatch) &&
-            gameStateQueries.isMoveValid(_contractMatch.currentGameState(), move);
+            gameStateQueries.isMoveValid(
+                _contractMatch.currentGameState(),
+                move
+            );
     }
 
-    function canSpellTruco(TrucoMatch _contractMatch) external view returns (bool) {
+    function canSpellTruco(TrucoMatch _contractMatch)
+        external
+        view
+        returns (bool)
+    {
         IERC3333.Move memory move = prepareMove(
             IERC3333.Action.Challenge,
             IERC3333.Challenge.Truco
@@ -40,7 +48,11 @@ contract FrontMatchFacade {
             );
     }
 
-    function canResponse(TrucoMatch _contractMatch) external view returns (bool) {
+    function canResponse(TrucoMatch _contractMatch)
+        external
+        view
+        returns (bool)
+    {
         IERC3333.Move memory move = prepareMove(
             IERC3333.Action.Response,
             IERC3333.Challenge.None
@@ -55,7 +67,11 @@ contract FrontMatchFacade {
         return true;
     }
 
-    function canPlayCard(TrucoMatch contractMatch) external view returns (bool) {
+    function canPlayCard(TrucoMatch contractMatch)
+        external
+        view
+        returns (bool)
+    {
         return true;
     }
 
@@ -67,7 +83,11 @@ contract FrontMatchFacade {
         return gameStateQueries.getEnvidoPointsForCards(_cards);
     }
 
-    function currentPlayerIdx(TrucoMatch currentMatch) internal view returns (uint8) {
+    function currentPlayerIdx(TrucoMatch currentMatch)
+        internal
+        view
+        returns (uint8)
+    {
         TrucoMatch.player[2] memory players = currentMatch.currentPlayers();
 
         if (msg.sender == players[0].playerAddress) {
@@ -79,19 +99,27 @@ contract FrontMatchFacade {
         revert('You are not a player in this match');
     }
 
-    function prepareMove(IERC3333.Action _action, IERC3333.Challenge _param) internal pure returns (IERC3333.Move memory move) {
+    function prepareMove(IERC3333.Action _action, IERC3333.Challenge _param)
+        internal
+        pure
+        returns (IERC3333.Move memory move)
+    {
         uint8[] memory params = new uint8[](1);
         params[0] = uint8(_param);
         move.action = _action;
         move.parameters = params;
     }
 
-    function isPlayerTurn(TrucoMatch _contractMatch) internal view returns (bool result) {
-        IERC3333.GameState memory currentGameState = _contractMatch.currentGameState();
+    function isPlayerTurn(TrucoMatch _contractMatch)
+        internal
+        view
+        returns (bool result)
+    {
+        IERC3333.GameState memory currentGameState = _contractMatch
+            .currentGameState();
 
-        if (currentGameState.playerTurn == currentPlayerIdx(_contractMatch)) { 
+        if (currentGameState.playerTurn == currentPlayerIdx(_contractMatch)) {
             result = true;
         }
     }
-
 }
