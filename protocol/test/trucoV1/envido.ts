@@ -219,7 +219,30 @@ describe('Envido Resolver', function () {
             expect(result.envido.pointsRewarded).to.be.equal(BigNumber.from(0))
         })
 
-        it('Challenging Envido when first round is partially played should be possible', async function () {
+        it('Challenging Envido when first round is partially played should be possible (but not from himself)', async function () {
+            const { engine } = await deployEngineContract()
+
+            let state: GameStateStruct = basicGameState()
+
+            state.revealedCardsByPlayer[1][0] = BigNumber.from(1)
+
+            await engine.setGameState(state)
+
+            let move = {
+                action: BigNumber.from(ActionEnum.Challenge),
+                parameters: [ChallengeEnum.Envido],
+            }
+
+            let transaction: TransactionStruct = {
+                playerIdx: state.playerTurn,
+                moves: [move],
+                state: state,
+            }
+
+            await engine.executeTransaction(transaction)
+        })
+
+        it('Challenging Envido when first round is partially played should not be possible when challenger has already played a card', async function () {
             const { engine } = await deployEngineContract()
 
             let state: GameStateStruct = basicGameState()
@@ -239,7 +262,7 @@ describe('Envido Resolver', function () {
                 state: state,
             }
 
-            await engine.executeTransaction(transaction)
+            expect(engine.executeTransaction(transaction)).to.be.reverted
         })
     })
 
