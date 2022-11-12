@@ -40,10 +40,10 @@ contract FrontMatchFacade {
             );
     }
 
-    function canResponse(TrucoMatch contractMatch) external view returns (bool) {
+    function canResponse(TrucoMatch _contractMatch) external view returns (bool) {
         IERC3333.Move memory move = prepareMove(
             IERC3333.Action.Response,
-            IERC3333.Challenge.Response
+            IERC3333.Challenge.None
         );
 
         return

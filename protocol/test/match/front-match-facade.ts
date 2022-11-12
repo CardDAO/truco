@@ -86,6 +86,17 @@ describe('Front Match Facade', function () {
             // challenge it is truco
             expect(await frontMatchFacade.connect(player1).canPlayCard(match.address)).to.be.equal(false)
         })
+
+        it('Player1 should not be able to response when challenge is None', async function () {
+            const { frontMatchFacade, match, player1, player2 } = await loadFixture(
+                deployContract
+            )
+            
+            // player 2 spell truco
+            //await match.connect(player2).spellTruco()
+            // challenge it is truco
+            expect(await frontMatchFacade.connect(player1).canResponse(match.address)).to.be.equal(false)
+        })
     })
 
     describe('Can spell', function () {
