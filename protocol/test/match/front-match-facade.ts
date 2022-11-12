@@ -92,9 +92,6 @@ describe('Front Match Facade', function () {
                 deployContract
             )
             
-            // player 2 spell truco
-            //await match.connect(player2).spellTruco()
-            // challenge it is truco
             expect(await frontMatchFacade.connect(player1).canResponse(match.address)).to.be.equal(false)
         })
     })
@@ -147,6 +144,17 @@ describe('Front Match Facade', function () {
             )
             
             expect(await frontMatchFacade.connect(player2).canPlayCard(match.address)).to.be.equal(true)
+        })
+
+        it('Player1 should be able to playcard after accept truco', async function () {
+            const { frontMatchFacade, match, player1, player2 } = await loadFixture(
+                deployContract
+            )
+            
+            await match.connect(player2).playCard(BigNumber.from(1))
+            await match.connect(player1).spellTruco()
+            await match.connect(player2).acceptChallenge()
+            expect(await frontMatchFacade.connect(player1).canPlayCard(match.address)).to.be.equal(true)
         })
 
         it('Player1 should be able to send response when challange is Envido', async function () {
