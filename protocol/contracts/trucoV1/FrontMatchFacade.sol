@@ -15,28 +15,27 @@ contract FrontMatchFacade {
         gameStateQueries = _gameStateQueries;
     }
 
-    function canSpellEnvido(TrucoMatch contractMatch /*, address memory fromPlayer*/)
+    function canSpellEnvido(TrucoMatch _contractMatch /*, address memory fromPlayer*/)
         external
         view
         returns (bool)
     {
-        IERC3333.GameState memory currentGameState = contractMatch.currentGameState();
-
         IERC3333.Move memory move = prepareMove(IERC3333.Action.Challenge, IERC3333.Challenge.Envido);
 
-        if (currentGameState.playerTurn != currentPlayerIdx(contractMatch)) { 
-            return false;
-        }
-
-        return gameStateQueries.isMoveValid(
-           contractMatch.currentGameState(),
-           move
-        );
-
+        return 
+            isPlayerTurn(_contractMatch) &&
+            gameStateQueries.isMoveValid(_contractMatch.currentGameState(), move);
     }
 
-    function canSpellTruco(TrucoMatch contractMatch) external view returns (bool) {
-        return true;
+    function canSpellTruco(TrucoMatch _contractMatch) external view returns (bool) {
+        IERC3333.Move memory move = prepareMove(IERC3333.Action.Challenge, IERC3333.Challenge.Truco);
+
+        return
+            isPlayerTurn(_contractMatch) &&
+            gameStateQueries.isMoveValid(
+                _contractMatch.currentGameState(),
+                move
+            );
     }
 
     function canResponse(TrucoMatch contractMatch) external view returns (bool) {
@@ -57,6 +56,7 @@ contract FrontMatchFacade {
 
     function currentPlayerIdx(TrucoMatch currentMatch) internal view returns (uint8) {
         TrucoMatch.player[2] memory players = currentMatch.currentPlayers();
+
         if (msg.sender == players[0].playerAddress) {
             return 0;
         } else if (msg.sender == players[1].playerAddress) {
@@ -66,15 +66,19 @@ contract FrontMatchFacade {
         revert('You are not a player in this match');
     }
 
-    function prepareMove(IERC3333.Action _action, IERC3333.Challenge _param) internal view returns (IERC3333.Move memory) {
-
+    function prepareMove(IERC3333.Action _action, IERC3333.Challenge _param) internal pure returns (IERC3333.Move memory move) {
         uint8[] memory params = new uint8[](1);
-        IERC3333.Move memory move;
         params[0] = uint8(_param);
-        // ierc3333 envido is a challenge
         move.action = _action;
-        // params spell Envido
         move.parameters = params;
+    }
+
+    function isPlayerTurn(TrucoMatch _contractMatch) internal view returns (bool result) {
+        IERC3333.GameState memory currentGameState = _contractMatch.currentGameState();
+
+        if (currentGameState.playerTurn == currentPlayerIdx(_contractMatch)) { 
+            result = true;
+        }
     }
 
 }
