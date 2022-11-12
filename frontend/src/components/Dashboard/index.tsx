@@ -15,6 +15,7 @@ import { firstShuffling } from "../Actions/FirstShuffling"
 import { consecutiveShuffling } from "../Actions/ConsecutiveShuffling"
 import { initEncryptDeck } from "../Actions/InitEncryptDeck"
 import { dealCards } from "../Actions/DealCards"
+import { SpellTruco } from "../Actions/SpellTruco"
 
 
 
@@ -201,6 +202,7 @@ export const Dashboard = ({ address, inSession }: any) => {
                     <div className="border-dashed border-2 border-gray-600">
                         <Actions>
                             <InitCommunication signMessage={signMessage} latestNonce={latestNonce} state={state} self={selfPlayer} setState={setState} />
+                            <SpellTruco />
                         </Actions>
                     </div>
                 </div>

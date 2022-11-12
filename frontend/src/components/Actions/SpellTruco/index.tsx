@@ -45,9 +45,11 @@ export const SpellTruco = (props) => {
 
     return (
         <>
+        {
             enableAction ?
-                <ActionButton onClick={() => { setGoToSpell(true) }} text="Spell Truco!" />
+            <ActionButton onClick={() => { setGoToSpell(true) }} text="Spell Truco!" />
             : ""
+        }
         </>
     )
 }
