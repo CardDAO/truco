@@ -3,6 +3,7 @@ import { deployDeckContract } from "./helpers/deck-deploy"
 import { deployEnvidoResolverContract } from "./helpers/envido-resolver-deploy"
 import { deployFrontMatchFacadeContract } from "./helpers/front-match-facade-deploy"
 import { deployGameStateQueriesContract } from "./helpers/game-state-queries-deploy"
+import { deployMatchFactoryContract } from "./helpers/match-factory-contract"
 import { deployEngineContract } from "./helpers/truco-engine-deploy"
 import { deployTrucoResolverContract } from "./helpers/truco-resolver-deploy"
 import { deployTrucoinContract } from "./helpers/trucoin-deploy"
@@ -29,6 +30,11 @@ async function main() {
     const { engine } = await deployEngineContract(trucoin, trucoResolver, envidoResolver, gameStateQueries)
     console.log(`Engine deployed in address: ${engine.address}`)
 
+    // Minimum bet is the engine minimum fee divided by 2 players plus some extra
+    const min_bet = (await engine.MINIMUM_FEE()).div(2).add(1000)
+
+    const { factory } = await deployMatchFactoryContract(engine, trucoin, gameStateQueries, min_bet)
+    console.log(`MatchFactory deployed in address: ${factory.address}`)
 }
 
 main().catch((error) => {

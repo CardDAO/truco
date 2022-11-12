@@ -23,10 +23,10 @@ export const SpellTruco = (props) => {
     })
 
     const checkSpellTruco = useContractRead({
-        addressOrName: "0x5FbDB2315678afecb367f032d93F642f64180aa3", // frontadapter
+        addressOrName: "x5FC8d32690cc91D4c39d9d3abcBD16989F875707", // frontadapter
         contractInterface: new Interface(["function canSpellTruco(address) view returns (bool)"]),
         functionName: "canSpellTruco",
-        args: ["0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"], // match
+        args: ["0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"], // match
         enabled: checkSpell,
         onSuccess: (data) => {
             console.log('checked spell', data)
@@ -35,6 +35,7 @@ export const SpellTruco = (props) => {
     })
 
     useEffect(() => {
+        console.log('spell')
         setCheckSpell(true)
     }, [])
     //const goToShuffling = (newGame: any, setNewGame:any, initShuffling:any, sendMessageAll:any) => {
