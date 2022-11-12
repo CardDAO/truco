@@ -15,12 +15,11 @@ contract FrontMatchFacade {
         gameStateQueries = _gameStateQueries;
     }
 
-    function canSpellEnvido(TrucoMatch _contractMatch /*, address memory fromPlayer*/)
-        external
-        view
-        returns (bool)
-    {
-        IERC3333.Move memory move = prepareMove(IERC3333.Action.Challenge, IERC3333.Challenge.Envido);
+    function canSpellEnvido(TrucoMatch _contractMatch) external view returns (bool) {
+        IERC3333.Move memory move = prepareMove(
+            IERC3333.Action.Challenge,
+            IERC3333.Challenge.Envido
+        );
 
         return 
             isPlayerTurn(_contractMatch) &&
@@ -28,7 +27,10 @@ contract FrontMatchFacade {
     }
 
     function canSpellTruco(TrucoMatch _contractMatch) external view returns (bool) {
-        IERC3333.Move memory move = prepareMove(IERC3333.Action.Challenge, IERC3333.Challenge.Truco);
+        IERC3333.Move memory move = prepareMove(
+            IERC3333.Action.Challenge,
+            IERC3333.Challenge.Truco
+        );
 
         return
             isPlayerTurn(_contractMatch) &&
@@ -39,6 +41,17 @@ contract FrontMatchFacade {
     }
 
     function canResponse(TrucoMatch contractMatch) external view returns (bool) {
+        IERC3333.Move memory move = prepareMove(
+            IERC3333.Action.Response,
+            IERC3333.Challenge.Response
+        );
+
+        return
+            isPlayerTurn(_contractMatch) &&
+            gameStateQueries.isMoveValid(
+                _contractMatch.currentGameState(),
+                move
+            );
         return true;
     }
 
