@@ -2,13 +2,13 @@ import { Chat } from "../Chat"
 import { Actions } from "../Actions"
 import './index.css'
 import { useP2PT } from "../../engine/truco/P2PT"
-import { verifyMessage } from 'ethers/lib/utils'
+import { Interface, verifyMessage } from 'ethers/lib/utils'
 import { useState, useCallback, useEffect } from "react"
 import { createContext } from "react"
 import { StateEnum } from "../../hooks/enums"
 import { createPlayer, createDeck } from 'mental-poker'
 import { InitCommunication, sayHelloAll } from "../Actions/InitComunication"
-import { useSignMessage } from "wagmi"
+import { useContractRead, useSignMessage } from "wagmi"
 import { GAME_CONFIG } from "../../engine/truco/GameConfig"
 import {useProcessMessage} from '../../engine/truco/ProcessMessages'
 import { firstShuffling } from "../Actions/FirstShuffling"
@@ -36,6 +36,7 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
     const [ myCards, setMyCards ] = useState({} as AssignedCards)
     const [ usedCardsIndexes, setUsedCardsIndexes ] = useState([] as number[])
     const [ selfPlayer, setSelfPlayer ] = useState(createPlayer(GAME_CONFIG))
+    const [ joined , setJoined ] = useState(false)
     
     // verify before to send
     const { data, error: errorSendMessage, isLoading, signMessage } = useSignMessage({
@@ -43,6 +44,18 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
             sendToPeers(address, signature, variables)
             //setState(gameState, setGameState, messageSourceSigned.message.topic, messageSourceSigned.message.data)
         }
+    })
+    
+    useContractRead({
+       addressOrName: matchAddress,
+       contractInterface: new Interface(["function currentPlayers() external view returns (tuple(address, uint))"]),
+       functionName: 'currentPlayers',
+       onSuccess: (data) => {
+           //console.log('es parte del juego',  data)
+           if (data?.indexOf(address) >= 0) {
+               setJoined(true)
+           }
+       }
     })
 
     useEffect(() => {
@@ -203,10 +216,15 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                     </div>
                     <div className="border-dashed border-2 border-gray-600">
                         <Actions>
-                            <InitCommunication signMessage={signMessage} latestNonce={latestNonce} state={state} self={selfPlayer} setState={setState} />
-                            <SpellTruco match={matchAddress} />
-                            <JoinMatch match={matchAddress} />
-                            <DeployMatch />
+                            {
+                            !joined ?
+                                <JoinMatch match={matchAddress} /> :
+                                <>
+                                <InitCommunication signMessage={signMessage} latestNonce={latestNonce} state={state} self={selfPlayer} setState={setState} />
+                                <SpellTruco match={matchAddress} />
+                                <DeployMatch />
+                                </>
+                            }
                         </Actions>
                     </div>
                 </div>

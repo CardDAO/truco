@@ -85,7 +85,7 @@ export const DeployMatch = () => {
             <ActionButton clickCallback={() => {
                 setAllowanceClick(true)
                 approveTrucoins?.()
-            }} text="Allowance Trucoin" />
+            }} text="Deploy Allowance Trucoin" />
 
             <ActionButton clickCallback={ () => {
                 console.log('llamar a write')

@@ -13,7 +13,7 @@ const addToMessageList = (
 }
 
 export const useP2PT = (inSession: Boolean, sessionKey : String) => {
-    console.log('go use p2pt')
+    //console.log('go use p2pt')
     const p2pt: any = useRef()
     const [ peers, setPeers ] = useState([] as Peer[])
 
@@ -29,17 +29,17 @@ export const useP2PT = (inSession: Boolean, sessionKey : String) => {
     // verificar antes de enviar
     const verifyAndAddMessage = useCallback((messageSigned: MessageType) => {
         //verify message nonce and exists signature
-        console.log('verficando mensaje')
+        //console.log('verficando mensaje')
         
         if (messageSigned.signature !== undefined && messageSigned.message !== undefined && messageSigned.message.nonce > latestNonce) {
-            console.log('verificando con etherjs')
+            //console.log('verificando con etherjs')
             const sourceAddress = verifyMessage(
                 JSON.stringify(messageSigned.message),
                 messageSigned.signature!!
             )
             const jsonMessage : Move = messageSigned.message
             if (sourceAddress !== undefined) {
-                console.log("mensaje verificado desde address", sourceAddress, jsonMessage)
+                //console.log("mensaje verificado desde address", sourceAddress, jsonMessage)
                 //processMessage(gameState, setGameState, jsonMessage.topic, jsonMessage.data) 
                 addToMessageList(messageSigned, setMessages)
                 setLatestNonce(messageSigned.message.nonce)
@@ -81,9 +81,9 @@ export const useP2PT = (inSession: Boolean, sessionKey : String) => {
     }, [])
 
     const trackingConnectionCallback = useCallback((tracker:any, stats:any) => {
-        console.log('Connected to tracker : ' + tracker.announceUrl)
-        console.log('Tracker stats : ' + JSON.stringify(stats))
-        console.log('My identifier', p2pt.current._peerId)
+        //console.log('Connected to tracker : ' + tracker.announceUrl)
+        //console.log('Tracker stats : ' + JSON.stringify(stats))
+        //console.log('My identifier', p2pt.current._peerId)
     }, [])
 
     // init refs (only refresh if change callback)
