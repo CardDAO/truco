@@ -6,7 +6,7 @@ export const mint = async (_, { ethers }) => {
     const trucoin = await Trucoin.attach(_.contract) 
     const amount = _.amount
 
-    trucoin.mint(beneficiaryAddress, amount)
+    await trucoin.mint(beneficiaryAddress, amount)
 
     console.log(`Mint ${ethers.utils.formatEther(amount)} Trucoins to address: ${beneficiaryAddress}`)
 }
