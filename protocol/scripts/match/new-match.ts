@@ -20,7 +20,12 @@ export const deployNewMatch = async (_, { ethers }) => {
     const event = events.find(
         (e: { event: string }) => e.event === 'TrucoMatchCreated'
     )
-    const match_address = event.args['match_address']
+    if (event) {
+        const match_address = event.args['match_address']
 
-    console.log(`Deployed success. Match address: ${match_address}`)
+        console.log(`Deployed success. Match address: ${match_address}`)
+    } else {
+        console.log(`Deploy failed, event not found`)
+
+    }
 }

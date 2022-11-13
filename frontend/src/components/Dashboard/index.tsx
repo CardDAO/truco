@@ -24,7 +24,7 @@ import { DeployMatch } from "../DeployMatch"
 const arrayToBuffer = (array: any[]) => array.map(simpleObject => Buffer.from(simpleObject.data))
 
 
-export const Dashboard = ({ address, inSession }: any) => {
+export const Dashboard = ({ address, inSession, matchAddress }: any) => {
     // TODO add hasPeers -> allow actions
     const { p2pt, peers, messages, sendToPeers, latestNonce } = useP2PT(inSession, 'UNIQUE_KEY_GAME')
     const [ sharedCodewordFragment, setSharedCodewordFragments ] = useState([])
@@ -203,7 +203,7 @@ export const Dashboard = ({ address, inSession }: any) => {
                     <div className="border-dashed border-2 border-gray-600">
                         <Actions>
                             <InitCommunication signMessage={signMessage} latestNonce={latestNonce} state={state} self={selfPlayer} setState={setState} />
-                            <SpellTruco />
+                            <SpellTruco match={matchAddress} />
                             <DeployMatch />
                         </Actions>
                     </div>
