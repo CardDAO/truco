@@ -17,6 +17,7 @@ import { initEncryptDeck } from "../Actions/InitEncryptDeck"
 import { dealCards } from "../Actions/DealCards"
 import { SpellTruco } from "../Actions/SpellTruco"
 import { DeployMatch } from "../DeployMatch"
+import { JoinMatch } from "../Actions/JoinMatch"
 
 
 
@@ -204,6 +205,7 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                         <Actions>
                             <InitCommunication signMessage={signMessage} latestNonce={latestNonce} state={state} self={selfPlayer} setState={setState} />
                             <SpellTruco match={matchAddress} />
+                            <JoinMatch match={matchAddress} />
                             <DeployMatch />
                         </Actions>
                     </div>

@@ -13,7 +13,7 @@ export const SpellTruco = ({match}: any) => {
 
     const { config: spellTrucoConfig } = usePrepareContractWrite({
         addressOrName: match, // match
-        contractInterface: new Interface(["function spellTruco() view returns (bool)"]),
+        contractInterface: new Interface(["function spellTruco() public"]),
         functionName: "spellTruco",
         args: [],
         // TODO refetch if change status game
@@ -63,7 +63,7 @@ export const SpellTruco = ({match}: any) => {
                     error ? 
                         <p>{error.toString()}</p>
                         :
-                    <ActionButton onClick={() => {
+                    <ActionButton clickCallback={() => {
                         setGoToSpell(true) 
                         write?.()
                     }} text="Spell Truco!" />
