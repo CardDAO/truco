@@ -22,10 +22,13 @@ export const deployNewMatch = async (_, { ethers }) => {
     )
     if (event) {
         const match_address = event.args['match_address']
-
         console.log(`Deployed success. Match address: ${match_address}`)
+
+        const TrucoMatch = await ethers.getContractFactory("TrucoMatch") 
+        const match = await TrucoMatch.attach(match_address) 
+        const currentMatch = await match.getPlayers()
+        console.log(`Address - Player deployer: ${currentMatch}`)
     } else {
         console.log(`Deploy failed, event not found`)
-
     }
 }
