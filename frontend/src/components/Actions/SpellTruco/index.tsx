@@ -36,7 +36,7 @@ export const SpellTruco = (props) => {
 
     useEffect(() => {
         console.log('spell')
-        setCheckSpell(true)
+        //setCheckSpell(true)
     }, [])
     //const goToShuffling = (newGame: any, setNewGame:any, initShuffling:any, sendMessageAll:any) => {
     //    console.log('go to shuffle')
