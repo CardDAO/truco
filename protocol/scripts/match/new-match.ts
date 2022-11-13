@@ -1,4 +1,3 @@
-
 import "@nomiclabs/hardhat-ethers";
 
 export const deployNewMatch = async (_, { ethers }) => {
