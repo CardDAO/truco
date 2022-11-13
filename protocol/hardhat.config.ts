@@ -4,6 +4,13 @@ import "@openzeppelin/hardhat-upgrades";
 import "@nomiclabs/hardhat-etherscan"
 
 import "dotenv/config";
+import { mint } from "./scripts/trucoin/mintTo"
+
+task("mint", "Mint Trucoin to address")
+    .addParam("contract", "Trucoin Contract Address")
+    .addParam("beneficiary", "Beneficiary account to receive the Trucoins")
+    .addParam("amount", "Amount to mint")
+    .setAction(mint)
 
 const { REPORT_GAS, COINMARKETCAP_KEY }  = process.env;
 
