@@ -333,5 +333,4 @@ contract TrucoMatch {
     {
         return currentMatch.gameState;
     }
-
 }
