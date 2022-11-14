@@ -27,11 +27,15 @@ contract TrucoMatch {
     );
     event DealStarted(address shuffler);
     event DealEnded();
+    event TurnSwitch(address indexed playerTurn);
 
     modifier enforceTurnSwitching() {
         require(getPlayerIdx() == currentMatch.gameState.playerTurn);
         _;
-        switchTurn();
+        if (switchTurn()) {
+            // Turn switched
+            emit TurnSwitch(currentMatch.players[currentMatch.gameState.playerTurn]);
+        }
     }
 
     modifier resetFinalEnvido() {
@@ -252,10 +256,10 @@ contract TrucoMatch {
     // INTERNAL METHODS -------------------------------------------------------------------------
 
     // Change turn
-    function switchTurn() internal {
+    function switchTurn() internal returns (bool) {
         if (gameStateQueries.isGameEnded(currentMatch.gameState)) {
             // Game ended, do not switch turn
-            return;
+            return false;
         }
 
         uint8 inversePlayer = currentMatch.gameState.playerTurn ^ 1;
@@ -263,7 +267,7 @@ contract TrucoMatch {
         // if we are waiting for challenge response it should switch to opponent no matter what
         if (currentMatch.gameState.currentChallenge.waitingChallengeResponse) {
             currentMatch.gameState.playerTurn = inversePlayer;
-            return;
+            return true;
         }
 
         uint8 playerWhoShouldPlayCard = gameStateQueries
@@ -281,17 +285,24 @@ contract TrucoMatch {
                 IERC3333.Response.Refuse ||
                 gameStateQueries.isEnvidoEnded(currentMatch.gameState)
             ) {
-                currentMatch.gameState.playerTurn = playerWhoShouldPlayCard;
-                return;
+                // Check if we should switch turn
+                if (currentMatch.gameState.playerTurn == playerWhoShouldPlayCard)
+                {
+                    return false;
+                }
+
+                currentMatch.gameState.playerTurn  = playerWhoShouldPlayCard;
+                return true;
             }
 
             // Inverse player, since we are at spelling points stage
             currentMatch.gameState.playerTurn = inversePlayer;
-            return;
+            return true;
         }
 
         // We are at a truco challenge (or None), so return which player should play card
         currentMatch.gameState.playerTurn = playerWhoShouldPlayCard;
+        return true;
     }
 
     function buildTransaction(IERC3333.Action _action, uint8 _param)
