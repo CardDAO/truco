@@ -22,7 +22,9 @@ describe('Multi Transaction Test: Truco', function () {
         await trucoin.mint(player1.address, tokenAtStake)
         await trucoin.mint(player2.address, tokenAtStake)
 
-        const TrucoChampionsToken = await ethers.getContractFactory('TrucoChampionsToken')
+        const TrucoChampionsToken = await ethers.getContractFactory(
+            'TrucoChampionsToken'
+        )
         const trucoChampionsToken = await TrucoChampionsToken.deploy()
 
         const TrucoMatch = await ethers.getContractFactory('TrucoMatchTester')
