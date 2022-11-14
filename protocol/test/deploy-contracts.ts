@@ -68,7 +68,16 @@ export async function deployMatchContract() {
     await trucoin.connect(player1).approve(match.address, bet)
     await trucoin.connect(player2).approve(match.address, bet)
 
-    return { match, engine, trucoin, player1, player2, invalid_player, bet, gameStateQueries }
+    return {
+        match,
+        engine,
+        trucoin,
+        player1,
+        player2,
+        invalid_player,
+        bet,
+        gameStateQueries,
+    }
 }
 
 export async function deployFactoryContract() {
