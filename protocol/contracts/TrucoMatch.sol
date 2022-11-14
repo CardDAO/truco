@@ -64,13 +64,14 @@ contract TrucoMatch {
         IERC3333 _trucoEngine,
         IERC20 _truCoin,
         GameStateQueries _gameStateQueries,
+        address player1,
         uint256 _bet
     ) {
         trucoEngine = _trucoEngine;
         truCoin = _truCoin;
         gameStateQueries = _gameStateQueries;
         currentMatch.bet = _bet;
-        currentMatch.players[0] = msg.sender;
+        currentMatch.players[0] = player1;
 
         //Mint Sould Bound Token
 
