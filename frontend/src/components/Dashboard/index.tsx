@@ -24,6 +24,11 @@ import { RecalculateEnvido } from "../Actions/RecalculateEnvido"
 import { SpellEnvidoCount } from "../Actions/SpellEnvidoCount"
 import { AcceptChallenge } from "../Actions/AcceptChallenge"
 import { AcceptChallengeForRaising } from "../Actions/AcceptChallengeForRaising"
+import { SpellFaltaEnvido } from "../Actions/SpellFaltaEnvido"
+import { SpellReTruco } from "../Actions/SpellReTruco"
+import { SpellEnvidoEnvido } from "../Actions/SpellEnvidoEnvido"
+import { SpellRealEnvido } from "../Actions/SpellRealEnvido"
+import { SpellValeCuatro } from "../Actions/SpellValeCuatro"
 
 
 export const GAS_LIMIT_WRITE = 3000000
@@ -248,10 +253,15 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                                         <JoinMatch match={matchAddress} setJoined={setJoined} processingAction={processingAction} setProcessingAction={setProcessingAction} />
                                         :
                                         <>
-                                            <SpellTruco match={matchAddress} />
+                                            <SpellTruco match={matchAddress}  setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                            <SpellReTruco match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                            <SpellValeCuatro match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                             <SpellEnvido match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                             <SpellEnvidoCount match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} count={currentEnvido}/>
                                             <RecalculateEnvido cards={cleanCards} setCurrentEnvido={setCurrentEnvido} />
+                                            <SpellFaltaEnvido match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                            <SpellEnvidoEnvido match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                            <SpellRealEnvido match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                             <AcceptChallenge match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                             <AcceptChallengeForRaising match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                         </>
