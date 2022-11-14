@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
-import { deployEngineContract } from '../deploy-contracts'
+import { deployMatchContract } from '../deploy-contracts'
 
 import { BigNumber } from 'ethers'
 
@@ -9,33 +9,17 @@ import { TrucoMatch } from '../../typechain-types/contracts/TrucoMatch'
 import { ChallengeEnum, ResponseEnum } from '../trucoV1/struct-enums'
 
 describe('Multi Transaction Test: Truco', function () {
-    const tokenAtStake = BigNumber.from(10)
-
     async function deployContract() {
         // Contracts are deployed using the first signer/account by default
         const [player1, player2, invalid_player] = await ethers.getSigners()
 
-        const { trucoin, engine, gameStateQueries } =
-            await deployEngineContract()
-
-        // Transfer trucoins to players
-        await trucoin.mint(player1.address, tokenAtStake)
-        await trucoin.mint(player2.address, tokenAtStake)
-
-        const TrucoMatch = await ethers.getContractFactory('TrucoMatchTester')
-        const match = await TrucoMatch.deploy(
-            engine.address,
-            trucoin.address,
-            gameStateQueries.address,
-            player1.address,
-            tokenAtStake
-        )
+        const { match, trucoin, engine, gameStateQueries, bet } =
+            await deployMatchContract()
 
         await engine.setWhiteListed(match.address, true)
 
         // Approve trucoins to be used by the match contract
-        await trucoin.connect(player1).approve(match.address, tokenAtStake)
-        await trucoin.connect(player2).approve(match.address, tokenAtStake)
+        await trucoin.connect(player2).approve(match.address, bet)
 
         // Player2 joins the match
         await match.connect(player2).join()

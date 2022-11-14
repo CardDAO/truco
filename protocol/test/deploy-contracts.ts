@@ -41,7 +41,8 @@ export async function deployMatchContract() {
     // Contracts are deployed using the first signer/account by default
     const [player1, player2, invalid_player] = await ethers.getSigners()
 
-    const { trucoin, engine, gameStateQueries } = await deployEngineContract()
+    const { trucoin, engine, gameStateQueries, trucoChampionsToken } =
+        await deployFactoryContract()
 
     // Minimum bet is the engine minimum fee divided by 2 players plus some extra
     const bet = (await engine.MINIMUM_FEE()).div(2).add(1000)
@@ -51,22 +52,40 @@ export async function deployMatchContract() {
     await trucoin.mint(player2.address, bet)
     await trucoin.mint(invalid_player.address, bet)
 
-    const TrucoMatch = await ethers.getContractFactory('TrucoMatch')
+    const TrucoMatch = await ethers.getContractFactory('TrucoMatchTester')
     const match = await TrucoMatch.deploy(
         engine.address,
         trucoin.address,
+        trucoChampionsToken.address,
         gameStateQueries.address,
         player1.address,
         bet
     )
 
-    return { match, engine, trucoin, player1, player2, invalid_player, bet }
+    await engine.setWhiteListed(match.address, true)
+
+    // Approve trucoins to be used by the match contract
+    await trucoin.connect(player1).approve(match.address, bet)
+    await trucoin.connect(player2).approve(match.address, bet)
+
+    return {
+        match,
+        engine,
+        trucoin,
+        player1,
+        player2,
+        invalid_player,
+        bet,
+        gameStateQueries,
+    }
 }
 
 export async function deployFactoryContract() {
     const [owner] = await ethers.getSigners()
 
     const { trucoin, engine, gameStateQueries } = await deployEngineContract()
+
+    const { trucoChampionsToken } = await deployTrucoChampionsTokenContract()
 
     // Minimum bet is the engine minimum fee divided by 2 players plus some extra
     const min_bet = (await engine.MINIMUM_FEE()).div(2).add(1000)
@@ -77,10 +96,31 @@ export async function deployFactoryContract() {
     const factory = await upgrades.deployProxy(TrucoMatchFactory, [
         engine.address,
         trucoin.address,
+        trucoChampionsToken.address,
         gameStateQueries.address,
         min_bet,
     ])
     await factory.deployed()
 
-    return { factory, trucoin, owner, min_bet }
+    await trucoChampionsToken.transferOwnership(factory.address)
+
+    return {
+        factory,
+        engine,
+        gameStateQueries,
+        trucoin,
+        trucoChampionsToken,
+        owner,
+        min_bet,
+    }
+}
+
+export async function deployTrucoChampionsTokenContract() {
+    const [owner] = await ethers.getSigners()
+    const TrucoChampionsToken = await ethers.getContractFactory(
+        'TrucoChampionsToken'
+    )
+    const trucoChampionsToken = await TrucoChampionsToken.deploy()
+
+    return { trucoChampionsToken }
 }

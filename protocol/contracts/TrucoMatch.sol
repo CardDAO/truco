@@ -4,6 +4,7 @@ pragma solidity 0.8.16;
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import './trucoV1/interfaces/IERC3333.sol';
 import './trucoV1/GameStateQueries.sol';
+import './token/TrucoChampionsToken.sol';
 
 contract TrucoMatch {
     struct Match {
@@ -15,6 +16,7 @@ contract TrucoMatch {
     IERC3333 trucoEngine;
     GameStateQueries gameStateQueries;
     IERC20 truCoin;
+    TrucoChampionsToken TCT;
     Match public currentMatch;
     bool isDealOpen;
 
@@ -69,12 +71,14 @@ contract TrucoMatch {
     constructor(
         IERC3333 _trucoEngine,
         IERC20 _truCoin,
+        TrucoChampionsToken _TCT,
         GameStateQueries _gameStateQueries,
         address player1,
         uint256 _bet
     ) {
         trucoEngine = _trucoEngine;
         truCoin = _truCoin;
+        TCT = _TCT;
         gameStateQueries = _gameStateQueries;
         currentMatch.bet = _bet;
         currentMatch.players[0] = player1;
