@@ -5,54 +5,48 @@ import { useContractRead, useContractWrite, usePrepareContractWrite } from "wagm
 import { ActionButton } from "../Button"
 import { GAS_LIMIT_WRITE } from "../../Dashboard"
 
-export const SpellTruco = ({match}: any) => {
+export const SpellEnvido = ({match, processingAction, setProcessingAction}: any) => {
 
-    console.log("VAMO ESE MATCH", match)
     const [ goToSpell, setGoToSpell] = useState(false)
-    const [ checkSpell, setCheckSpell ] = useState(false)
     const [ enableAction, setEnableAction ] = useState(false)
 
     const { config: spellTrucoConfig } = usePrepareContractWrite({
         addressOrName: match, // match
-        contractInterface: new Interface(["function spellTruco() public"]),
+        contractInterface: new Interface(["function spellEnvido() public"]),
         functionName: "spellTruco",
         args: [],
         overrides: {
             gasLimit: GAS_LIMIT_WRITE
         },
-        // TODO refetch if change status game
-        //enabled: goToSpell,
         onSuccess: (data) => {
-            console.log('run spell truco TRUE', data)
+            console.log('can spell envido TRUE', data)
             setEnableAction(true)
-            //setGoToSpell(false)
         },
         onError: (err: Error) => {
-            console.log('run spell truco FALSE', data)
+            console.log('can spell envido FALSE', data)
             setEnableAction(false)
         }
     })
 
-    const { write, error, isLoading, data}= useContractWrite(spellTrucoConfig)
+    const { write, error, isLoading, data }= useContractWrite(spellTrucoConfig)
 
     useEffect(() => {
         console.log('spell')
-    }, [ isLoading, error, data ])
+        if (error && goToSpell) {
+            setGoToSpell(false)
+            setProcessingAction(false)
+        }
+    }, [ error, goToSpell ])
 
     return (
         <>
         {
             enableAction ?
-                isLoading ? 
-                    <p className="text-white">CARGANDO...</p>
-                :
-                    error ? 
-                        <p>{error.toString()}</p>
-                        :
                     <ActionButton clickCallback={() => {
                         setGoToSpell(true) 
+                        setProcessingAction(true)
                         write?.()
-                    }} text="Spell Truco!" />
+                    }} text="Spell Envido!" />
             : ""
         }
         </>

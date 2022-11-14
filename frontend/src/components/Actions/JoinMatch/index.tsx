@@ -3,6 +3,7 @@ import { BigNumber } from "ethers"
 import { Interface } from "ethers/lib/utils"
 import { useContractRead, useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi"
 import { ActionButton } from "../Button"
+import { GAS_LIMIT_WRITE } from "../../Dashboard"
 
 export const JoinMatch = ({match, processingAction, setProcessingAction, setJoined}: any) => {
 
@@ -64,7 +65,7 @@ export const JoinMatch = ({match, processingAction, setProcessingAction, setJoin
         functionName: "join",
         args: [],
         overrides: {
-            gasLimit:3000000 
+            gasLimit: GAS_LIMIT_WRITE
         },
         onSuccess: (data) => {
             console.log('can join')

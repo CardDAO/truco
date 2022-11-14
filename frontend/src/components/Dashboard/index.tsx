@@ -18,8 +18,12 @@ import { dealCards } from "../Actions/DealCards"
 import { SpellTruco } from "../Actions/SpellTruco"
 import { DeployMatch } from "../DeployMatch"
 import { JoinMatch } from "../Actions/JoinMatch"
+import { SpellEnvido } from "../Actions/SpellEnvido"
+import { MyCards } from "../MyCards"
+import { RecalculateEnvido } from "../Actions/RecalculateEnvido"
 
 
+export const GAS_LIMIT_WRITE = 3000000
 
 
 const arrayToBuffer = (array: any[]) => array.map(simpleObject => Buffer.from(simpleObject.data))
@@ -38,6 +42,8 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
     const [ selfPlayer, setSelfPlayer ] = useState(createPlayer(GAME_CONFIG))
     const [ joined , setJoined ] = useState(false)
     const [ processingAction, setProcessingAction ] = useState(false)
+    const [ cleanCards, setCleanCards ] = useState([])
+    const [ currentEnvido, setCurrentEnvido ] = useState(0)
     
     // verify before to send
     const { data, error: errorSendMessage, isLoading, signMessage } = useSignMessage({
@@ -214,6 +220,8 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                     </div>
                     <div className="border-dashed border-2 row-span-2 border-lime-700">
                         My cards
+                        <label>Envido <input value={currentEnvido} onChange={(event) => setCurrentEnvido(event.target.value)}/></label>
+                        <MyCards cards={cleanCards} setCards={setCleanCards} />
                     </div>
                         {
                             processingAction ?
@@ -234,6 +242,8 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                                     <>
                                         <InitCommunication signMessage={signMessage} latestNonce={latestNonce} state={state} self={selfPlayer} setState={setState} />
                                         <SpellTruco match={matchAddress} />
+                                        <SpellEnvido matchAddress={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                        <RecalculateEnvido cards={cleanCards} setCurrentEnvido={setCurrentEnvido} />
                                         <DeployMatch />
                                     </>
                                 }
