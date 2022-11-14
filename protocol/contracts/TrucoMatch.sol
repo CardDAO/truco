@@ -6,7 +6,6 @@ import './trucoV1/interfaces/IERC3333.sol';
 import './trucoV1/GameStateQueries.sol';
 
 contract TrucoMatch {
-
     struct Match {
         address[2] players; // player 0 is the creator of the match
         IERC3333.GameState gameState;
@@ -21,7 +20,11 @@ contract TrucoMatch {
 
     // Events
     event MatchCreated(address indexed match_address, uint256 bet);
-    event MatchStarted(address indexed player1, address indexed player2, uint256 bet);
+    event MatchStarted(
+        address indexed player1,
+        address indexed player2,
+        uint256 bet
+    );
     event DealStarted(address shuffler);
     event DealEnded();
 
@@ -78,17 +81,13 @@ contract TrucoMatch {
     function join() public {
         // TODO Check invitations if any
 
-
         // First player is joined at contract creation, so he is not allowed to join again
         require(
             currentMatch.players[0] != msg.sender,
             'Match creator is already joined'
         );
         // If second player is already set match is full
-        require(
-            currentMatch.players[1] == address(0),
-            'Match is full'
-        );
+        require(currentMatch.players[1] == address(0), 'Match is full');
         // Transfer Trucoins from player to contract
         require(
             truCoin.transferFrom(msg.sender, address(this), currentMatch.bet),
@@ -112,8 +111,6 @@ contract TrucoMatch {
             currentMatch.bet
         );
     }
-
-
 
     function newDeal() public {
         // Check if current game state enables new card shufflings
@@ -149,10 +146,7 @@ contract TrucoMatch {
 
     // Get players addresses
     function getPlayers() public view returns (address[2] memory) {
-        return [
-            currentMatch.players[0],
-            currentMatch.players[1]
-        ];
+        return [currentMatch.players[0], currentMatch.players[1]];
     }
 
     function spellTruco() public resetFinalEnvido enforceTurnSwitching {
