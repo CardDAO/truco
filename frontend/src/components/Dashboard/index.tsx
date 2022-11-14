@@ -22,6 +22,8 @@ import { SpellEnvido } from "../Actions/SpellEnvido"
 import { MyCards } from "../MyCards"
 import { RecalculateEnvido } from "../Actions/RecalculateEnvido"
 import { SpellEnvidoCount } from "../Actions/SpellEnvidoCount"
+import { AcceptChallenge } from "../Actions/AcceptChallenge"
+import { AcceptChallengeForRaising } from "../Actions/AcceptChallengeForRaising"
 
 
 export const GAS_LIMIT_WRITE = 3000000
@@ -250,6 +252,8 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                                             <SpellEnvido match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                             <SpellEnvidoCount match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} count={currentEnvido}/>
                                             <RecalculateEnvido cards={cleanCards} setCurrentEnvido={setCurrentEnvido} />
+                                            <AcceptChallenge match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                            <AcceptChallengeForRaising match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                         </>
                                     :
                                     <>
