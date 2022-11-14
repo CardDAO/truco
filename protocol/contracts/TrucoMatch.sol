@@ -6,13 +6,8 @@ import './trucoV1/interfaces/IERC3333.sol';
 import './trucoV1/GameStateQueries.sol';
 
 contract TrucoMatch {
-    struct player {
-        address playerAddress;
-        uint256 tokensAtStake;
-    }
-
     struct Match {
-        player[2] players; // player 0 is the creator of the match
+        address[2] players; // player 0 is the creator of the match
         IERC3333.GameState gameState;
         uint256 bet;
     }
@@ -24,9 +19,12 @@ contract TrucoMatch {
     bool isDealOpen;
 
     // Events
-    event MatchCreated(address match_address);
-    event MatchStarted(address player1, address player2, uint256 bet);
-    event PlayerStaked(address player, uint256 tokensAtStake);
+    event MatchCreated(address indexed match_address, uint256 bet);
+    event MatchStarted(
+        address indexed player1,
+        address indexed player2,
+        uint256 bet
+    );
     event DealStarted(address shuffler);
     event DealEnded();
 
@@ -72,80 +70,46 @@ contract TrucoMatch {
         truCoin = _truCoin;
         gameStateQueries = _gameStateQueries;
         currentMatch.bet = _bet;
-        currentMatch.players[0].playerAddress = msg.sender;
+        currentMatch.players[0] = msg.sender;
 
         //Mint Sould Bound Token
 
-        emit MatchCreated(address(this));
+        emit MatchCreated(address(this), _bet);
     }
 
     // Method for second player joining the match
     function join() public {
+        // TODO Check invitations if any
+
+        // First player is joined at contract creation, so he is not allowed to join again
         require(
-            currentMatch.players[0].playerAddress != msg.sender,
+            currentMatch.players[0] != msg.sender,
             'Match creator is already joined'
         );
-        require(
-            currentMatch.players[1].playerAddress == address(0),
-            'Match is full'
-        );
-
-        // Check invitations if any
-
-        currentMatch.players[1].playerAddress = msg.sender;
-
-        // Make the user stake so he can not kidnap the match
-        stake(1);
-    }
-
-    // Method for staking & starting the match
-    function stake(uint8 _player) public {
-        require(
-            currentMatch.players[_player].playerAddress == msg.sender,
-            'Player is not joined'
-        );
-        require(
-            truCoin.balanceOf(msg.sender) >= currentMatch.bet,
-            "You don't have enough Trucoins to stake this match"
-        );
-        require(
-            truCoin.allowance(msg.sender, address(this)) >= currentMatch.bet,
-            'Not enough trucoins transfer approved'
-        );
-        require(
-            currentMatch.players[_player].tokensAtStake == 0,
-            'You already staked this match'
-        );
-
+        // If second player is already set match is full
+        require(currentMatch.players[1] == address(0), 'Match is full');
         // Transfer Trucoins from player to contract
         require(
             truCoin.transferFrom(msg.sender, address(this), currentMatch.bet),
-            'Trucoin transfer failed'
+            'ERC20: insufficient allowance'
         );
+        // Transfer fees to trucoEngine
+        bool result = truCoin.approve(
+            address(trucoEngine),
+            trucoEngine.getFees()
+        );
+        require(result, 'Approval failed');
 
-        currentMatch.players[_player].tokensAtStake = currentMatch.bet;
-
-        // emit event
-        emit PlayerStaked(msg.sender, currentMatch.bet);
+        // Set second player
+        currentMatch.players[1] = msg.sender;
 
         // Start match
-        if (
-            currentMatch.players[0].tokensAtStake == currentMatch.bet &&
-            currentMatch.players[1].tokensAtStake == currentMatch.bet
-        ) {
-            bool result = truCoin.approve(
-                address(trucoEngine),
-                trucoEngine.getFees()
-            );
-            require(result, 'Approval failed');
-
-            currentMatch.gameState = trucoEngine.startGame();
-            emit MatchStarted(
-                currentMatch.players[0].playerAddress,
-                currentMatch.players[1].playerAddress,
-                currentMatch.bet
-            );
-        }
+        currentMatch.gameState = trucoEngine.startGame();
+        emit MatchStarted(
+            currentMatch.players[0],
+            currentMatch.players[1],
+            currentMatch.bet
+        );
     }
 
     function newDeal() public {
@@ -155,7 +119,7 @@ contract TrucoMatch {
         // Determine the new shuffler and check that corresponds to the current player
         uint8 new_shuffler = currentMatch.gameState.playerWhoShuffled ^ 1;
         require(
-            msg.sender == currentMatch.players[new_shuffler].playerAddress,
+            msg.sender == currentMatch.players[new_shuffler],
             'You are not the shuffler'
         );
 
@@ -182,10 +146,7 @@ contract TrucoMatch {
 
     // Get players addresses
     function getPlayers() public view returns (address[2] memory) {
-        return [
-            currentMatch.players[0].playerAddress,
-            currentMatch.players[1].playerAddress
-        ];
+        return [currentMatch.players[0], currentMatch.players[1]];
     }
 
     function spellTruco() public resetFinalEnvido enforceTurnSwitching {
@@ -356,9 +317,9 @@ contract TrucoMatch {
     }
 
     function getPlayerIdx() internal view returns (uint8) {
-        if (msg.sender == currentMatch.players[0].playerAddress) {
+        if (msg.sender == currentMatch.players[0]) {
             return 0;
-        } else if (msg.sender == currentMatch.players[1].playerAddress) {
+        } else if (msg.sender == currentMatch.players[1]) {
             return 1;
         }
 
