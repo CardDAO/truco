@@ -298,8 +298,9 @@ describe('Multi Transaction Test: Envido', function () {
             await match.connect(player2).spellRealEnvido()
 
             // TRANSACTION: Player 2 accepts and raises the challenge
-            await expect(match.connect(player1).acceptChallengeForRaising())
-                .to.not.emit(match, 'TurnSwitch') // turn should not change
+            await expect(
+                match.connect(player1).acceptChallengeForRaising()
+            ).to.not.emit(match, 'TurnSwitch') // turn should not change
             await match.connect(player1).spellFaltaEnvido()
 
             // TRANSACTION: Player 1 refuses
@@ -645,10 +646,11 @@ describe('Multi Transaction Test: Envido', function () {
 
             // TRANSACTION: Player 1 spells envido count and resolves envido
 
-            await expect(match.connect(player1).spellEnvidoCount(BigNumber.from(33))).to.emit(
-                match,
-                'TurnSwitch'
-            ).withArgs(player2.address) // turn should return to player2
+            await expect(
+                match.connect(player1).spellEnvidoCount(BigNumber.from(33))
+            )
+                .to.emit(match, 'TurnSwitch')
+                .withArgs(player2.address) // turn should return to player2
 
             state = await match.currentMatch()
 
