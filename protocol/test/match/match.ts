@@ -6,7 +6,6 @@ import { deployMatchContract } from '../deploy-contracts'
 import { BigNumber } from 'ethers'
 
 describe('Truco Match', function () {
-
     // Constructor tests
     describe('Constructor', function () {
         it('The owner must be player 1. Player 2 must be address(0)', async function () {
@@ -66,7 +65,7 @@ describe('Truco Match', function () {
             await trucoin.connect(player2).approve(match.address, bet.sub(1))
 
             await expect(match.connect(player2).join()).to.be.revertedWith(
-                "ERC20: insufficient allowance"
+                'ERC20: insufficient allowance'
             )
         })
 
