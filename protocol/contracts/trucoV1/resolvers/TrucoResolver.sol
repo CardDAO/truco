@@ -362,9 +362,11 @@ contract TrucoResolver {
     }
 
     // Return points that should be at stake for a given challenge
-    function pointsPerChallenge(
-        IERC3333.Challenge challenge
-    ) internal pure returns (uint8) {
+    function pointsPerChallenge(IERC3333.Challenge challenge)
+        internal
+        pure
+        returns (uint8)
+    {
         if (challenge == IERC3333.Challenge.Truco) {
             return 2;
         }
