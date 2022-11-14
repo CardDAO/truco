@@ -67,6 +67,7 @@ contract TrucoMatch {
         IERC20 _truCoin,
         TrucoChampionsToken _TCT,
         GameStateQueries _gameStateQueries,
+        address player1,
         uint256 _bet
     ) {
         trucoEngine = _trucoEngine;
@@ -74,7 +75,7 @@ contract TrucoMatch {
         TCT = _TCT;
         gameStateQueries = _gameStateQueries;
         currentMatch.bet = _bet;
-        currentMatch.players[0] = msg.sender;
+        currentMatch.players[0] = player1;
 
         //Mint Sould Bound Token
 
