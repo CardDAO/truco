@@ -233,7 +233,7 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                                 <input value={currentEnvido} className="block p-2 w-full text-gray-900 bg-gray-50 rounded-lg border border-gray-300 sm:text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" onChange={(event) => setCurrentEnvido(event.target.value)} />
                             </label>
                         </div>
-                        <MyCards cards={cleanCards} setCards={setCleanCards} />
+                        <MyCards match={matchAddress} setProcessingAction={setProcessingAction} cards={cleanCards} setCards={setCleanCards} />
                     </div>
                         {
                             processingAction ?
