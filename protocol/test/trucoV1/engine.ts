@@ -162,8 +162,8 @@ describe('Engine Main Logic', function () {
 
             expect(await engine.getTxCountForClient(engine.address)).to.equal(1)
 
-            ;(move.action = BigNumber.from(ActionEnum.PlayCard)),
-                (move.parameters = [BigNumber.from(2)])
+            move.action = BigNumber.from(ActionEnum.PlayCard)
+            move.parameters = [BigNumber.from(2)]
 
             await engine.executeTransaction(transaction)
 

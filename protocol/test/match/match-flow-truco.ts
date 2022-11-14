@@ -27,6 +27,7 @@ describe('Multi Transaction Test: Truco', function () {
             engine.address,
             trucoin.address,
             gameStateQueries.address,
+            player1.address,
             tokenAtStake
         )
 

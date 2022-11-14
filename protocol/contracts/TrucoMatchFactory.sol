@@ -53,6 +53,7 @@ contract TrucoMatchFactory is OwnableUpgradeable {
             trucoEngine,
             truCoin,
             gameStateQueries,
+            msg.sender,
             _bet
         );
         matches.push(deployedMatch);
