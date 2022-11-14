@@ -4,7 +4,7 @@ import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import { deployMatchContract } from '../deploy-contracts'
 
 import { BigNumber } from 'ethers'
-import {ChallengeEnum, ResponseEnum} from "../trucoV1/struct-enums";
+import { ChallengeEnum, ResponseEnum } from '../trucoV1/struct-enums'
 
 describe('Truco Match', function () {
     // Constructor tests

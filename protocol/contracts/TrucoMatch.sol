@@ -34,7 +34,9 @@ contract TrucoMatch {
         _;
         if (switchTurn()) {
             // Turn switched
-            emit TurnSwitch(currentMatch.players[currentMatch.gameState.playerTurn]);
+            emit TurnSwitch(
+                currentMatch.players[currentMatch.gameState.playerTurn]
+            );
         }
     }
 
@@ -286,12 +288,13 @@ contract TrucoMatch {
                 gameStateQueries.isEnvidoEnded(currentMatch.gameState)
             ) {
                 // Check if we should switch turn
-                if (currentMatch.gameState.playerTurn == playerWhoShouldPlayCard)
-                {
+                if (
+                    currentMatch.gameState.playerTurn == playerWhoShouldPlayCard
+                ) {
                     return false;
                 }
 
-                currentMatch.gameState.playerTurn  = playerWhoShouldPlayCard;
+                currentMatch.gameState.playerTurn = playerWhoShouldPlayCard;
                 return true;
             }
 

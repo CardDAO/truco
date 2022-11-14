@@ -338,14 +338,12 @@ describe('Multi Transaction Test: Truco', function () {
             )
 
             // Round 1
-            await expect(match.connect(player2).playCard(BigNumber.from(2))).to.emit(
-                match,
-                'TurnSwitch'
-            ).withArgs(player1.address) // 2 of Coins
-            await expect(match.connect(player1).playCard(BigNumber.from(22))).to.emit(
-                match,
-                'TurnSwitch'
-            ).withArgs(player2.address) // 3 of Coins
+            await expect(match.connect(player2).playCard(BigNumber.from(2)))
+                .to.emit(match, 'TurnSwitch')
+                .withArgs(player1.address) // 2 of Coins
+            await expect(match.connect(player1).playCard(BigNumber.from(22)))
+                .to.emit(match, 'TurnSwitch')
+                .withArgs(player2.address) // 3 of Coins
 
             // Round 2: Player 1 won first round, so it's player1 turn
             await match.connect(player2).playCard(BigNumber.from(3)) // 4 of Cups
@@ -353,10 +351,9 @@ describe('Multi Transaction Test: Truco', function () {
 
             // Player 2 won round 2, so it's player 2 turn
             await match.connect(player2).playCard(BigNumber.from(4)) // 3 of Cups
-            await expect(await match.connect(player1).playCard(BigNumber.from(14))).to.not.emit(
-                match,
-                'TurnSwitch'
-            ) // 2 of Swords  (turn shouldn't switch because it's final)
+            await expect(
+                await match.connect(player1).playCard(BigNumber.from(14))
+            ).to.not.emit(match, 'TurnSwitch') // 2 of Swords  (turn shouldn't switch because it's final)
 
             let state = await match.currentMatch()
 
@@ -423,16 +420,14 @@ describe('Multi Transaction Test: Truco', function () {
             )
 
             // Spell truco and check turn event emitted
-            await expect(match.connect(player2).spellTruco()).to.emit(
-                match,
-                'TurnSwitch'
-            ).withArgs(player1.address)
+            await expect(match.connect(player2).spellTruco())
+                .to.emit(match, 'TurnSwitch')
+                .withArgs(player1.address)
 
             // Spell envido and check turn event emitted
-            await expect(match.connect(player1).spellEnvido()).to.emit(
-                match,
-                'TurnSwitch'
-            ).withArgs(player2.address)
+            await expect(match.connect(player1).spellEnvido())
+                .to.emit(match, 'TurnSwitch')
+                .withArgs(player2.address)
 
             // After refusal, player 2 keeps turn
             await expect(match.connect(player2).refuseChallenge()).to.not.emit(
