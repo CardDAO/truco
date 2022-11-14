@@ -39,7 +39,7 @@ export async function deployEngineContract() {
 
 export async function deployMatchContract() {
     // Contracts are deployed using the first signer/account by default
-    const [owner, player2, invalid_player] = await ethers.getSigners()
+    const [player1, player2, invalid_player] = await ethers.getSigners()
 
     const { trucoin, engine, gameStateQueries } = await deployEngineContract()
 
@@ -47,7 +47,7 @@ export async function deployMatchContract() {
     const bet = (await engine.MINIMUM_FEE()).div(2).add(1000)
 
     // Transfer trucoins to players
-    await trucoin.mint(owner.address, bet)
+    await trucoin.mint(player1.address, bet)
     await trucoin.mint(player2.address, bet)
     await trucoin.mint(invalid_player.address, bet)
 
@@ -56,10 +56,11 @@ export async function deployMatchContract() {
         engine.address,
         trucoin.address,
         gameStateQueries.address,
+        player1.address,
         bet
     )
 
-    return { match, engine, trucoin, owner, player2, invalid_player, bet }
+    return { match, engine, trucoin, player1, player2, invalid_player, bet }
 }
 
 export async function deployFactoryContract() {

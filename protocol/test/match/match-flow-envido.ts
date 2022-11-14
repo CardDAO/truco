@@ -27,6 +27,7 @@ describe('Multi Transaction Test: Envido', function () {
             engine.address,
             trucoin.address,
             gameStateQueries.address,
+            player1.address,
             tokenAtStake
         )
 
