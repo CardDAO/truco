@@ -52,7 +52,7 @@ export async function deployMatchContract() {
     await trucoin.mint(player2.address, bet)
     await trucoin.mint(invalid_player.address, bet)
 
-    const TrucoMatch = await ethers.getContractFactory('TrucoMatch')
+    const TrucoMatch = await ethers.getContractFactory('TrucoMatchTester')
     const match = await TrucoMatch.deploy(
         engine.address,
         trucoin.address,
@@ -62,7 +62,13 @@ export async function deployMatchContract() {
         bet
     )
 
-    return { match, engine, trucoin, player1, player2, invalid_player, bet }
+    await engine.setWhiteListed(match.address, true)
+
+    // Approve trucoins to be used by the match contract
+    await trucoin.connect(player1).approve(match.address, bet)
+    await trucoin.connect(player2).approve(match.address, bet)
+
+    return { match, engine, trucoin, player1, player2, invalid_player, bet, gameStateQueries }
 }
 
 export async function deployFactoryContract() {
