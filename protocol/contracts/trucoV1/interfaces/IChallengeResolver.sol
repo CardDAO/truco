@@ -11,12 +11,12 @@ interface IChallengeResolver {
 
     function canResolve(IERC3333.Challenge _challenge)
         external
-        view
+        pure
         returns (bool);
 
     function isFinal(IERC3333.GameState memory _gameState)
         external
-        view
+        pure
         returns (bool);
 
     function getWinner(IERC3333.GameState memory _gameState)

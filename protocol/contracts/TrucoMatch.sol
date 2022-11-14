@@ -297,6 +297,7 @@ contract TrucoMatch {
 
     function buildTransaction(IERC3333.Action _action, uint8 _param)
         internal
+        view
         returns (IERC3333.Transaction memory)
     {
         uint8[] memory params = new uint8[](1);

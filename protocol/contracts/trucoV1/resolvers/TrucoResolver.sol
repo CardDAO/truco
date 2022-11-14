@@ -110,8 +110,7 @@ contract TrucoResolver {
 
             // If it's an acceptance, points are overriden with the challenge points
             _gameState.currentChallenge.pointsAtStake = pointsPerChallenge(
-                _gameState.currentChallenge.challenge,
-                _gameState
+                _gameState.currentChallenge.challenge
             );
 
             return _gameState;
@@ -153,7 +152,7 @@ contract TrucoResolver {
 
     function canResolve(IERC3333.Challenge _challenge)
         external
-        view
+        pure
         returns (bool)
     {
         if (
@@ -171,7 +170,7 @@ contract TrucoResolver {
     // Check if the challenge is at a final state (no cards can be played and a winner could be determined)
     function isFinal(IERC3333.GameState memory _gameState)
         external
-        view
+        pure
         returns (bool)
     {
         //If a refusal was made, game is final
@@ -330,7 +329,7 @@ contract TrucoResolver {
 
     function roundEmpty(IERC3333.GameState memory gameState, uint8 _roundId)
         public
-        view
+        pure
         returns (bool)
     {
         return
@@ -364,8 +363,7 @@ contract TrucoResolver {
 
     // Return points that should be at stake for a given challenge
     function pointsPerChallenge(
-        IERC3333.Challenge challenge,
-        IERC3333.GameState memory _gameState
+        IERC3333.Challenge challenge
     ) internal pure returns (uint8) {
         if (challenge == IERC3333.Challenge.Truco) {
             return 2;
