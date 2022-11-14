@@ -88,11 +88,11 @@ contract FrontMatchFacade {
         view
         returns (uint8)
     {
-        TrucoMatch.player[2] memory players = currentMatch.currentPlayers();
+        address[2] memory players = currentMatch.getPlayers();
 
-        if (msg.sender == players[0].playerAddress) {
+        if (msg.sender == players[0]) {
             return 0;
-        } else if (msg.sender == players[1].playerAddress) {
+        } else if (msg.sender == players[1]) {
             return 1;
         }
 

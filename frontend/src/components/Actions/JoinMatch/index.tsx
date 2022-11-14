@@ -1,16 +1,37 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { BigNumber } from "ethers"
 import { Interface } from "ethers/lib/utils"
 import { useContractRead, useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi"
 import { ActionButton } from "../Button"
 
-export const JoinMatch = ({match}: any) => {
+export const JoinMatch = ({match, processingAction, setProcessingAction, setJoined}: any) => {
 
-    const [ enableAction, setEnableAction ] = useState(false)
+    const [ enableAction, setEnableAction ] = useState(true)
     const [allowanceClick, setAllowanceClick] = useState(false)
+    const [ inProgress , setInProgress ] = useState(false)
+
+    const finishProcess = useCallback(() => {
+        console.log('finish process', inProgress, allowanceClick)
+        setProcessingAction(false)
+        setInProgress(false)
+    }, [])
+
+    const initJoin = async () => {
+
+        setProcessingAction(true)
+        setInProgress(true)
+        setAllowanceClick(true)
+        try {
+            await approveTrucoins?.()
+        } catch {
+            setProcessingAction(false)
+            setInProgress(false)
+        }
+    }
+
 
     // APPROVE TRUCOIN BUTTON
-    const {config: configApprove, refetch} = usePrepareContractWrite({
+    const { config: configApprove } = usePrepareContractWrite({
         addressOrName: "0x5FbDB2315678afecb367f032d93F642f64180aa3", // trucoin
         contractInterface: new Interface(["function approve(address, uint) public returns (bool)"]),
         functionName: "approve",
@@ -18,100 +39,134 @@ export const JoinMatch = ({match}: any) => {
             match, // match (join player)
             10000
         ],
-        enabled: allowanceClick,
+        //enabled: allowanceClick,
         onSuccess: (data: any) => {
-            setAllowanceClick(false)
-            console.log('approve trucoins for join', data)
+            console.log('approve trucoins for join', data, inProgress)
+            if (inProgress) { 
+                finishProcess()
+            }
         },
         onError: (error: Error) => {
             console.log('error approve trucoin', error)
-            setAllowanceClick(false)
-        }
-    })
-    const {status: statusApprove, data: dataApprove, write: approveTrucoins} = useContractWrite(configApprove)
-    const [waitTransactionApprove, setWaitTransactionApprove] = useState(false)
-    useWaitForTransaction({
-        hash: dataApprove?.hash,
-        //wait: dataApprove?.wait,
-        //enabled: waitTransactionApprove,
-        onSuccess: async (data) => {
-            console.log('finish approve for join', data, data?.status === 1 ? "OK" : "REVERT")
-            //setEnableAction(true)
-            setWaitTransactionApprove(true)
-            refetchJoin({throwOnError: true, cancelRefetch: false})
+            if (inProgress){ 
+                finishProcess()
+            }
         },
-        onError: () => {
-            console.log('error join')
-            //refetchJoin({throwOnError: true, cancelRefetch: false})
-        }
+        onSettled(data, error) {
+          console.log('Settled', { data, error })
+        },
     })
-
-    //useEffect(() => {
-    //    if (dataApprove && statusApprove === 'loading') {
-    //        console.log('set approve, waiting transaction enable')
-    //        setWaitTransactionApprove(true)
-    //    }
-    //    //setCheckSpell(true)
-    //}, [ dataApprove, statusApprove ])
-
+    const { error: approveError, data: transactionApproveTrucoins, writeAsync: approveTrucoins } = useContractWrite(configApprove)
     // JOIN BUTTON
     const { config: joinConfig, refetch: refetchJoin } = usePrepareContractWrite({
         addressOrName: match, // match
         contractInterface: new Interface(["function join() public"]),
         functionName: "join",
         args: [],
-        // TODO refetch if change status game
+        overrides: {
+            gasLimit:3000000 
+        },
         onSuccess: (data) => {
-            console.log('test join TRUE -> show', data, waitTransaction)
-            if (waitTransactionApprove)
-                setEnableAction(true)
+            console.log('can join')
             //setGoToSpell(false)
         },
         onError: (err: Error) => {
-            console.log('test join FALSE -> hide', data)
-            setEnableAction(false)
+            console.log('errorrrr')
+            console.log('test join FALSE -> hide', err)
+            if (inProgress) { 
+                finishProcess()
+            }
         }
     })
+    const { error: joinError, isLoading, data: joinTransaction, write: joinToGame }= useContractWrite(joinConfig)
 
-    const { write, error, isLoading, data}= useContractWrite(joinConfig)
+    useWaitForTransaction({
+        hash: transactionApproveTrucoins?.hash,
+        onSuccess: async (data) => {
+            if (data?.status === 1) {
+                console.log('data is 1', data)
+                const tryJoinResult = await refetchJoin({throwOnError: true, cancelRefetch: false})
+                console.log('try 1', tryJoinResult)
+                if (tryJoinResult.status === "success"){
+                    console.log('call joint')
+                    joinToGame?.()
+                } else {
+                    console.log('try join is not success', tryJoinResult.status)
+                    if (inProgress) { 
+                        finishProcess()
+                    }
+                }
+            } else {
+                console.log('approve trucoins status wrong', data)
+                if (inProgress) { 
+                    finishProcess()
+                }
+            }
+        },
+        onError: (e: Error) => {
+            console.log('errorrrr 2')
+            console.log('error join', e)
+            if (inProgress) { 
+                finishProcess()
+            }
+            //refetchJoin({throwOnError: true, cancelRefetch: false})
+        },
+        wait: transactionApproveTrucoins?.wait,
+        timeout: 2000
+    })
 
-    const [waitTransaction, setWaitTransaction] = useState(false)
-    const waitForTransaction = useWaitForTransaction({
-        hash: data?.hash,
-        wait: data?.wait,
-        enabled: waitTransaction,
+    useWaitForTransaction({
+        hash: joinTransaction?.hash,
         onSuccess: (data) => {
-            console.log('finish joined', data)
+            // TODO SET JOINED IF STATUS === 1
+            console.log('aca paso')
+            if (data?.status === 1) {
+                setJoined(true)
+            }
+            if (inProgress) { 
+                finishProcess()
+            }
+        },
+        onError: () => {
+            console.log('erroraso')
+            if (inProgress) { 
+                finishProcess()
+            }
         }
     })
+
+    //useEffect(() => {
+    //    if (processingAction) {
+    //        setEnableAction(false)
+    //    } else {
+    //        setEnableAction(true)
+    //    }
+    //}, [processingAction])
 
     useEffect(() => {
-        if (data) {
-            setWaitTransaction(true)
+        if (approveError || joinError) {
+            console.log('finsih')
+            finishProcess()
         }
-        console.log('contract', isLoading, error, data)
-        //setCheckSpell(true)
-    }, [ isLoading, error, data ])
+        console.log('approve or algo error', approveError, joinError)
+
+    }, [approveError, joinError])
 
     return (
         <>
         {
+            joinError ? 
+            <p>{joinError?.message}</p>
+            :
+            ""
+        }
+        {
             enableAction ?
-                isLoading ? 
-                    <p className="text-white">CARGANDO...</p>
-                :
-                    error ? 
-                        <p>{error?.toString()}</p>
-                        :
-                        <ActionButton clickCallback={() => {
-                            write?.()
-                        }} text="Join" />
+                    <ActionButton clickCallback={() => {
+                        initJoin()
+                    }} text="Join Allowance Trucoin" />
             : ""
         }
-            <ActionButton clickCallback={() => {
-                setAllowanceClick(true)
-                approveTrucoins?.()
-            }} text="Join Allowance Trucoin" />
         </>
     )
 }

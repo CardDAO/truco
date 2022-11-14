@@ -12,7 +12,7 @@ export const forceDeployNewMatch = async (_, { ethers }) => {
         _.engine,
         _.trucoin,
         _.gamestatequeries,
-        1000
+        10000
    )
    await match.deployed()
 

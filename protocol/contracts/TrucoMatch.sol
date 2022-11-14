@@ -373,7 +373,4 @@ contract TrucoMatch {
         return currentMatch.gameState;
     }
 
-    function currentPlayers() external view returns (player[2] memory) {
-        return currentMatch.players;
-    }
 }
