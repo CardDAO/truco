@@ -7,6 +7,7 @@ import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import './trucoV1/interfaces/IERC3333.sol';
 import './trucoV1/GameStateQueries.sol';
 import './TrucoMatch.sol';
+import './token/TrucoChampionsToken.sol';
 
 contract TrucoMatchFactory is OwnableUpgradeable {
     // State variables
@@ -14,6 +15,7 @@ contract TrucoMatchFactory is OwnableUpgradeable {
     IERC3333 internal trucoEngine;
     GameStateQueries internal gameStateQueries;
     IERC20 internal truCoin;
+    TrucoChampionsToken internal TCT;
     uint256 public minBet;
 
     // Events
@@ -27,11 +29,13 @@ contract TrucoMatchFactory is OwnableUpgradeable {
     function initialize(
         IERC3333 _trucoEngine,
         IERC20 _truCoin,
+        TrucoChampionsToken _TCT,
         GameStateQueries _gameStateQueries,
         uint256 _minBet
     ) public initializer {
         trucoEngine = _trucoEngine;
         truCoin = _truCoin;
+        TCT = _TCT;
         gameStateQueries = _gameStateQueries;
         minBet = _minBet;
     }
@@ -52,10 +56,14 @@ contract TrucoMatchFactory is OwnableUpgradeable {
         TrucoMatch deployedMatch = new TrucoMatch(
             trucoEngine,
             truCoin,
+            TCT,
             gameStateQueries,
             _bet
         );
         matches.push(deployedMatch);
+
+        // Mint TCT
+        TCT.mint(address(deployedMatch));
 
         // Transfer tokens to match
         IERC20(truCoin).transferFrom(msg.sender, address(deployedMatch), _bet);
