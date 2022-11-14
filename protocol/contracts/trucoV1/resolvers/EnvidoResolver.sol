@@ -34,11 +34,12 @@ contract EnvidoResolver is IChallengeResolver {
         // Main Logic:
         // 3 possible cases are handled:
 
-        // 1) Check if action is a challenge  "rising" (i.e: Envido -> Real Envido! / Envido -> Falta Envido!) or challenge mismatch
+        // 1) Check if action is a challenge or a "rising" (i.e: Envido -> Real Envido! / Envido -> Falta Envido!) or challenge mismatch
         if (_move.action == IERC3333.Action.Challenge) {
             // Preconditions:
             // - Previous challenge was accepted
             // - Player is not the challenger
+            // - Challenger shouldn't have played a card
             // - No points were previously spoken
             // - Haven't reach maximum challenges spelled
 
@@ -51,6 +52,11 @@ contract EnvidoResolver is IChallengeResolver {
                         _gameState.currentChallenge.challenger
                 );
             }
+
+            // PLayer can't challenge if he already played a card
+            require(
+                _gameState.revealedCardsByPlayer[_gameState.playerTurn][0] == 0
+            );
 
             require(
                 validEnvido(

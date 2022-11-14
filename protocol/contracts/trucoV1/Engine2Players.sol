@@ -10,13 +10,42 @@ import './interfaces/ICardsDeck.sol';
 import './GameStateQueries.sol';
 
 contract Engine2Players is IERC3333, Ownable {
+    struct ClientMatch {
+        bool matchStarted;
+        bool whiteListed;
+        uint8 txCount;
+    }
+
     IERC20 internal trucoin;
     IChallengeResolver internal envidoResolver;
     IChallengeResolver internal trucoResolver;
     GameStateQueries internal gameStateQueries;
+    mapping(address => ClientMatch) internal clientMatches;
+
+    uint8 public constant MAX_TRANSACTIONS = 100;
+    uint256 public constant MINIMUM_FEE = 1000;
+    uint256 public constant FEE_PERCENT = 1;
 
     uint8 internal constant POINTS_NO_CHALLENGE = 1;
     uint8 internal constant ENVIDO_NOT_SPELLED_OOB = 99;
+
+    // Events
+    event MatchStarted(address match_address, uint256 fee);
+
+    modifier checkFeesAndTrackUsage() {
+        if (!clientMatches[msg.sender].whiteListed) {
+            require(
+                clientMatches[msg.sender].matchStarted,
+                'Match not started'
+            );
+            require(
+                clientMatches[msg.sender].txCount <= MAX_TRANSACTIONS,
+                'Max transaction limit reached'
+            );
+        }
+        _;
+        clientMatches[msg.sender].txCount++;
+    }
 
     constructor(
         IERC20 _trucoin,
@@ -31,9 +60,15 @@ contract Engine2Players is IERC3333, Ownable {
     }
 
     function startGame() external returns (IERC3333.GameState memory) {
-        // Check that consumer contract has not already payed for game
+        uint256 collectedFees;
 
-        // If not, transfer 1% of caller contract balance on Trucoins
+        if (clientMatches[msg.sender].whiteListed == false) {
+            collectedFees = collectFees();
+        }
+
+        emit MatchStarted(msg.sender, collectedFees);
+
+        clientMatches[msg.sender].matchStarted = true;
 
         // Init game state
         return this.initialGameState();
@@ -67,10 +102,9 @@ contract Engine2Players is IERC3333, Ownable {
 
     function transact(IERC3333.Transaction calldata transaction)
         external
+        checkFeesAndTrackUsage
         returns (IERC3333.GameState memory gameState)
     {
-        // check if game is started for current call
-
         // Check correct turn
         require(
             transaction.state.playerTurn == transaction.playerIdx,
@@ -85,6 +119,34 @@ contract Engine2Players is IERC3333, Ownable {
         }
 
         return gameState;
+    }
+
+    // Collects fees and returns amount collected
+    function collectFees() internal returns (uint256) {
+        // Check that consumer contract has not already payed for game
+        require(
+            clientMatches[msg.sender].matchStarted == false,
+            'Game already started'
+        );
+
+        uint256 fee = this.getFees();
+
+        // Transfer fee to contract address with a minimum
+        bool result = trucoin.transferFrom(msg.sender, address(this), fee);
+
+        require(result, 'Fee transfer failed');
+
+        return fee;
+    }
+
+    function getFees() external view returns (uint256) {
+        uint256 clientBalance = trucoin.balanceOf(msg.sender);
+        uint256 balanceFeePercentage = (clientBalance * FEE_PERCENT) / 100;
+
+        return
+            balanceFeePercentage > MINIMUM_FEE
+                ? balanceFeePercentage
+                : MINIMUM_FEE;
     }
 
     function resolveMove(
@@ -130,6 +192,14 @@ contract Engine2Players is IERC3333, Ownable {
         onlyOwner
     {
         trucoin.transfer(_recipient, _amount);
+    }
+
+    // [Owner] Set a client as whitelisted for fees collection
+    function setWhiteListed(address _client, bool _whiteListed)
+        public
+        onlyOwner
+    {
+        clientMatches[_client].whiteListed = _whiteListed;
     }
 
     function isGameEnded(IERC3333.GameState memory gameState)

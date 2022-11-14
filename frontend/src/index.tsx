@@ -19,7 +19,7 @@ import { publicProvider } from 'wagmi/providers/public';
  * Create config and init client web3
  */
 const { chains, provider } = configureChains(
-  [chain.mainnet, chain.goerli],
+  [ chain.hardhat, chain.goerli, chain.mainnet ],
   [
     publicProvider()
   ]

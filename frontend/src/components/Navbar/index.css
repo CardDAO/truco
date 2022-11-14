@@ -1,5 +1,5 @@
 .Navbar {
-    @apply relative bg-gray-900  px-2 sm:px-4 py-2.5 fixed w-full z-20 top-0 left-0 border-b border-gray-600;
+    @apply sticky bg-gray-900  px-2 sm:px-4 py-2.5 fixed w-full z-20 top-0 left-0 border-b border-gray-600;
 }
 .Menu-Selected {
     @apply block py-2 pr-4 pl-3 bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 text-white;

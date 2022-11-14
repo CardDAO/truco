@@ -30,12 +30,11 @@ describe('Multi Transaction Test: Envido', function () {
             tokenAtStake
         )
 
+        await engine.setWhiteListed(match.address, true)
+
         // Approve trucoins to be used by the match contract
         await trucoin.connect(player1).approve(match.address, tokenAtStake)
         await trucoin.connect(player2).approve(match.address, tokenAtStake)
-
-        // Owner stakes tokens
-        await match.connect(player1).stake(0)
 
         // Player2 joins the match
         await match.connect(player2).join()
@@ -520,26 +519,36 @@ describe('Multi Transaction Test: Envido', function () {
                 deployContract
             )
 
-            await match.connect(player2).playCard(BigNumber.from(1))
-            await match.connect(player1).spellTruco()
-
+            await match.connect(player2).spellTruco()
             // Envido is in first place, baby! ;)
-            await match.connect(player2).spellEnvido()
+            await match.connect(player1).spellEnvido()
 
             let state = await match.currentMatch()
 
             expect(state.gameState.currentChallenge.challenge).to.be.equal(
                 BigNumber.from(ChallengeEnum.Envido)
             )
-            expect(state.gameState.currentChallenge.waitingChallengeResponse).to.be.true
+            expect(state.gameState.currentChallenge.waitingChallengeResponse).to
+                .be.true
             expect(state.gameState.currentChallenge.response).to.be.equal(
                 BigNumber.from(ChallengeEnum.None)
             )
             expect(state.gameState.playerTurn).to.be.equal(
-                await match.connect(player1).currentPlayerIdx()
+                await match.connect(player2).currentPlayerIdx()
             )
         })
 
+        it('Spelling envido when truco was challenged but a card was played by player who should respond', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployContract
+            )
+
+            await match.connect(player2).playCard(BigNumber.from(1))
+            await match.connect(player1).spellTruco()
+
+            // Envido can't be spelled if player already played a card
+            expect(match.connect(player2).spellEnvido()).to.be.reverted
+        })
     })
     describe('Full State Assertions', function () {
         it('Complete Envido Flow: Spell envido, accept it, spell envido counts for each player', async function () {
