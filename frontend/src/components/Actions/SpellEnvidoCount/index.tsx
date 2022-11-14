@@ -1,29 +1,29 @@
 import { useState, useEffect } from "react"
-import { BigNumber } from "ethers"
+import { BigNumber, ethers } from "ethers"
 import { Interface } from "ethers/lib/utils"
 import { useContractRead, useContractWrite, usePrepareContractWrite } from "wagmi"
 import { ActionButton } from "../Button"
 import { GAS_LIMIT_WRITE } from "../../Dashboard"
 
-export const SpellEnvido = ({match, processingAction, setProcessingAction}: any) => {
+export const SpellEnvidoCount = ({match, processingAction, setProcessingAction, count}: any) => {
 
     const [ goToSpell, setGoToSpell] = useState(false)
     const [ enableAction, setEnableAction ] = useState(false)
 
-    const { config } = usePrepareContractWrite({
+    const { config, refetch } = usePrepareContractWrite({
         addressOrName: match, // match
-        contractInterface: new Interface(["function spellEnvido() public"]),
-        functionName: "spellEnvido",
-        args: [],
+        contractInterface: new Interface(["function spellEnvidoCount(uint8 _points) public"]),
+        functionName: "spellEnvidoCount",
+        args: [ count ],
         overrides: {
             gasLimit: GAS_LIMIT_WRITE
         },
         onSuccess: (data) => {
-            console.log('can spell envido TRUE', data)
+            console.log('can spell envido count TRUE', data)
             setEnableAction(true)
         },
         onError: (err: Error) => {
-            console.log('can spell envido FALSE', err)
+            console.log('can spell envido count FALSE', err)
             setEnableAction(false)
         }
     })
@@ -38,6 +38,10 @@ export const SpellEnvido = ({match, processingAction, setProcessingAction}: any)
         }
     }, [ error, goToSpell ])
 
+    useEffect(() => {
+        refetch()
+    }, [count])
+
     return (
         <>
         {
@@ -46,7 +50,7 @@ export const SpellEnvido = ({match, processingAction, setProcessingAction}: any)
                         setGoToSpell(true) 
                         setProcessingAction(true)
                         write?.()
-                    }} text="Spell Envido!" />
+                    }} text="Spell Envido Count!" />
             : ""
         }
         </>

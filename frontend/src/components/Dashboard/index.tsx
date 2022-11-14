@@ -21,6 +21,7 @@ import { JoinMatch } from "../Actions/JoinMatch"
 import { SpellEnvido } from "../Actions/SpellEnvido"
 import { MyCards } from "../MyCards"
 import { RecalculateEnvido } from "../Actions/RecalculateEnvido"
+import { SpellEnvidoCount } from "../Actions/SpellEnvidoCount"
 
 
 export const GAS_LIMIT_WRITE = 3000000
@@ -240,14 +241,19 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                         <div className="border-dashed border-2 border-gray-600">
                             <Actions>
                                 {
-                                !joined ?
-                                    <JoinMatch match={matchAddress} setJoined={setJoined} processingAction={processingAction} setProcessingAction={setProcessingAction} />
+                                matchAddress ?
+                                    !joined ?
+                                        <JoinMatch match={matchAddress} setJoined={setJoined} processingAction={processingAction} setProcessingAction={setProcessingAction} />
+                                        :
+                                        <>
+                                            <SpellTruco match={matchAddress} />
+                                            <SpellEnvido match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                            <SpellEnvidoCount match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} count={currentEnvido}/>
+                                            <RecalculateEnvido cards={cleanCards} setCurrentEnvido={setCurrentEnvido} />
+                                        </>
                                     :
                                     <>
                                         <InitCommunication signMessage={signMessage} latestNonce={latestNonce} state={state} self={selfPlayer} setState={setState} />
-                                        <SpellTruco match={matchAddress} />
-                                        <SpellEnvido matchAddress={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
-                                        <RecalculateEnvido cards={cleanCards} setCurrentEnvido={setCurrentEnvido} />
                                         <DeployMatch />
                                     </>
                                 }
