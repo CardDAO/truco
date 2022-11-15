@@ -44,7 +44,8 @@ contract TrucoMatch {
     event TurnSwitch(address indexed playerTurn);
 
     modifier enforceTurnSwitching() {
-        require(getPlayerIdx() == currentMatch.gameState.playerTurn);
+        require(getPlayerIdx() == currentMatch.gameState.playerTurn, 'Not your turn');
+        require(matchState.state == MatchStateEnum.WAITING_FOR_PLAY, 'State is not WAITING_FOR_PLAY');
         _;
         if (switchTurn()) {
             // Turn switched
@@ -55,6 +56,7 @@ contract TrucoMatch {
         updateMatchState();
     }
 
+    // In case last player move was to refuse an envido, before executing current move it should clear that state
     modifier resetFinalEnvido() {
         if (
             currentMatch.gameState.currentChallenge.response ==

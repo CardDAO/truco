@@ -24,6 +24,9 @@ describe('Multi Transaction Test: Truco', function () {
         // Player2 joins the match
         await match.connect(player2).join()
 
+        // Start deal
+        await match.connect(player1).newDeal()
+
         return {
             match,
             engine,
