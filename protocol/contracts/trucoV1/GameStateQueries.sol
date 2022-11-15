@@ -44,17 +44,13 @@ contract GameStateQueries {
             trucoResolver.canResolve(IERC3333.Challenge(_move.parameters[0]));
     }
 
-    function isGameEnded(IERC3333.GameState memory gameState)
-        external
-        view
-        returns (bool)
+    function isGameEnded(IERC3333.GameState memory _gameState)
+    external
+    view
+    returns (bool)
     {
-        if (!this.isEnvidoChallenge(gameState.currentChallenge.challenge)) {
-            return trucoResolver.isFinal(gameState);
-        }
-
-        // Envido is still playing
-        return false;
+        return _gameState.teamPoints[0] >= _gameState.pointsToWin ||
+        _gameState.teamPoints[1] >= _gameState.pointsToWin;
     }
 
     // Return wich player should be play next
@@ -96,7 +92,12 @@ contract GameStateQueries {
         view
         returns (bool)
     {
-        return trucoResolver.isFinal(gameState);
+        if (this.isEnvidoChallenge(gameState.currentChallenge.challenge) == false) {
+            return trucoResolver.isFinal(gameState);
+        }
+
+        // Envido is still playing
+        return false;
     }
 
     function isEnvidoChallenge(IERC3333.Challenge _challenge)

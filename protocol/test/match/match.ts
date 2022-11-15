@@ -198,6 +198,37 @@ describe('Truco Match', function () {
             expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_DEAL)
             expect(matchState.dealNonce).to.equal(BigNumber.from(1))
         })
+
+        it('Game reached a state were envido reveal is needed', async function () {
+            const {match, trucoin, player1, player2, bet} = await loadFixture(
+                deployMatchContract
+            )
+
+            // Allow trucoin transfer
+            await trucoin.connect(player2).approve(match.address, bet)
+
+            await match.connect(player2).join()
+
+            await match.connect(player1).newDeal()
+
+            await match.connect(player2).spellEnvido()
+            await match.connect(player1).acceptChallenge()
+
+            // Player 1 wins envido
+            await match.connect(player2).spellEnvidoCount(BigNumber.from(23))
+            await match.connect(player1).spellEnvidoCount(BigNumber.from(27))
+
+            await match.connect(player2).playCard(BigNumber.from(1))
+            await match.connect(player1).playCard(BigNumber.from(4))
+
+            await match.connect(player2).playCard(BigNumber.from(2))
+            await match.connect(player1).playCard(BigNumber.from(14))
+
+            let matchState = await match.matchState();
+
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_REVEAL)
+            expect(matchState.dealNonce).to.equal(BigNumber.from(1))
+        })
     })
 
     describe('Card Deal', function () {

@@ -103,8 +103,6 @@ contract TrucoMatch {
 
     // Method for second player joining the match
     function join() public {
-        // TODO Check invitations if any
-
         // First player is joined at contract creation, so he is not allowed to join again
         require(
             currentMatch.players[0] != msg.sender,
@@ -291,8 +289,13 @@ contract TrucoMatch {
 
     // Change turn
     function switchTurn() internal returns (bool) {
-        if (gameStateQueries.isGameEnded(currentMatch.gameState)) {
+        if (trucoEngine.isGameEnded(currentMatch.gameState)) {
             // Game ended, do not switch turn
+            return false;
+        }
+
+        if (gameStateQueries.isTrucoEnded(currentMatch.gameState)) {
+            // Round ended, do not switch turn
             return false;
         }
 
@@ -341,25 +344,25 @@ contract TrucoMatch {
     }
 
     function updateMatchState() internal {
-        if (isGameFinished()) {
+        if (trucoEngine.isGameEnded(currentMatch.gameState)) {
             matchState.state = MatchStateEnum.FINISHED;
             return;
         }
 
+        // Check if current round is finished, signal that a new shuffle is needed to start playing again
         if (gameStateQueries.isTrucoEnded(currentMatch.gameState)) {
+
+            // Check if an envido winner has to reveal cards
+            if (gameStateQueries.cardsShouldBeRevealedForEnvido(currentMatch.gameState)) {
+                matchState.state = MatchStateEnum.WAITING_FOR_REVEAL;
+                return;
+            }
+
             matchState.state = MatchStateEnum.WAITING_FOR_DEAL;
             return;
         }
 
         matchState.state = MatchStateEnum.WAITING_FOR_PLAY;
-    }
-
-    function isGameFinished() public view returns (bool) {
-        return
-            currentMatch.gameState.teamPoints[0] >=
-            currentMatch.gameState.pointsToWin ||
-            currentMatch.gameState.teamPoints[1] >=
-            currentMatch.gameState.pointsToWin;
     }
 
     function buildTransaction(IERC3333.Action _action, uint8 _param)
