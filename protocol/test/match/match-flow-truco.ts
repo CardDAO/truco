@@ -116,7 +116,8 @@ describe('Multi Transaction Test: Truco', function () {
 
             await match.connect(player2).spellTruco()
             await match.connect(player1).acceptChallenge()
-            await expect(match.connect(player1).refuseChallenge()).to.be.reverted
+            await expect(match.connect(player1).refuseChallenge()).to.be
+                .reverted
         })
 
         it('Out of turn Truco Count spelling', async function () {

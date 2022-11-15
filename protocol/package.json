@@ -23,6 +23,6 @@
     "singleQuote": true
   },
   "scripts" : {
-    "format": "prettier --write 'test/**/*.ts' 'contracts/**/*.sol'"
+    "format": "prettier --write 'scripts/**/*.ts' 'test/**/*.ts' 'contracts/**/*.sol'"
   }
 }
