@@ -7,7 +7,6 @@ import './trucoV1/GameStateQueries.sol';
 import './token/TrucoChampionsToken.sol';
 
 contract TrucoMatch {
-
     enum MatchStateEnum {
         WAITING_FOR_PLAYERS,
         WAITING_FOR_DEAL,
@@ -141,7 +140,10 @@ contract TrucoMatch {
 
     function newDeal() public {
         // Check if current game state enables new card shufflings
-        require(matchState.state == MatchStateEnum.WAITING_FOR_DEAL, 'Deal not allowed');
+        require(
+            matchState.state == MatchStateEnum.WAITING_FOR_DEAL,
+            'Deal not allowed'
+        );
 
         // Determine the new shuffler and check that corresponds to the current player
         uint8 new_shuffler = currentMatch.gameState.playerWhoShuffled ^ 1;
