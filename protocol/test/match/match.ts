@@ -139,9 +139,7 @@ describe('Truco Match', function () {
         })
 
         it('Player joined, first shuffling', async function () {
-            const { match } = await loadFixture(
-                deployMatchContractReadyToPlay
-            )
+            const { match } = await loadFixture(deployMatchContractReadyToPlay)
 
             let matchState = await match.matchState()
 
@@ -163,7 +161,7 @@ describe('Truco Match', function () {
         })
 
         it('Game reached final state, new shuffling is needed', async function () {
-            const { match, player1, player2  } = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -203,15 +201,17 @@ describe('Truco Match', function () {
             expect(matchState.dealNonce).to.equal(BigNumber.from(1))
         })
 
-
         it('Game reached final state', async function () {
             const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
-            let gameState = await match.currentGameState();
+            let gameState = await match.currentGameState()
 
-            await match.setTeamPoints(await match.connect(player1).currentPlayerIdx(), gameState.pointsToWin )
+            await match.setTeamPoints(
+                await match.connect(player1).currentPlayerIdx(),
+                gameState.pointsToWin
+            )
 
             await match.connect(player2).playCard(BigNumber.from(2))
 
@@ -224,7 +224,7 @@ describe('Truco Match', function () {
 
     describe('Card Deal', function () {
         it('Game is waiting for play, not shuffling', async function () {
-            const { match, player1} = await loadFixture(
+            const { match, player1 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 

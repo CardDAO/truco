@@ -8,8 +8,6 @@ import { TrucoMatch } from '../../typechain-types/contracts/TrucoMatch'
 import { ChallengeEnum, ResponseEnum } from '../trucoV1/struct-enums'
 
 describe('Multi Transaction Test: Envido', function () {
-
-
     describe('Invalid Moves', function () {
         it('Envido when Envido was already Challenged', async function () {
             const { match, player1, player2 } = await loadFixture(

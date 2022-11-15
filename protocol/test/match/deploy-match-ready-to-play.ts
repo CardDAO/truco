@@ -1,5 +1,5 @@
-import { ethers} from 'hardhat'
-import {deployMatchContract} from "../deploy-contracts";
+import { ethers } from 'hardhat'
+import { deployMatchContract } from '../deploy-contracts'
 
 export async function deployMatchContractReadyToPlay() {
     // Contracts are deployed using the first signer/account by default
@@ -24,6 +24,6 @@ export async function deployMatchContractReadyToPlay() {
         engine,
         player1,
         player2,
-        gameStateQueries
+        gameStateQueries,
     }
 }

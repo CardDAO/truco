@@ -8,7 +8,6 @@ import { TrucoMatch } from '../../typechain-types/contracts/TrucoMatch'
 import { ChallengeEnum, ResponseEnum } from '../trucoV1/struct-enums'
 
 describe('Multi Transaction Test: Truco', function () {
-
     describe('Invalid Moves', function () {
         it('Spell Truco when Truco was already Challenged', async function () {
             const { match, player1, player2 } = await loadFixture(
@@ -32,7 +31,9 @@ describe('Multi Transaction Test: Truco', function () {
         })
 
         it('Spelling ReTruco without any previous challenge', async function () {
-            const { match, player2 } = await loadFixture(deployMatchContractReadyToPlay)
+            const { match, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
 
             await expect(match.connect(player2).spellReTruco()).to.be.reverted
         })
@@ -108,7 +109,9 @@ describe('Multi Transaction Test: Truco', function () {
 
     describe('Turn Handling', function () {
         it('Spelling Truco out of turn', async function () {
-            const { match, player1 } = await loadFixture(deployMatchContractReadyToPlay)
+            const { match, player1 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
 
             // TRANSACTION: Player 1 should be the first to play
             await expect(match.connect(player1).spellTruco()).to.be.reverted
