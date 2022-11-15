@@ -81,7 +81,7 @@ describe('Multi Transaction Test: Truco', function () {
 
             await match.connect(player2).spellTruco()
 
-            expect(match.connect(player1).playCard(BigNumber.from(1))).to.be
+            await expect(match.connect(player1).playCard(BigNumber.from(1))).to.be
                 .reverted
         })
 
@@ -93,7 +93,7 @@ describe('Multi Transaction Test: Truco', function () {
             await match.connect(player2).spellTruco()
             await match.connect(player1).acceptChallenge()
 
-            expect(match.connect(player1).playCard(BigNumber.from(41))).to.be
+            await expect(match.connect(player1).playCard(BigNumber.from(41))).to.be
                 .reverted
         })
 
@@ -105,7 +105,7 @@ describe('Multi Transaction Test: Truco', function () {
             await match.connect(player2).spellTruco()
             await match.connect(player1).acceptChallenge()
 
-            expect(match.connect(player1).playCard(BigNumber.from(0))).to.be
+            await expect(match.connect(player1).playCard(BigNumber.from(0))).to.be
                 .reverted
         })
 
@@ -126,7 +126,7 @@ describe('Multi Transaction Test: Truco', function () {
 
             await match.connect(player2).spellTruco()
             await match.connect(player1).acceptChallenge()
-            expect(match.connect(player2).playCard(BigNumber.from(1))).to.be
+            await expect(match.connect(player1).playCard(BigNumber.from(1))).to.be
                 .reverted
         })
     })
@@ -176,7 +176,7 @@ describe('Multi Transaction Test: Truco', function () {
             await match.connect(player1).playCard(BigNumber.from(3)) // 3 of Coins
 
             // Player 1 won first round, so it's player1 turn
-            expect(match.connect(player2).playCard(BigNumber.from(5))).to.be
+            await expect(match.connect(player2).playCard(BigNumber.from(5))).to.be
                 .reverted
         })
 
@@ -204,7 +204,7 @@ describe('Multi Transaction Test: Truco', function () {
             await match.connect(player2).playCard(BigNumber.from(5))
 
             // Player 2 won round 2, so it's player 2 turn
-            expect(match.connect(player1).playCard(BigNumber.from(7))).to.be
+            await expect(match.connect(player1).playCard(BigNumber.from(7))).to.be
                 .reverted
         })
 
@@ -256,7 +256,7 @@ describe('Multi Transaction Test: Truco', function () {
             await match.connect(player1).playCard(BigNumber.from(12)) // 2 of Cups
 
             // Previous round was a draw, mano should play next
-            expect(match.connect(player1).playCard(BigNumber.from(14))).to.be
+            await expect(match.connect(player1).playCard(BigNumber.from(14))).to.be
                 .reverted
         })
 
@@ -309,7 +309,7 @@ describe('Multi Transaction Test: Truco', function () {
             await match.connect(player1).playCard(BigNumber.from(23)) // 5 of Coins
 
             // Previous round was a draw, mano should play next
-            expect(match.connect(player1).playCard(BigNumber.from(14))).to.be
+            await expect(match.connect(player1).playCard(BigNumber.from(14))).to.be
                 .reverted
         })
 
