@@ -17,6 +17,8 @@ contract FrontMatchFacade {
         view
         returns (bool)
     {
+        (IERC3333.GameState memory gameState) = _contractMatch.currentMatch();
+
         IERC3333.Move memory move = prepareMove(
             IERC3333.Action.Challenge,
             IERC3333.Challenge.Envido
@@ -25,7 +27,7 @@ contract FrontMatchFacade {
         return
             isPlayerTurn(_contractMatch) &&
             gameStateQueries.isMoveValid(
-                _contractMatch.currentGameState(),
+                gameState,
                 move
             );
     }
@@ -35,6 +37,8 @@ contract FrontMatchFacade {
         view
         returns (bool)
     {
+        (IERC3333.GameState memory gameState) = _contractMatch.currentMatch();
+
         IERC3333.Move memory move = prepareMove(
             IERC3333.Action.Challenge,
             IERC3333.Challenge.Truco
@@ -43,7 +47,7 @@ contract FrontMatchFacade {
         return
             isPlayerTurn(_contractMatch) &&
             gameStateQueries.isMoveValid(
-                _contractMatch.currentGameState(),
+                gameState,
                 move
             );
     }
@@ -115,11 +119,21 @@ contract FrontMatchFacade {
         view
         returns (bool result)
     {
-        IERC3333.GameState memory currentGameState = _contractMatch
-            .currentGameState();
+        (IERC3333.GameState memory gameState) = _contractMatch.currentMatch();
+            //.currentGameState();
 
-        if (currentGameState.playerTurn == currentPlayerIdx(_contractMatch)) {
+        if (gameState.playerTurn == currentPlayerIdx(_contractMatch)) {
             result = true;
         }
+    }
+
+    function getCurrentGameState(TrucoMatch _contractMatch)
+        internal
+        view
+        returns (IERC3333.GameState memory)
+    {
+
+        (IERC3333.GameState memory gameState) = _contractMatch.currentMatch();
+        return gameState;
     }
 }
