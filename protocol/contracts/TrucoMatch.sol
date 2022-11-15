@@ -52,6 +52,7 @@ contract TrucoMatch {
                 currentMatch.players[currentMatch.gameState.playerTurn]
             );
         }
+        updateMatchState();
     }
 
     modifier resetFinalEnvido() {
@@ -330,6 +331,20 @@ contract TrucoMatch {
         // We are at a truco challenge (or None), so return which player should play card
         currentMatch.gameState.playerTurn = playerWhoShouldPlayCard;
         return true;
+    }
+
+    function updateMatchState() internal {
+        if (gameStateQueries.isGameEnded(currentMatch.gameState)) {
+            matchState.state = MatchStateEnum.FINISHED;
+            return;
+        }
+
+        if (gameStateQueries.isTrucoEnded(currentMatch.gameState)) {
+            matchState.state = MatchStateEnum.WAITING_FOR_DEAL;
+            return;
+        }
+
+        matchState.state = MatchStateEnum.WAITING_FOR_PLAY;
     }
 
     function buildTransaction(IERC3333.Action _action, uint8 _param)

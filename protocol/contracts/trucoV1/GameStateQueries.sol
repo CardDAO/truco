@@ -91,6 +91,14 @@ contract GameStateQueries {
         return trucoResolver.getPlayerTurnAtRound(gameState, roundAtPlay);
     }
 
+    function isTrucoEnded(IERC3333.GameState memory gameState)
+        external
+        view
+        returns (bool)
+    {
+        return trucoResolver.isFinal(gameState);
+    }
+
     function isEnvidoChallenge(IERC3333.Challenge _challenge)
         external
         view
@@ -232,6 +240,56 @@ contract GameStateQueries {
         }
 
         return envidoValue;
+    }
+
+    // Check if envido can be spelled at this game
+    function cardsShouldBeRevealedForEnvido(IERC3333.GameState memory _gameState)
+        public
+        view
+        returns (bool)
+    {
+        if (! envidoResolver.isFinal(_gameState)) {
+            return false;
+        }
+
+        // Check if it was a refusal (no points by any party should be spelled)
+        if (! envidoResolver.validEnvido(_gameState.envido.playerCount[0])) {
+            return false;
+        }
+
+        // There should be a winner, since envido is final and envido count was spelled
+        uint8 envidoWinner = envidoResolver.getWinner(_gameState);
+
+        // Check for unmasked cards in the revealed cards array
+        uint8 numRevealedCards = 0;
+        for (uint8 i = 0; i <= 2; i++) {
+            if (_gameState.revealedCardsByPlayer[envidoWinner][i] != cardsDeck.maskedCardId())  {
+                numRevealedCards++;
+            }
+        }
+
+        // No revealed cards at the table, winner should reveal
+        if (numRevealedCards == 0) {
+            return true;
+        }
+
+        // Now build a dynamic array with revealed cards by envido winner to check if envido matchs, so in that case
+        // no extra cards need to be revealed
+        uint8[] memory envidoWinnerCards = new uint8[](numRevealedCards);
+
+        // Since cards are revaled in consecutive order all unmasked cards should start at index 0 and be contiguous
+        for (uint8 i = 0; i < numRevealedCards; i++) {
+            envidoWinnerCards[i] = _gameState.revealedCardsByPlayer[envidoWinner][i];
+        }
+
+        // If envido from revealed cards does not match the envido from the challenge, cards should be revealed
+        if (
+            getEnvidoPointsForCards(envidoWinnerCards) != _gameState.envido.playerCount[envidoWinner]
+        ) {
+            return true;
+        }
+
+        return false;
     }
 
     // Determine if a given move is valid for a given game state
