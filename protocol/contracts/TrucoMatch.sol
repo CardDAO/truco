@@ -44,8 +44,14 @@ contract TrucoMatch {
     event TurnSwitch(address indexed playerTurn);
 
     modifier enforceTurnSwitching() {
-        require(getPlayerIdx() == currentMatch.gameState.playerTurn, 'Not your turn');
-        require(matchState.state == MatchStateEnum.WAITING_FOR_PLAY, 'State is not WAITING_FOR_PLAY');
+        require(
+            getPlayerIdx() == currentMatch.gameState.playerTurn,
+            'Not your turn'
+        );
+        require(
+            matchState.state == MatchStateEnum.WAITING_FOR_PLAY,
+            'State is not WAITING_FOR_PLAY'
+        );
         _;
         if (switchTurn()) {
             // Turn switched
