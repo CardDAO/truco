@@ -1,9 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+
 import '../interfaces/IChallengeResolver.sol';
 
-contract EnvidoResolver is IChallengeResolver {
+contract EnvidoResolver is IChallengeResolver, OwnableUpgradeable {
+
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+    
+    function initialize() public initializer {
+        __Ownable_init();
+    }
+
     function resolve(
         IERC3333.GameState memory _gameState,
         IERC3333.Move memory _move

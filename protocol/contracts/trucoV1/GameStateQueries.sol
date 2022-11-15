@@ -1,20 +1,29 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+
 import './interfaces/ICardsDeck.sol';
 import './resolvers/TrucoResolver.sol';
 import './resolvers/EnvidoResolver.sol';
 
-contract GameStateQueries {
+contract GameStateQueries is Initializable, OwnableUpgradeable {
+    
     EnvidoResolver internal envidoResolver;
     TrucoResolver internal trucoResolver;
     ICardsDeck internal cardsDeck;
 
-    constructor(
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(
         TrucoResolver _trucoResolver,
         EnvidoResolver _envidoResolver,
         ICardsDeck _cardsDeck
-    ) {
+    ) initializer public {
+        __Ownable_init();
         envidoResolver = _envidoResolver;
         trucoResolver = _trucoResolver;
         cardsDeck = _cardsDeck;
