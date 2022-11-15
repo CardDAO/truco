@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 
 import '../interfaces/IChallengeResolver.sol';
 
@@ -11,7 +11,7 @@ contract TrucoResolver is Initializable, OwnableUpgradeable {
         _disableInitializers();
     }
 
-    function initialize() initializer public {
+    function initialize() public initializer {
         __Ownable_init();
     }
 

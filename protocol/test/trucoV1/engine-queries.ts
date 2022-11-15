@@ -12,30 +12,30 @@ describe('Engine Queries', function () {
             // One invalid card
             let cards = [BigNumber.from(0)]
 
-            await expect(gameStateQueries.getEnvidoPointsForCards(cards)).to.be.revertedWith(
-                'Invalid card'
-            )
+            await expect(
+                gameStateQueries.getEnvidoPointsForCards(cards)
+            ).to.be.revertedWith('Invalid card')
 
             // Multiple invalid cards
             cards = [BigNumber.from(0), BigNumber.from(44)]
 
-            await expect(gameStateQueries.getEnvidoPointsForCards(cards)).to.be.revertedWith(
-                'Invalid card'
-            )
+            await expect(
+                gameStateQueries.getEnvidoPointsForCards(cards)
+            ).to.be.revertedWith('Invalid card')
 
             // Mix invalid with valid cards
             cards = [BigNumber.from(0), BigNumber.from(2), BigNumber.from(3)]
 
-            await expect(gameStateQueries.getEnvidoPointsForCards(cards)).to.be.revertedWith(
-                'Invalid card'
-            )
+            await expect(
+                gameStateQueries.getEnvidoPointsForCards(cards)
+            ).to.be.revertedWith('Invalid card')
 
             // Mix valid with invalid upper bound
             cards = [BigNumber.from(2), BigNumber.from(3), BigNumber.from(44)]
 
-            await expect(gameStateQueries.getEnvidoPointsForCards(cards)).to.be.revertedWith(
-                'Invalid card'
-            )
+            await expect(
+                gameStateQueries.getEnvidoPointsForCards(cards)
+            ).to.be.revertedWith('Invalid card')
         })
 
         describe('No suit match', function () {
@@ -45,9 +45,9 @@ describe('Engine Queries', function () {
                 // Three cards of different suit
                 let cards = [BigNumber.from(11)]
 
-                expect(await gameStateQueries.getEnvidoPointsForCards(cards)).to.equal(
-                    BigNumber.from(1)
-                )
+                expect(
+                    await gameStateQueries.getEnvidoPointsForCards(cards)
+                ).to.equal(BigNumber.from(1))
             })
 
             it('One card only wich is a figure', async function () {
@@ -56,9 +56,9 @@ describe('Engine Queries', function () {
                 // Three cards of different suit
                 let cards = [BigNumber.from(10)]
 
-                expect(await gameStateQueries.getEnvidoPointsForCards(cards)).to.equal(
-                    BigNumber.from(0)
-                )
+                expect(
+                    await gameStateQueries.getEnvidoPointsForCards(cards)
+                ).to.equal(BigNumber.from(0))
             })
 
             it('Two cards, just figures', async function () {
@@ -67,9 +67,9 @@ describe('Engine Queries', function () {
                 // Three cards of different suit
                 let cards = [BigNumber.from(9), BigNumber.from(28)]
 
-                expect(await gameStateQueries.getEnvidoPointsForCards(cards)).to.equal(
-                    BigNumber.from(0)
-                )
+                expect(
+                    await gameStateQueries.getEnvidoPointsForCards(cards)
+                ).to.equal(BigNumber.from(0))
             })
 
             it('Two cards, one figure', async function () {
@@ -78,9 +78,9 @@ describe('Engine Queries', function () {
                 // Three cards of different suit
                 let cards = [BigNumber.from(1), BigNumber.from(19)]
 
-                expect(await gameStateQueries.getEnvidoPointsForCards(cards)).to.equal(
-                    BigNumber.from(1)
-                )
+                expect(
+                    await gameStateQueries.getEnvidoPointsForCards(cards)
+                ).to.equal(BigNumber.from(1))
             })
 
             it('One number and two figures', async function () {
@@ -93,9 +93,9 @@ describe('Engine Queries', function () {
                     BigNumber.from(21),
                 ]
 
-                expect(await gameStateQueries.getEnvidoPointsForCards(cards)).to.equal(
-                    BigNumber.from(1)
-                )
+                expect(
+                    await gameStateQueries.getEnvidoPointsForCards(cards)
+                ).to.equal(BigNumber.from(1))
             })
 
             it('Two numbers and one figure', async function () {
@@ -108,9 +108,9 @@ describe('Engine Queries', function () {
                     BigNumber.from(28),
                 ]
 
-                expect(await gameStateQueries.getEnvidoPointsForCards(cards)).to.equal(
-                    BigNumber.from(1)
-                )
+                expect(
+                    await gameStateQueries.getEnvidoPointsForCards(cards)
+                ).to.equal(BigNumber.from(1))
             })
 
             it('Two numbers and one figure, different order', async function () {
@@ -123,9 +123,9 @@ describe('Engine Queries', function () {
                     BigNumber.from(5),
                 ]
 
-                expect(await gameStateQueries.getEnvidoPointsForCards(cards)).to.equal(
-                    BigNumber.from(5)
-                )
+                expect(
+                    await gameStateQueries.getEnvidoPointsForCards(cards)
+                ).to.equal(BigNumber.from(5))
             })
 
             it('Three numbers', async function () {
@@ -138,9 +138,9 @@ describe('Engine Queries', function () {
                     BigNumber.from(34),
                 ]
 
-                expect(await gameStateQueries.getEnvidoPointsForCards(cards)).to.equal(
-                    BigNumber.from(4)
-                )
+                expect(
+                    await gameStateQueries.getEnvidoPointsForCards(cards)
+                ).to.equal(BigNumber.from(4))
             })
         })
 
@@ -152,9 +152,9 @@ describe('Engine Queries', function () {
                     // Three cards of different suit
                     let cards = [BigNumber.from(8), BigNumber.from(9)]
 
-                    expect(await gameStateQueries.getEnvidoPointsForCards(cards)).to.equal(
-                        BigNumber.from(20)
-                    )
+                    expect(
+                        await gameStateQueries.getEnvidoPointsForCards(cards)
+                    ).to.equal(BigNumber.from(20))
                 })
 
                 it('One figure and one a number ', async function () {
@@ -163,9 +163,9 @@ describe('Engine Queries', function () {
                     // Three cards of different suit
                     let cards = [BigNumber.from(8), BigNumber.from(9)]
 
-                    expect(await gameStateQueries.getEnvidoPointsForCards(cards)).to.equal(
-                        BigNumber.from(20)
-                    )
+                    expect(
+                        await gameStateQueries.getEnvidoPointsForCards(cards)
+                    ).to.equal(BigNumber.from(20))
                 })
 
                 it('Two numbers ', async function () {
@@ -174,9 +174,9 @@ describe('Engine Queries', function () {
                     // Three cards of different suit
                     let cards = [BigNumber.from(2), BigNumber.from(3)]
 
-                    expect(await gameStateQueries.getEnvidoPointsForCards(cards)).to.equal(
-                        BigNumber.from(25)
-                    )
+                    expect(
+                        await gameStateQueries.getEnvidoPointsForCards(cards)
+                    ).to.equal(BigNumber.from(25))
                 })
             })
 
@@ -191,9 +191,9 @@ describe('Engine Queries', function () {
                         BigNumber.from(21),
                     ]
 
-                    expect(await gameStateQueries.getEnvidoPointsForCards(cards)).to.equal(
-                        BigNumber.from(20)
-                    )
+                    expect(
+                        await gameStateQueries.getEnvidoPointsForCards(cards)
+                    ).to.equal(BigNumber.from(20))
                 })
 
                 it('Two numbers same suit, a figure from a different one', async function () {
@@ -206,9 +206,9 @@ describe('Engine Queries', function () {
                         BigNumber.from(21),
                     ]
 
-                    expect(await gameStateQueries.getEnvidoPointsForCards(cards)).to.equal(
-                        BigNumber.from(21)
-                    )
+                    expect(
+                        await gameStateQueries.getEnvidoPointsForCards(cards)
+                    ).to.equal(BigNumber.from(21))
                 })
 
                 it('Two figures same suit, a number with a different one', async function () {
@@ -221,9 +221,9 @@ describe('Engine Queries', function () {
                         BigNumber.from(21),
                     ]
 
-                    expect(await gameStateQueries.getEnvidoPointsForCards(cards)).to.equal(
-                        BigNumber.from(20)
-                    )
+                    expect(
+                        await gameStateQueries.getEnvidoPointsForCards(cards)
+                    ).to.equal(BigNumber.from(20))
                 })
 
                 it('All three cards same suit, two figures', async function () {
@@ -236,9 +236,9 @@ describe('Engine Queries', function () {
                         BigNumber.from(9),
                     ]
 
-                    expect(await gameStateQueries.getEnvidoPointsForCards(cards)).to.equal(
-                        BigNumber.from(21)
-                    )
+                    expect(
+                        await gameStateQueries.getEnvidoPointsForCards(cards)
+                    ).to.equal(BigNumber.from(21))
                 })
 
                 it('All three cards same suit, one figure', async function () {
@@ -251,9 +251,9 @@ describe('Engine Queries', function () {
                         BigNumber.from(8),
                     ]
 
-                    expect(await gameStateQueries.getEnvidoPointsForCards(cards)).to.equal(
-                        BigNumber.from(28)
-                    )
+                    expect(
+                        await gameStateQueries.getEnvidoPointsForCards(cards)
+                    ).to.equal(BigNumber.from(28))
                 })
 
                 it('All three cards same suit, no figure', async function () {
@@ -266,9 +266,9 @@ describe('Engine Queries', function () {
                         BigNumber.from(6),
                     ]
 
-                    expect(await gameStateQueries.getEnvidoPointsForCards(cards)).to.equal(
-                        BigNumber.from(33)
-                    )
+                    expect(
+                        await gameStateQueries.getEnvidoPointsForCards(cards)
+                    ).to.equal(BigNumber.from(33))
                 })
             })
         })
