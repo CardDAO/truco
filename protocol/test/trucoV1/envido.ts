@@ -262,7 +262,7 @@ describe('Envido Resolver', function () {
                 state: state,
             }
 
-            expect(engine.executeTransaction(transaction)).to.be.reverted
+            await expect(engine.executeTransaction(transaction)).to.be.reverted
         })
     })
 
