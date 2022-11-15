@@ -40,15 +40,20 @@ async function main() {
     const { factory } = await deployMatchFactoryContract(engine, trucoin, trucoChampionsToken, gameStateQueries, min_bet)
     console.log(`MatchFactory deployed in address: ${factory.address}`)
 
-    const transferOwnershipTX = await trucoChampionsToken.transferOwnership(factory.address)
-    const { events } = await transferOwnershipTX.wait()
+    try {
+        const transferOwnershipTX = await trucoChampionsToken.transferOwnership(factory.address)
+        const { events } = await transferOwnershipTX.wait()
 
-    const event = events?.find((e) => e.event === 'OwnershipTransferred')
-    const matchFactoryAddress = event?.args!['newOwner']
-    if (matchFactoryAddress === factory.address) {
-        console.log(`Transfered owner TrucoChampionsToken to MatchFactory`)
-    } else {
-        throw Error('FAIL: Transfer owner TrucoChampionsToken')
+        const event = events?.find((e) => e.event === 'OwnershipTransferred')
+        const matchFactoryAddress = event?.args!['newOwner']
+        if (matchFactoryAddress === factory.address) {
+            console.log(`Transfered owner TrucoChampionsToken to MatchFactory`)
+        } else {
+            throw Error('FAIL: Transfer owner TrucoChampionsToken')
+        }
+
+    } catch(e) {
+        throw e
     }
 }
 
