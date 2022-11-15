@@ -4,6 +4,7 @@ import { ChallengeEnum, ResponseEnum } from './trucoV1/struct-enums'
 import { IERC3333 } from '../typechain-types/contracts/trucoV1/interfaces/IERC3333'
 import GameStateStruct = IERC3333.GameStateStruct
 
+// Must replicate IERC3333.initialGameState() initial state
 export function basicGameState(): GameStateStruct {
     const defaultPlayerId = BigNumber.from(0)
     const maskedCard = BigNumber.from(0) // see ICardsDeck impl:  CastillianDeck.sol
@@ -11,7 +12,7 @@ export function basicGameState(): GameStateStruct {
     return {
         playerTurn: BigNumber.from(defaultPlayerId),
         playerWhoShuffled: BigNumber.from(defaultPlayerId),
-        pointsToWin: BigNumber.from(0),
+        pointsToWin: BigNumber.from(15),
         currentChallenge: {
             challenge: BigNumber.from(ChallengeEnum.None),
             challenger: BigNumber.from(defaultPlayerId),

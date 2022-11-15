@@ -37,7 +37,7 @@ export async function deployEngineContract() {
         gameStateQueries.address
     )
 
-    return { engine, trucoin, gameStateQueries }
+    return { engine, trucoin, gameStateQueries, cardsDeck }
 }
 
 export async function deployMatchContract() {

@@ -38,4 +38,8 @@ contract TrucoMatchTester is TrucoMatch {
     function setPlayerTurn(uint8 _playerTurnIdx) public {
         currentMatch.gameState.playerTurn = _playerTurnIdx;
     }
+
+    function setTeamPoints(uint8 _playerIdx, uint8 _points) public {
+        currentMatch.gameState.teamPoints[_playerIdx] = _points;
+    }
 }

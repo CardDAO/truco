@@ -1,7 +1,6 @@
 import { expect } from 'chai'
-import { ethers } from 'hardhat'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
-import { deployMatchContract } from '../deploy-contracts'
+import { deployMatchContractReadyToPlay } from './deploy-match-ready-to-play'
 
 import { BigNumber } from 'ethers'
 
@@ -9,36 +8,10 @@ import { TrucoMatch } from '../../typechain-types/contracts/TrucoMatch'
 import { ChallengeEnum, ResponseEnum } from '../trucoV1/struct-enums'
 
 describe('Multi Transaction Test: Envido', function () {
-    async function deployContract() {
-        // Contracts are deployed using the first signer/account by default
-        const [player1, player2, invalid_player] = await ethers.getSigners()
-
-        const { match, trucoin, engine, gameStateQueries, bet } =
-            await deployMatchContract()
-
-        await engine.setWhiteListed(match.address, true)
-
-        // Approve trucoins to be used by the match contract
-        await trucoin.connect(player2).approve(match.address, bet)
-
-        // Player2 joins the match
-        await match.connect(player2).join()
-
-        return {
-            match,
-            engine,
-            trucoin,
-            player1,
-            player2,
-            invalid_player,
-            gameStateQueries,
-        }
-    }
-
     describe('Invalid Moves', function () {
         it('Envido when Envido was already Challenged', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.connect(player2).spellEnvido()
@@ -49,7 +22,7 @@ describe('Multi Transaction Test: Envido', function () {
 
         it('Lowering challenge', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.connect(player2).spellRealEnvido()
@@ -60,7 +33,7 @@ describe('Multi Transaction Test: Envido', function () {
 
         it('Spelling envido count without accepting', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.connect(player2).spellEnvido()
@@ -72,7 +45,7 @@ describe('Multi Transaction Test: Envido', function () {
 
         it('Spelling envido again after refusal', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.connect(player2).spellEnvido()
@@ -83,7 +56,7 @@ describe('Multi Transaction Test: Envido', function () {
 
         it('Spelling envido after first round of cards were revealed', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.connect(player2).playCard(BigNumber.from(22))
@@ -94,7 +67,7 @@ describe('Multi Transaction Test: Envido', function () {
 
         it('Spelling envido after second round of cards were revealed', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.connect(player2).playCard(BigNumber.from(22))
@@ -108,7 +81,7 @@ describe('Multi Transaction Test: Envido', function () {
 
         it('Spelling invalid envido count', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.connect(player2).spellEnvido()
@@ -121,7 +94,7 @@ describe('Multi Transaction Test: Envido', function () {
 
         it('Spelling an envido count that is used internally as "not spelled" indicator', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.connect(player2).spellEnvido()
@@ -134,7 +107,7 @@ describe('Multi Transaction Test: Envido', function () {
 
         it('Spelling refusal after accepting', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.connect(player2).spellEnvido()
@@ -145,7 +118,7 @@ describe('Multi Transaction Test: Envido', function () {
 
         it('Out of turn Envido Count spelling', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.connect(player2).spellEnvido()
@@ -159,7 +132,7 @@ describe('Multi Transaction Test: Envido', function () {
     describe('Refusals', function () {
         it('Envido from None', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             let state: TrucoMatch.Match = await match.currentMatch()
@@ -221,7 +194,7 @@ describe('Multi Transaction Test: Envido', function () {
 
         it('Envido raising to EnvidoEnvido', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             // TRANSACTION: Player 1 is the first to play (mano)
@@ -252,7 +225,7 @@ describe('Multi Transaction Test: Envido', function () {
 
         it('FaltaEnvido from None', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             // TRANSACTION: Player 1 is the first to play (mano)
@@ -279,7 +252,7 @@ describe('Multi Transaction Test: Envido', function () {
 
         it('FaltaEnvido from RealEnvido', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             // TRANSACTION: Player 1 is the first to play (mano)
@@ -313,7 +286,7 @@ describe('Multi Transaction Test: Envido', function () {
     describe('Acceptances', function () {
         it('RealEnvido Spell and Acceptance', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             let state: TrucoMatch.Match = await match.currentMatch()
@@ -338,7 +311,7 @@ describe('Multi Transaction Test: Envido', function () {
 
         it('FaltaEnvido Spell and Acceptance', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             let state: TrucoMatch.Match = await match.currentMatch()
@@ -363,7 +336,7 @@ describe('Multi Transaction Test: Envido', function () {
 
         it('Envido raising to EnvidoEnvido', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             let state: TrucoMatch.Match = await match.currentMatch()
@@ -388,7 +361,7 @@ describe('Multi Transaction Test: Envido', function () {
 
         it('Complete Envido Flow with raising from Envido to RealEnvido', async function () {
             const { match, player1, player2, engine } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             // TRANSACTION: Player 2 is the first to play (mano)
@@ -425,7 +398,7 @@ describe('Multi Transaction Test: Envido', function () {
 
         it('Complete Envido Flow with raising 2 times: from Envido, to EnvidoEnvido to FaltaEnvido', async function () {
             const { match, player1, player2, engine } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             // TRANSACTION: Player 2 is the first to play (mano)
@@ -470,7 +443,7 @@ describe('Multi Transaction Test: Envido', function () {
     describe('Corner cases', function () {
         it('Spelling 0 as envido count (should go ok)', async function () {
             const { match, player1, player2, engine } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.connect(player2).spellEnvido()
@@ -499,7 +472,7 @@ describe('Multi Transaction Test: Envido', function () {
         })
         it('Spelling  envido after truco was accepted (should not go ok)', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.connect(player2).spellTruco()
@@ -510,7 +483,7 @@ describe('Multi Transaction Test: Envido', function () {
 
         it('Spelling envido when truco was challenged: Envido in first place!!', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.connect(player2).spellTruco()
@@ -534,7 +507,7 @@ describe('Multi Transaction Test: Envido', function () {
 
         it('Spelling envido when truco was challenged but a card was played by player who should respond', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.connect(player2).playCard(BigNumber.from(1))
@@ -547,7 +520,7 @@ describe('Multi Transaction Test: Envido', function () {
     describe('Full State Assertions', function () {
         it('Complete Envido Flow: Spell envido, accept it, spell envido counts for each player', async function () {
             const { match, player1, player2, engine } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             let state: TrucoMatch.Match = await match.currentMatch()

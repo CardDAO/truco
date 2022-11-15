@@ -251,26 +251,31 @@ contract EnvidoResolver is IChallengeResolver, OwnableUpgradeable {
 
     function isFinal(IERC3333.GameState memory _gameState)
         external
-        pure
+        view
         returns (bool)
     {
-        // Check if it's waiting for a response
-        if (_gameState.currentChallenge.waitingChallengeResponse == true) {
-            return false;
-        }
-
         // Check if points were already rewarded
         if (_gameState.envido.pointsRewarded > 0) {
             return true;
         }
 
-        // Check challenge for refusal
-        if (_gameState.currentChallenge.response == IERC3333.Response.Refuse) {
+        if (_gameState.envido.spelled == false) {
+            return false;
+        }
+
+        if (isEnvidoCountFinished(_gameState)) {
             return true;
         }
 
-        // Check if any of the players remain to spell their envido count
-        return isEnvidoCountFinished(_gameState);
+        if (this.canResolve(_gameState.currentChallenge.challenge) == false) {
+            return false;
+        }
+
+        if (_gameState.currentChallenge.waitingChallengeResponse == true) {
+            return false;
+        }
+
+        return _gameState.currentChallenge.response == IERC3333.Response.Refuse;
     }
 
     function getWinner(IERC3333.GameState memory _gameState)

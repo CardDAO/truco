@@ -7,6 +7,19 @@ import './trucoV1/GameStateQueries.sol';
 import './token/TrucoChampionsToken.sol';
 
 contract TrucoMatch {
+    enum MatchStateEnum {
+        WAITING_FOR_PLAYERS,
+        WAITING_FOR_DEAL,
+        WAITING_FOR_PLAY,
+        WAITING_FOR_REVEAL,
+        FINISHED
+    }
+
+    struct MatchState {
+        uint8 dealNonce;
+        MatchStateEnum state;
+    }
+
     struct Match {
         address[2] players; // player 0 is the creator of the match
         IERC3333.GameState gameState;
@@ -18,7 +31,7 @@ contract TrucoMatch {
     IERC20 truCoin;
     TrucoChampionsToken TCT;
     Match public currentMatch;
-    bool isDealOpen;
+    MatchState public matchState;
 
     // Events
     event MatchCreated(address indexed match_address, uint256 bet);
@@ -27,12 +40,18 @@ contract TrucoMatch {
         address indexed player2,
         uint256 bet
     );
-    event DealStarted(address shuffler);
-    event DealEnded();
+    event NewDeal(address shuffler);
     event TurnSwitch(address indexed playerTurn);
 
     modifier enforceTurnSwitching() {
-        require(getPlayerIdx() == currentMatch.gameState.playerTurn);
+        require(
+            getPlayerIdx() == currentMatch.gameState.playerTurn,
+            'Not your turn'
+        );
+        require(
+            matchState.state == MatchStateEnum.WAITING_FOR_PLAY,
+            'State is not WAITING_FOR_PLAY'
+        );
         _;
         if (switchTurn()) {
             // Turn switched
@@ -40,8 +59,10 @@ contract TrucoMatch {
                 currentMatch.players[currentMatch.gameState.playerTurn]
             );
         }
+        updateMatchState();
     }
 
+    // In case last player move was to refuse an envido, before executing current move it should clear that state
     modifier resetFinalEnvido() {
         if (
             currentMatch.gameState.currentChallenge.response ==
@@ -83,15 +104,13 @@ contract TrucoMatch {
         currentMatch.bet = _bet;
         currentMatch.players[0] = player1;
 
-        //Mint Sould Bound Token
+        matchState.state = MatchStateEnum.WAITING_FOR_PLAYERS;
 
         emit MatchCreated(address(this), _bet);
     }
 
     // Method for second player joining the match
     function join() public {
-        // TODO Check invitations if any
-
         // First player is joined at contract creation, so he is not allowed to join again
         require(
             currentMatch.players[0] != msg.sender,
@@ -114,8 +133,12 @@ contract TrucoMatch {
         // Set second player
         currentMatch.players[1] = msg.sender;
 
+        // Change match status
+        matchState.state = MatchStateEnum.WAITING_FOR_DEAL;
+
         // Start match
         currentMatch.gameState = trucoEngine.startGame();
+
         emit MatchStarted(
             currentMatch.players[0],
             currentMatch.players[1],
@@ -125,14 +148,21 @@ contract TrucoMatch {
 
     function newDeal() public {
         // Check if current game state enables new card shufflings
-        require(!isDealOpen, 'Deal is already open');
+        require(
+            matchState.state == MatchStateEnum.WAITING_FOR_DEAL,
+            'Deal not allowed'
+        );
 
         // Determine the new shuffler and check that corresponds to the current player
         uint8 new_shuffler = currentMatch.gameState.playerWhoShuffled ^ 1;
-        require(
-            msg.sender == currentMatch.players[new_shuffler],
-            'You are not the shuffler'
-        );
+
+        // Check that the player who is calling the function is the new shuffler, avoid if it's first shuffle
+        if (matchState.dealNonce > 0) {
+            require(
+                msg.sender == currentMatch.players[new_shuffler],
+                'You are not the shuffler'
+            );
+        }
 
         // Grab the current points
         uint8[] memory current_points = currentMatch.gameState.teamPoints;
@@ -144,15 +174,18 @@ contract TrucoMatch {
         currentMatch.gameState.teamPoints = current_points;
 
         // Assign new shuffler
-        currentMatch.gameState.playerWhoShuffled = new_shuffler;
+        currentMatch.gameState.playerWhoShuffled = getPlayerIdx();
 
         // Assign turn to player not shuffling
-        currentMatch.gameState.playerTurn = new_shuffler ^ 1;
+        currentMatch.gameState.playerTurn =
+            currentMatch.gameState.playerWhoShuffled ^
+            1;
 
-        // Set deal as open
-        isDealOpen = true;
+        // Update state and deal nonce
+        matchState.state = MatchStateEnum.WAITING_FOR_PLAY;
+        matchState.dealNonce++;
 
-        emit DealStarted(msg.sender);
+        emit NewDeal(msg.sender);
     }
 
     // Get players addresses
@@ -264,8 +297,13 @@ contract TrucoMatch {
 
     // Change turn
     function switchTurn() internal returns (bool) {
-        if (gameStateQueries.isGameEnded(currentMatch.gameState)) {
+        if (trucoEngine.isGameEnded(currentMatch.gameState)) {
             // Game ended, do not switch turn
+            return false;
+        }
+
+        if (gameStateQueries.isTrucoEnded(currentMatch.gameState)) {
+            // Round ended, do not switch turn
             return false;
         }
 
@@ -311,6 +349,31 @@ contract TrucoMatch {
         // We are at a truco challenge (or None), so return which player should play card
         currentMatch.gameState.playerTurn = playerWhoShouldPlayCard;
         return true;
+    }
+
+    function updateMatchState() internal {
+        if (trucoEngine.isGameEnded(currentMatch.gameState)) {
+            matchState.state = MatchStateEnum.FINISHED;
+            return;
+        }
+
+        // Check if current round is finished, signal that a new shuffle is needed to start playing again
+        if (gameStateQueries.isTrucoEnded(currentMatch.gameState)) {
+            // Check if an envido winner has to reveal cards
+            if (
+                gameStateQueries.cardsShouldBeRevealedForEnvido(
+                    currentMatch.gameState
+                )
+            ) {
+                matchState.state = MatchStateEnum.WAITING_FOR_REVEAL;
+                return;
+            }
+
+            matchState.state = MatchStateEnum.WAITING_FOR_DEAL;
+            return;
+        }
+
+        matchState.state = MatchStateEnum.WAITING_FOR_PLAY;
     }
 
     function buildTransaction(IERC3333.Action _action, uint8 _param)
