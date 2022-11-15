@@ -324,7 +324,7 @@ contract TrucoResolver {
 
             i++;
         }
-        return i <=2 ? i : 2 ;
+        return i <= 2 ? i : 2;
     }
 
     function roundEmpty(IERC3333.GameState memory gameState, uint8 _roundId)

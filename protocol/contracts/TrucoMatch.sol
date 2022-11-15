@@ -351,9 +351,12 @@ contract TrucoMatch {
 
         // Check if current round is finished, signal that a new shuffle is needed to start playing again
         if (gameStateQueries.isTrucoEnded(currentMatch.gameState)) {
-
             // Check if an envido winner has to reveal cards
-            if (gameStateQueries.cardsShouldBeRevealedForEnvido(currentMatch.gameState)) {
+            if (
+                gameStateQueries.cardsShouldBeRevealedForEnvido(
+                    currentMatch.gameState
+                )
+            ) {
                 matchState.state = MatchStateEnum.WAITING_FOR_REVEAL;
                 return;
             }

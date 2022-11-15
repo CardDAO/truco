@@ -45,12 +45,13 @@ contract GameStateQueries {
     }
 
     function isGameEnded(IERC3333.GameState memory _gameState)
-    external
-    view
-    returns (bool)
+        external
+        view
+        returns (bool)
     {
-        return _gameState.teamPoints[0] >= _gameState.pointsToWin ||
-        _gameState.teamPoints[1] >= _gameState.pointsToWin;
+        return
+            _gameState.teamPoints[0] >= _gameState.pointsToWin ||
+            _gameState.teamPoints[1] >= _gameState.pointsToWin;
     }
 
     // Return wich player should be play next
@@ -92,7 +93,10 @@ contract GameStateQueries {
         view
         returns (bool)
     {
-        if (this.isEnvidoChallenge(gameState.currentChallenge.challenge) == false) {
+        if (
+            this.isEnvidoChallenge(gameState.currentChallenge.challenge) ==
+            false
+        ) {
             return trucoResolver.isFinal(gameState);
         }
 

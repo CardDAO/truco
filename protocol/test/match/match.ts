@@ -200,7 +200,7 @@ describe('Truco Match', function () {
         })
 
         it('Game reached a state were envido reveal is needed', async function () {
-            const {match, trucoin, player1, player2, bet} = await loadFixture(
+            const { match, trucoin, player1, player2, bet } = await loadFixture(
                 deployMatchContract
             )
 
@@ -224,7 +224,7 @@ describe('Truco Match', function () {
             await match.connect(player2).playCard(BigNumber.from(2))
             await match.connect(player1).playCard(BigNumber.from(14))
 
-            let matchState = await match.matchState();
+            let matchState = await match.matchState()
 
             expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_REVEAL)
             expect(matchState.dealNonce).to.equal(BigNumber.from(1))
