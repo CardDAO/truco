@@ -31,7 +31,7 @@ contract TrucoMatch {
     IERC20 truCoin;
     TrucoChampionsToken TCT;
     Match public currentMatch;
-    MatchState matchState;
+    MatchState public matchState;
 
     // Events
     event MatchCreated(address indexed match_address, uint256 bet);
@@ -132,6 +132,7 @@ contract TrucoMatch {
 
         // Start match
         currentMatch.gameState = trucoEngine.startGame();
+
         emit MatchStarted(
             currentMatch.players[0],
             currentMatch.players[1],
@@ -148,10 +149,14 @@ contract TrucoMatch {
 
         // Determine the new shuffler and check that corresponds to the current player
         uint8 new_shuffler = currentMatch.gameState.playerWhoShuffled ^ 1;
-        require(
-            msg.sender == currentMatch.players[new_shuffler],
-            'You are not the shuffler'
-        );
+
+        // Check that the player who is calling the function is the new shuffler, avoid if it's first shuffle
+        if (matchState.dealNonce > 0 ) {
+            require(
+                msg.sender == currentMatch.players[new_shuffler],
+                'You are not the shuffler'
+            );
+        }
 
         // Grab the current points
         uint8[] memory current_points = currentMatch.gameState.teamPoints;
@@ -163,10 +168,10 @@ contract TrucoMatch {
         currentMatch.gameState.teamPoints = current_points;
 
         // Assign new shuffler
-        currentMatch.gameState.playerWhoShuffled = new_shuffler;
+        currentMatch.gameState.playerWhoShuffled = getPlayerIdx();
 
         // Assign turn to player not shuffling
-        currentMatch.gameState.playerTurn = new_shuffler ^ 1;
+        currentMatch.gameState.playerTurn = currentMatch.gameState.playerWhoShuffled ^ 1;
 
         // Update state and deal nonce
         matchState.state = MatchStateEnum.WAITING_FOR_PLAY;
@@ -334,7 +339,7 @@ contract TrucoMatch {
     }
 
     function updateMatchState() internal {
-        if (gameStateQueries.isGameEnded(currentMatch.gameState)) {
+        if (isGameFinished()) {
             matchState.state = MatchStateEnum.FINISHED;
             return;
         }
@@ -345,6 +350,11 @@ contract TrucoMatch {
         }
 
         matchState.state = MatchStateEnum.WAITING_FOR_PLAY;
+    }
+
+    function isGameFinished() public view returns (bool) {
+        return  currentMatch.gameState.teamPoints[0] >= currentMatch.gameState.pointsToWin ||
+        currentMatch.gameState.teamPoints[1] >= currentMatch.gameState.pointsToWin;
     }
 
     function buildTransaction(IERC3333.Action _action, uint8 _param)

@@ -98,6 +98,9 @@ contract Engine2Players is IERC3333, Ownable {
 
         // Set all masked played cards
         _gameState.revealedCardsByPlayer = new uint8[3][](2);
+
+        // Set points to win
+        _gameState.pointsToWin = 15;
     }
 
     function transact(IERC3333.Transaction calldata transaction)

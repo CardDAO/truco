@@ -3,6 +3,10 @@ import { ethers } from 'hardhat'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import { deployMatchContract } from '../deploy-contracts'
 
+import {MatchStateEnum } from './struct-enums'
+import {BigNumber} from "ethers";
+
+
 describe('Truco Match', function () {
     // Constructor tests
     describe('Constructor', function () {
@@ -104,5 +108,114 @@ describe('Truco Match', function () {
         })
     })
 
-    // New Deal tests
+    describe('State Switching', function () {
+        it('Match created but no player has joined', async function () {
+            const {match, trucoin, player1, player2, bet} = await loadFixture(
+                deployMatchContract
+            )
+
+            let matchState = await match.matchState();
+
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_PLAYERS)
+            expect(matchState.dealNonce).to.equal(BigNumber.from(0))
+
+        })
+
+        it('Player joined', async function () {
+            const {match, trucoin, player1, player2, bet} = await loadFixture(
+                deployMatchContract
+            )
+
+            // Allow trucoin transfer
+            await trucoin.connect(player2).approve(match.address, bet)
+
+            await match.connect(player2).join()
+
+            let matchState = await match.matchState();
+
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_DEAL)
+            expect(matchState.dealNonce).to.equal(BigNumber.from(0))
+
+        })
+
+        it('Player joined, first shuffling', async function () {
+            const {match, trucoin, player1, player2, bet} = await loadFixture(
+                deployMatchContract
+            )
+
+            // Allow trucoin transfer
+            await trucoin.connect(player2).approve(match.address, bet)
+
+            await match.connect(player2).join()
+
+            await match.connect(player1).newDeal()
+
+            let matchState = await match.matchState();
+
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_PLAY)
+            expect(matchState.dealNonce).to.equal(BigNumber.from(1))
+
+        })
+
+        it('Game ongoing, no final state reached', async function () {
+            const {match, trucoin, player1, player2, bet} = await loadFixture(
+                deployMatchContract
+            )
+
+            // Allow trucoin transfer
+            await trucoin.connect(player2).approve(match.address, bet)
+
+            await match.connect(player2).join()
+
+            await match.connect(player1).newDeal()
+
+            await match.connect(player2).playCard(BigNumber.from(1))
+
+            let matchState = await match.matchState();
+
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_PLAY)
+            expect(matchState.dealNonce).to.equal(BigNumber.from(1))
+        })
+
+
+        it('Game reached final state, new shuffling is needed', async function () {
+            const {match, trucoin, player1, player2, bet} = await loadFixture(
+                deployMatchContract
+            )
+
+            // Allow trucoin transfer
+            await trucoin.connect(player2).approve(match.address, bet)
+
+            await match.connect(player2).join()
+
+            await match.connect(player1).newDeal()
+
+            await match.connect(player2).playCard(BigNumber.from(1))
+            await match.connect(player1).playCard(BigNumber.from(4))
+
+            await match.connect(player2).playCard(BigNumber.from(2))
+            await match.connect(player1).playCard(BigNumber.from(5))
+
+            let matchState = await match.matchState();
+
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_DEAL)
+            expect(matchState.dealNonce).to.equal(BigNumber.from(1))
+        })
+    })
+
+    describe('Card Deal', function () {
+
+        it('Game is waiting for play, not shuffling', async function () {
+            const {match, trucoin, player1, player2, bet} = await loadFixture(
+                deployMatchContract
+            )
+
+            await trucoin.connect(player2).approve(match.address, bet)
+            await match.connect(player2).join()
+            await match.connect(player1).newDeal()
+
+            await expect(match.connect(player1).newDeal()).to.be.reverted
+        })
+    })
 })
+
