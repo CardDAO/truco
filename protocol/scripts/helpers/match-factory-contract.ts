@@ -1,7 +1,12 @@
-import { ethers, upgrades } from "hardhat"
+import { ethers, upgrades } from 'hardhat'
 
-export async function deployMatchFactoryContract(engine: Engine, trucoin: Trucoin, trucoChampionsToken: TrucoChampionsToken, gameStateQueries: GameStateQueries, min_bet) {
-
+export async function deployMatchFactoryContract(
+    engine: Engine,
+    trucoin: Trucoin,
+    trucoChampionsToken: TrucoChampionsToken,
+    gameStateQueries: GameStateQueries,
+    min_bet
+) {
     const TrucoMatchFactory = await ethers.getContractFactory(
         'TrucoMatchFactory'
     )
