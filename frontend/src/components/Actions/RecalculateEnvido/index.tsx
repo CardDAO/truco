@@ -12,7 +12,7 @@ export const RecalculateEnvido = ({ cards, setCurrentEnvido }: any) => {
     const [ enableAction, setEnableAction ] = useState(false)
 
     const { data, isError, isLoading } = useContractRead({
-      addressOrName: '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9',
+      addressOrName: process.env.GAMESTATE_QUERIES_ADDRESS as string,
       contractInterface: new Interface(["function getEnvidoPointsForCards(uint8[]) public view returns(uint)"]),
       functionName: 'getEnvidoPointsForCards',
       args: [cards],

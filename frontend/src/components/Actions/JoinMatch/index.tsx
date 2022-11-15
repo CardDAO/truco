@@ -33,7 +33,7 @@ export const JoinMatch = ({match, processingAction, setProcessingAction, setJoin
 
     // APPROVE TRUCOIN BUTTON
     const { config: configApprove } = usePrepareContractWrite({
-        addressOrName: "0x5FbDB2315678afecb367f032d93F642f64180aa3", // trucoin
+        addressOrName: process.env.TRUCOIN_ADDRESS as string, // trucoin
         contractInterface: new Interface(["function approve(address, uint) public returns (bool)"]),
         functionName: "approve",
         args: [
@@ -112,8 +112,7 @@ export const JoinMatch = ({match, processingAction, setProcessingAction, setJoin
             }
             //refetchJoin({throwOnError: true, cancelRefetch: false})
         },
-        wait: transactionApproveTrucoins?.wait,
-        timeout: 2000
+        wait: transactionApproveTrucoins?.wait
     })
 
     useWaitForTransaction({

@@ -31,13 +31,14 @@ import { SpellRealEnvido } from "../Actions/SpellRealEnvido"
 import { SpellValeCuatro } from "../Actions/SpellValeCuatro"
 
 
-export const GAS_LIMIT_WRITE = 3000000
+export const GAS_LIMIT_WRITE = process.env.GAS_LIMIT_WRITE
 
 
 const arrayToBuffer = (array: any[]) => array.map(simpleObject => Buffer.from(simpleObject.data))
 
 
 export const Dashboard = ({ address, inSession, matchAddress }: any) => {
+    console.log("ADDRESS CONTRACT", process.env.TRUCOMATCH_FACTORY_ADDRESS)
     // TODO add hasPeers -> allow actions
     const { p2pt, peers, messages, sendToPeers, latestNonce } = useP2PT(inSession, 'UNIQUE_KEY_GAME')
     const [ sharedCodewordFragment, setSharedCodewordFragments ] = useState([])
@@ -268,7 +269,6 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                                     :
                                     <>
                                         <InitCommunication signMessage={signMessage} latestNonce={latestNonce} state={state} self={selfPlayer} setState={setState} />
-                                        <DeployMatch />
                                     </>
                                 }
                             </Actions>
