@@ -38,18 +38,15 @@ describe('Truco Match Factory', function () {
 
             // Approve trucoins to be used by the match contract
             await trucoin.connect(player1).approve(factory.address, min_bet)
-            console.log('trucoins aprobados')
 
             // Create a new match and get the address
             const tx = await factory.connect(player1).newMatch(min_bet)
-            console.log('match creado')
 
             const { events } = await tx.wait()
             const event = events.find(
                 (e: { event: string }) => e.event === 'TrucoMatchCreated'
             )
             const match_address = event.args['match_address']
-            console.log('match address obtenido')
             // Check if the bet was transfered to the match contract
             expect(await trucoin.balanceOf(match_address)).to.equal(min_bet)
         })
