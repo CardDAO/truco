@@ -170,7 +170,7 @@ contract TrucoResolver {
     // Check if the challenge is at a final state (no cards can be played and a winner could be determined)
     function isFinal(IERC3333.GameState memory _gameState)
         external
-        pure
+        view
         returns (bool)
     {
         //If a refusal was made, game is final
