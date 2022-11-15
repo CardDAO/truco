@@ -3,7 +3,7 @@ import { ethers } from 'hardhat'
 import { BigNumber } from 'ethers'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 
-import { deployTrucoChampionsTokenContract } from '../deploy-contracts'
+import { deployTrucoChampionsTokenContract } from '../../scripts/helpers/truco-champions-token-deploy'
 import { TrucoChampionsToken__factory } from '../../typechain-types'
 
 async function assignTokens() {

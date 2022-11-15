@@ -93,12 +93,9 @@ export async function deployFactoryContract() {
     // Minimum bet is the engine minimum fee divided by 2 players plus some extra
     const min_bet = (await engine.MINIMUM_FEE()).div(2).add(1000)
 
-    const TrucoMatchFactory = await ethers.getContractFactory(
-        'TrucoMatchFactory'
-    )
     const { factory } = await deployMatchFactoryContract(
-        trucoin,
         engine,
+        trucoin,
         trucoChampionsToken,
         gameStateQueries,
         min_bet
