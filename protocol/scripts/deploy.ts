@@ -1,11 +1,11 @@
 import { ethers } from 'hardhat'
-import { deployTrucoChampionsTokenContract } from '../test/deploy-contracts'
+import { deployTrucoChampionsTokenContract } from './helpers/truco-champions-token-deploy'
 import { deployDeckContract } from './helpers/deck-deploy'
 import { deployEnvidoResolverContract } from './helpers/envido-resolver-deploy'
 import { deployFrontMatchFacadeContract } from './helpers/front-match-facade-deploy'
 import { deployGameStateQueriesContract } from './helpers/game-state-queries-deploy'
 import { deployMatchFactoryContract } from './helpers/match-factory-contract'
-import { deployEngineContract } from './helpers/truco-engine-deploy'
+import { deployTrucoEngineContract } from './helpers/truco-engine-deploy'
 import { deployTrucoResolverContract } from './helpers/truco-resolver-deploy'
 import { deployTrucoinContract } from './helpers/trucoin-deploy'
 
@@ -38,11 +38,12 @@ async function main() {
         `FrontMatchFacade deployed in address: ${frontMatchFacade.address}`
     )
 
-    const { engine } = await deployEngineContract(
+    const { engine } = await deployTrucoEngineContract(
         trucoin,
         trucoResolver,
         envidoResolver,
-        gameStateQueries
+        gameStateQueries,
+        false
     )
     console.log(`Engine deployed in address: ${engine.address}`)
 

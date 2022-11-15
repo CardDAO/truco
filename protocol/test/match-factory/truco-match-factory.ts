@@ -28,8 +28,9 @@ describe('Truco Match Factory', function () {
         })
 
         it('Should transfer the bet to the match contract', async function () {
-            const { factory, trucoin, min_bet, trucoChampionsToken } =
-                await loadFixture(deployFactoryContract)
+            const { factory, trucoin, min_bet } = await loadFixture(
+                deployFactoryContract
+            )
             const [player1] = await ethers.getSigners()
 
             // Mint trucoins to player1
@@ -46,7 +47,6 @@ describe('Truco Match Factory', function () {
                 (e: { event: string }) => e.event === 'TrucoMatchCreated'
             )
             const match_address = event.args['match_address']
-
             // Check if the bet was transfered to the match contract
             expect(await trucoin.balanceOf(match_address)).to.equal(min_bet)
         })
