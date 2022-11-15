@@ -1,4 +1,4 @@
-import { ethers } from 'hardhat'
+import { ethers, upgrades } from 'hardhat'
 
 export async function deployGameStateQueriesContract(
     cardsDeck: CardsDeck,
@@ -6,10 +6,12 @@ export async function deployGameStateQueriesContract(
     trucoResolver: TrucoResolver
 ) {
     const GameStateQueries = await ethers.getContractFactory('GameStateQueries')
-    const gameStateQueries = await GameStateQueries.deploy(
+    const gameStateQueries = await upgrades.deployProxy(GameStateQueries, [
         trucoResolver.address,
         envidoResolver.address,
-        cardsDeck.address
-    )
+        cardsDeck.address,
+    ])
+    await gameStateQueries.deployed()
+
     return { gameStateQueries }
 }

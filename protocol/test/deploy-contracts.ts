@@ -1,4 +1,11 @@
-import { ethers, upgrades } from 'hardhat'
+import { ethers } from 'hardhat'
+import { deployEnvidoResolverContract } from '../scripts/helpers/envido-resolver-deploy'
+import { deployGameStateQueriesContract } from '../scripts/helpers/game-state-queries-deploy'
+import { deployMatchFactoryContract } from '../scripts/helpers/match-factory-contract'
+import { deployTrucoChampionsTokenContract } from '../scripts/helpers/truco-champions-token-deploy'
+import { deployTrucoEngineContract } from '../scripts/helpers/truco-engine-deploy'
+import { deployTrucoResolverContract } from '../scripts/helpers/truco-resolver-deploy'
+import { deployTrucoinContract } from '../scripts/helpers/trucoin-deploy'
 
 export async function deployDeckContract() {
     const CardsDeck = await ethers.getContractFactory('CastillianDeck')
@@ -8,35 +15,27 @@ export async function deployDeckContract() {
 }
 
 export async function deployEngineContract() {
-    const Trucoin = await ethers.getContractFactory('Trucoin')
-    const trucoin = await Trucoin.deploy()
+    const { trucoin } = await deployTrucoinContract()
 
-    const TrucoResolver = await ethers.getContractFactory('TrucoResolver')
-    const trucoResolver = await upgrades.deployProxy(TrucoResolver)
-    await trucoResolver.deployed()
+    const { trucoResolver } = await deployTrucoResolverContract()
 
-    const EnvidoResolver = await ethers.getContractFactory('EnvidoResolver')
-    const envidoResolver = await upgrades.deployProxy(EnvidoResolver, [])
-    await envidoResolver.deployed()
+    const { envidoResolver } = await deployEnvidoResolverContract()
 
     const { cardsDeck } = await deployDeckContract()
 
-    const GameStateQueries = await ethers.getContractFactory('GameStateQueries')
-    const gameStateQueries = await upgrades.deployProxy(GameStateQueries, [
-        trucoResolver.address,
-        envidoResolver.address,
-        cardsDeck.address,
-    ])
-    await gameStateQueries.deployed()
+    const { gameStateQueries } = await deployGameStateQueriesContract(
+        cardsDeck,
+        envidoResolver,
+        trucoResolver
+    )
 
-    const TrucoEngine = await ethers.getContractFactory('Engine2PlayersTester')
-    const engine = await upgrades.deployProxy(TrucoEngine, [
-        trucoin.address,
-        trucoResolver.address,
-        envidoResolver.address,
-        gameStateQueries.address
-    ])
-    await engine.deployed()
+    const {engine } = await deployTrucoEngineContract(
+        trucoin,
+        trucoResolver,
+        envidoResolver,
+        gameStateQueries,
+        true
+    )
 
     return { engine, trucoin, gameStateQueries, cardsDeck }
 }
@@ -97,14 +96,13 @@ export async function deployFactoryContract() {
     const TrucoMatchFactory = await ethers.getContractFactory(
         'TrucoMatchFactory'
     )
-    const factory = await upgrades.deployProxy(TrucoMatchFactory, [
-        engine.address,
-        trucoin.address,
-        trucoChampionsToken.address,
-        gameStateQueries.address,
-        min_bet,
-    ])
-    await factory.deployed()
+    const { factory } = await deployMatchFactoryContract(
+        trucoin,
+        engine,
+        trucoChampionsToken,
+        gameStateQueries,
+        min_bet
+    )
 
     await trucoChampionsToken.transferOwnership(factory.address)
 
@@ -117,14 +115,4 @@ export async function deployFactoryContract() {
         owner,
         min_bet,
     }
-}
-
-export async function deployTrucoChampionsTokenContract() {
-    const [owner] = await ethers.getSigners()
-    const TrucoChampionsToken = await ethers.getContractFactory(
-        'TrucoChampionsToken'
-    )
-    const trucoChampionsToken = await TrucoChampionsToken.deploy()
-
-    return { trucoChampionsToken }
 }
