@@ -9,8 +9,7 @@ import './trucoV1/GameStateQueries.sol';
 import './TrucoMatch.sol';
 import './token/TrucoChampionsToken.sol';
 
-contract TrucoMatchFactory is OwnableUpgradeable {
-    // State variables
+contract TrucoMatchFactory is Initializable, OwnableUpgradeable {
     TrucoMatch[] public matches;
     IERC3333 internal trucoEngine;
     GameStateQueries internal gameStateQueries;
@@ -18,14 +17,17 @@ contract TrucoMatchFactory is OwnableUpgradeable {
     TrucoChampionsToken internal TCT;
     uint256 public minBet;
 
-    // Events
     event TrucoMatchCreated(
         address indexed match_address,
         address indexed player1,
         uint256 bet
     );
 
-    // Initialize
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
     function initialize(
         IERC3333 _trucoEngine,
         IERC20 _truCoin,
@@ -40,7 +42,6 @@ contract TrucoMatchFactory is OwnableUpgradeable {
         minBet = _minBet;
     }
 
-    // New Match
     function newMatch(uint256 _bet) public returns (TrucoMatch) {
         require(_bet >= minBet, 'Bet is too low');
         require(
@@ -81,6 +82,6 @@ contract TrucoMatchFactory is OwnableUpgradeable {
 
     // Destroy match contract
     function destroyMatch(address _matchAddress) public onlyOwner {
-        // Destroy match
+        // TODO: Destroy match
     }
 }
