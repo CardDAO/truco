@@ -9,7 +9,6 @@ import { IERC3333 } from '../../typechain-types/contracts/trucoV1/interfaces/IER
 import GameStateStruct = IERC3333.GameStateStruct
 
 describe('Engine Queries', function () {
-
     describe('Envido', function () {
         describe('Envido Winner Revealing Cards Enforcement', function () {
             it('Envido was not played', async function () {
@@ -17,8 +16,9 @@ describe('Engine Queries', function () {
 
                 let state: GameStateStruct = basicGameState()
 
-                expect(await gameStateQueries.cardsShouldBeRevealedForEnvido(state)).to.be
-                    .false
+                expect(
+                    await gameStateQueries.cardsShouldBeRevealedForEnvido(state)
+                ).to.be.false
             })
 
             it('Envido is pending acceptance', async function () {
@@ -32,8 +32,9 @@ describe('Engine Queries', function () {
                 state.envido.spelled = true
                 state.currentChallenge.waitingChallengeResponse = true
 
-                expect(await gameStateQueries.cardsShouldBeRevealedForEnvido(state)).to.be
-                    .false
+                expect(
+                    await gameStateQueries.cardsShouldBeRevealedForEnvido(state)
+                ).to.be.false
             })
 
             it('Envido accepted, no point count spelled', async function () {
@@ -50,8 +51,9 @@ describe('Engine Queries', function () {
                     ResponseEnum.Accept
                 )
 
-                expect(await gameStateQueries.cardsShouldBeRevealedForEnvido(state)).to.be
-                    .false
+                expect(
+                    await gameStateQueries.cardsShouldBeRevealedForEnvido(state)
+                ).to.be.false
             })
 
             it('Envido refused', async function () {
@@ -68,8 +70,9 @@ describe('Engine Queries', function () {
                     ResponseEnum.Refuse
                 )
 
-                expect(await gameStateQueries.cardsShouldBeRevealedForEnvido(state)).to.be
-                    .false
+                expect(
+                    await gameStateQueries.cardsShouldBeRevealedForEnvido(state)
+                ).to.be.false
             })
 
             it('Envido accepted, points partially spelled', async function () {
@@ -85,8 +88,9 @@ describe('Engine Queries', function () {
 
                 state.envido.playerCount[0] = BigNumber.from(23)
 
-                expect(await gameStateQueries.cardsShouldBeRevealedForEnvido(state)).to.be
-                    .false
+                expect(
+                    await gameStateQueries.cardsShouldBeRevealedForEnvido(state)
+                ).to.be.false
             })
 
             it('Envido finished, no cards were played by winner', async function () {
@@ -104,12 +108,14 @@ describe('Engine Queries', function () {
                 state.envido.playerCount[0] = BigNumber.from(23)
                 state.envido.playerCount[1] = BigNumber.from(20)
 
-                expect(await gameStateQueries.cardsShouldBeRevealedForEnvido(state)).to.be
-                    .true
+                expect(
+                    await gameStateQueries.cardsShouldBeRevealedForEnvido(state)
+                ).to.be.true
             })
 
             it('Envido finished, not involved cards that sum envido were played', async function () {
-                const { gameStateQueries, cardsDeck } = await deployEngineContract()
+                const { gameStateQueries, cardsDeck } =
+                    await deployEngineContract()
 
                 let state: GameStateStruct = basicGameState()
 
@@ -130,12 +136,14 @@ describe('Engine Queries', function () {
                     await cardsDeck.maskedCardId(),
                 ]
 
-                expect(await gameStateQueries.cardsShouldBeRevealedForEnvido(state)).to.be
-                    .true
+                expect(
+                    await gameStateQueries.cardsShouldBeRevealedForEnvido(state)
+                ).to.be.true
             })
 
             it('Envido finished, some cards that sum envido were played', async function () {
-                const { gameStateQueries, cardsDeck } = await deployEngineContract()
+                const { gameStateQueries, cardsDeck } =
+                    await deployEngineContract()
 
                 let state: GameStateStruct = basicGameState()
 
@@ -156,12 +164,14 @@ describe('Engine Queries', function () {
                     await cardsDeck.maskedCardId(),
                 ]
 
-                expect(await gameStateQueries.cardsShouldBeRevealedForEnvido(state)).to.be
-                    .true
+                expect(
+                    await gameStateQueries.cardsShouldBeRevealedForEnvido(state)
+                ).to.be.true
             })
 
             it('Envido finished, all cards that sum envido were played', async function () {
-                const { gameStateQueries, cardsDeck } = await deployEngineContract()
+                const { gameStateQueries, cardsDeck } =
+                    await deployEngineContract()
 
                 let state: GameStateStruct = basicGameState()
 
@@ -183,8 +193,9 @@ describe('Engine Queries', function () {
                 ]
 
                 // console.log(state)
-                expect(await gameStateQueries.cardsShouldBeRevealedForEnvido(state)).to.be
-                    .false
+                expect(
+                    await gameStateQueries.cardsShouldBeRevealedForEnvido(state)
+                ).to.be.false
             })
         })
 
@@ -236,9 +247,9 @@ describe('Engine Queries', function () {
                     // Three cards of different suit
                     let cards = [BigNumber.from(11)]
 
-                    expect(await gameStateQueries.getEnvidoPointsForCards(cards)).to.equal(
-                        BigNumber.from(1)
-                    )
+                    expect(
+                        await gameStateQueries.getEnvidoPointsForCards(cards)
+                    ).to.equal(BigNumber.from(1))
                 })
 
                 it('One card only wich is a figure', async function () {
@@ -247,9 +258,9 @@ describe('Engine Queries', function () {
                     // Three cards of different suit
                     let cards = [BigNumber.from(10)]
 
-                    expect(await gameStateQueries.getEnvidoPointsForCards(cards)).to.equal(
-                        BigNumber.from(0)
-                    )
+                    expect(
+                        await gameStateQueries.getEnvidoPointsForCards(cards)
+                    ).to.equal(BigNumber.from(0))
                 })
 
                 it('Two cards, just figures', async function () {
@@ -258,9 +269,9 @@ describe('Engine Queries', function () {
                     // Three cards of different suit
                     let cards = [BigNumber.from(9), BigNumber.from(28)]
 
-                    expect(await gameStateQueries.getEnvidoPointsForCards(cards)).to.equal(
-                        BigNumber.from(0)
-                    )
+                    expect(
+                        await gameStateQueries.getEnvidoPointsForCards(cards)
+                    ).to.equal(BigNumber.from(0))
                 })
 
                 it('Two cards, one figure', async function () {
@@ -269,9 +280,9 @@ describe('Engine Queries', function () {
                     // Three cards of different suit
                     let cards = [BigNumber.from(1), BigNumber.from(19)]
 
-                    expect(await gameStateQueries.getEnvidoPointsForCards(cards)).to.equal(
-                        BigNumber.from(1)
-                    )
+                    expect(
+                        await gameStateQueries.getEnvidoPointsForCards(cards)
+                    ).to.equal(BigNumber.from(1))
                 })
 
                 it('One number and two figures', async function () {
@@ -284,9 +295,9 @@ describe('Engine Queries', function () {
                         BigNumber.from(21),
                     ]
 
-                    expect(await gameStateQueries.getEnvidoPointsForCards(cards)).to.equal(
-                        BigNumber.from(1)
-                    )
+                    expect(
+                        await gameStateQueries.getEnvidoPointsForCards(cards)
+                    ).to.equal(BigNumber.from(1))
                 })
 
                 it('Two numbers and one figure', async function () {
@@ -299,9 +310,9 @@ describe('Engine Queries', function () {
                         BigNumber.from(28),
                     ]
 
-                    expect(await gameStateQueries.getEnvidoPointsForCards(cards)).to.equal(
-                        BigNumber.from(1)
-                    )
+                    expect(
+                        await gameStateQueries.getEnvidoPointsForCards(cards)
+                    ).to.equal(BigNumber.from(1))
                 })
 
                 it('Two numbers and one figure, different order', async function () {
@@ -314,9 +325,9 @@ describe('Engine Queries', function () {
                         BigNumber.from(5),
                     ]
 
-                    expect(await gameStateQueries.getEnvidoPointsForCards(cards)).to.equal(
-                        BigNumber.from(5)
-                    )
+                    expect(
+                        await gameStateQueries.getEnvidoPointsForCards(cards)
+                    ).to.equal(BigNumber.from(5))
                 })
 
                 it('Three numbers', async function () {
@@ -329,51 +340,61 @@ describe('Engine Queries', function () {
                         BigNumber.from(34),
                     ]
 
-                    expect(await gameStateQueries.getEnvidoPointsForCards(cards)).to.equal(
-                        BigNumber.from(4)
-                    )
+                    expect(
+                        await gameStateQueries.getEnvidoPointsForCards(cards)
+                    ).to.equal(BigNumber.from(4))
                 })
             })
 
             describe('Suit match', function () {
                 describe('Two cards query', function () {
                     it('Both figures same suit', async function () {
-                        const { gameStateQueries } = await deployEngineContract()
+                        const { gameStateQueries } =
+                            await deployEngineContract()
 
                         // Three cards of different suit
                         let cards = [BigNumber.from(8), BigNumber.from(9)]
 
                         expect(
-                            await gameStateQueries.getEnvidoPointsForCards(cards)
+                            await gameStateQueries.getEnvidoPointsForCards(
+                                cards
+                            )
                         ).to.equal(BigNumber.from(20))
                     })
 
                     it('One figure and one a number ', async function () {
-                        const { gameStateQueries } = await deployEngineContract()
+                        const { gameStateQueries } =
+                            await deployEngineContract()
 
                         // Three cards of different suit
                         let cards = [BigNumber.from(8), BigNumber.from(9)]
 
                         expect(
-                            await gameStateQueries.getEnvidoPointsForCards(cards)
+                            await gameStateQueries.getEnvidoPointsForCards(
+                                cards
+                            )
                         ).to.equal(BigNumber.from(20))
                     })
 
                     it('Two numbers ', async function () {
-                        const { gameStateQueries } = await deployEngineContract()
+                        const { gameStateQueries } =
+                            await deployEngineContract()
 
                         // Three cards of different suit
                         let cards = [BigNumber.from(2), BigNumber.from(3)]
 
                         expect(
-                            await gameStateQueries.getEnvidoPointsForCards(cards)
+                            await gameStateQueries.getEnvidoPointsForCards(
+                                cards
+                            )
                         ).to.equal(BigNumber.from(25))
                     })
                 })
 
                 describe('Three cards query', function () {
                     it('Two figures same suit, other not', async function () {
-                        const { gameStateQueries } = await deployEngineContract()
+                        const { gameStateQueries } =
+                            await deployEngineContract()
 
                         // Three cards of different suit
                         let cards = [
@@ -383,12 +404,15 @@ describe('Engine Queries', function () {
                         ]
 
                         expect(
-                            await gameStateQueries.getEnvidoPointsForCards(cards)
+                            await gameStateQueries.getEnvidoPointsForCards(
+                                cards
+                            )
                         ).to.equal(BigNumber.from(20))
                     })
 
                     it('Two numbers same suit, a figure from a different one', async function () {
-                        const { gameStateQueries } = await deployEngineContract()
+                        const { gameStateQueries } =
+                            await deployEngineContract()
 
                         // Three cards of different suit
                         let cards = [
@@ -398,12 +422,15 @@ describe('Engine Queries', function () {
                         ]
 
                         expect(
-                            await gameStateQueries.getEnvidoPointsForCards(cards)
+                            await gameStateQueries.getEnvidoPointsForCards(
+                                cards
+                            )
                         ).to.equal(BigNumber.from(21))
                     })
 
                     it('Two figures same suit, a number with a different one', async function () {
-                        const { gameStateQueries } = await deployEngineContract()
+                        const { gameStateQueries } =
+                            await deployEngineContract()
 
                         // Three cards of different suit
                         let cards = [
@@ -413,12 +440,15 @@ describe('Engine Queries', function () {
                         ]
 
                         expect(
-                            await gameStateQueries.getEnvidoPointsForCards(cards)
+                            await gameStateQueries.getEnvidoPointsForCards(
+                                cards
+                            )
                         ).to.equal(BigNumber.from(20))
                     })
 
                     it('All three cards same suit, two figures', async function () {
-                        const { gameStateQueries } = await deployEngineContract()
+                        const { gameStateQueries } =
+                            await deployEngineContract()
 
                         // Three cards of different suit
                         let cards = [
@@ -428,12 +458,15 @@ describe('Engine Queries', function () {
                         ]
 
                         expect(
-                            await gameStateQueries.getEnvidoPointsForCards(cards)
+                            await gameStateQueries.getEnvidoPointsForCards(
+                                cards
+                            )
                         ).to.equal(BigNumber.from(21))
                     })
 
                     it('All three cards same suit, one figure', async function () {
-                        const { gameStateQueries } = await deployEngineContract()
+                        const { gameStateQueries } =
+                            await deployEngineContract()
 
                         // Three cards of different suit
                         let cards = [
@@ -443,12 +476,15 @@ describe('Engine Queries', function () {
                         ]
 
                         expect(
-                            await gameStateQueries.getEnvidoPointsForCards(cards)
+                            await gameStateQueries.getEnvidoPointsForCards(
+                                cards
+                            )
                         ).to.equal(BigNumber.from(28))
                     })
 
                     it('All three cards same suit, no figure', async function () {
-                        const { gameStateQueries } = await deployEngineContract()
+                        const { gameStateQueries } =
+                            await deployEngineContract()
 
                         // Three cards of different suit
                         let cards = [
@@ -458,7 +494,9 @@ describe('Engine Queries', function () {
                         ]
 
                         expect(
-                            await gameStateQueries.getEnvidoPointsForCards(cards)
+                            await gameStateQueries.getEnvidoPointsForCards(
+                                cards
+                            )
                         ).to.equal(BigNumber.from(33))
                     })
                 })
