@@ -127,8 +127,9 @@ describe('Multi Transaction Test: Envido', function () {
             await match.connect(player2).spellEnvido()
             await match.connect(player1).refuseChallenge()
 
-            await expect(match.connect(player2).spellEnvidoCount(BigNumber.from(99)))
-                .to.be.reverted
+            await expect(
+                match.connect(player2).spellEnvidoCount(BigNumber.from(99))
+            ).to.be.reverted
         })
 
         it('Spelling refusal after accepting', async function () {

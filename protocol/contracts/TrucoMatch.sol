@@ -345,4 +345,12 @@ contract TrucoMatch {
 
         revert('You are not a player in this match');
     }
+
+    function currentGameState()
+        external
+        view
+        returns (IERC3333.GameState memory)
+    {
+        return currentMatch.gameState;
+    }
 }

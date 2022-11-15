@@ -2,27 +2,42 @@ import { Chat } from "../Chat"
 import { Actions } from "../Actions"
 import './index.css'
 import { useP2PT } from "../../engine/truco/P2PT"
-import { verifyMessage } from 'ethers/lib/utils'
+import { Interface, verifyMessage } from 'ethers/lib/utils'
 import { useState, useCallback, useEffect } from "react"
 import { createContext } from "react"
 import { StateEnum } from "../../hooks/enums"
 import { createPlayer, createDeck } from 'mental-poker'
 import { InitCommunication, sayHelloAll } from "../Actions/InitComunication"
-import { useSignMessage } from "wagmi"
+import { useContractRead, useSignMessage } from "wagmi"
 import { GAME_CONFIG } from "../../engine/truco/GameConfig"
 import {useProcessMessage} from '../../engine/truco/ProcessMessages'
 import { firstShuffling } from "../Actions/FirstShuffling"
 import { consecutiveShuffling } from "../Actions/ConsecutiveShuffling"
 import { initEncryptDeck } from "../Actions/InitEncryptDeck"
 import { dealCards } from "../Actions/DealCards"
+import { SpellTruco } from "../Actions/SpellTruco"
+import { DeployMatch } from "../DeployMatch"
+import { JoinMatch } from "../Actions/JoinMatch"
+import { SpellEnvido } from "../Actions/SpellEnvido"
+import { MyCards } from "../MyCards"
+import { RecalculateEnvido } from "../Actions/RecalculateEnvido"
+import { SpellEnvidoCount } from "../Actions/SpellEnvidoCount"
+import { AcceptChallenge } from "../Actions/AcceptChallenge"
+import { AcceptChallengeForRaising } from "../Actions/AcceptChallengeForRaising"
+import { SpellFaltaEnvido } from "../Actions/SpellFaltaEnvido"
+import { SpellReTruco } from "../Actions/SpellReTruco"
+import { SpellEnvidoEnvido } from "../Actions/SpellEnvidoEnvido"
+import { SpellRealEnvido } from "../Actions/SpellRealEnvido"
+import { SpellValeCuatro } from "../Actions/SpellValeCuatro"
 
 
+export const GAS_LIMIT_WRITE = process.env.GAS_LIMIT_WRITE
 
 
 const arrayToBuffer = (array: any[]) => array.map(simpleObject => Buffer.from(simpleObject.data))
 
 
-export const Dashboard = ({ address, inSession }: any) => {
+export const Dashboard = ({ address, inSession, matchAddress }: any) => {
     // TODO add hasPeers -> allow actions
     const { p2pt, peers, messages, sendToPeers, latestNonce } = useP2PT(inSession, 'UNIQUE_KEY_GAME')
     const [ sharedCodewordFragment, setSharedCodewordFragments ] = useState([])
@@ -33,6 +48,10 @@ export const Dashboard = ({ address, inSession }: any) => {
     const [ myCards, setMyCards ] = useState({} as AssignedCards)
     const [ usedCardsIndexes, setUsedCardsIndexes ] = useState([] as number[])
     const [ selfPlayer, setSelfPlayer ] = useState(createPlayer(GAME_CONFIG))
+    const [ joined , setJoined ] = useState(false)
+    const [ processingAction, setProcessingAction ] = useState(false)
+    const [ cleanCards, setCleanCards ] = useState([])
+    const [ currentEnvido, setCurrentEnvido ] = useState(0)
     
     // verify before to send
     const { data, error: errorSendMessage, isLoading, signMessage } = useSignMessage({
@@ -40,6 +59,18 @@ export const Dashboard = ({ address, inSession }: any) => {
             sendToPeers(address, signature, variables)
             //setState(gameState, setGameState, messageSourceSigned.message.topic, messageSourceSigned.message.data)
         }
+    })
+    
+    useContractRead({
+       addressOrName: matchAddress,
+       contractInterface: new Interface(["function getPlayers() public view returns (address[2])"]),
+       functionName: 'getPlayers',
+       onSuccess: (data) => {
+           console.log('es parte del juego',  data)
+           if (data?.indexOf(address) >= 0) {
+               setJoined(true)
+           }
+       }
     })
 
     useEffect(() => {
@@ -197,12 +228,50 @@ export const Dashboard = ({ address, inSession }: any) => {
                     </div>
                     <div className="border-dashed border-2 row-span-2 border-lime-700">
                         My cards
+                        <div>
+                            <label>Envido
+                                <input value={currentEnvido} className="block p-2 w-full rounded-lg border sm:text-xs bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500" onChange={(event) => setCurrentEnvido(event.target.value)} />
+                            </label>
+                        </div>
+                        <MyCards match={matchAddress} setProcessingAction={setProcessingAction} cards={cleanCards} setCards={setCleanCards} />
                     </div>
-                    <div className="border-dashed border-2 border-gray-600">
-                        <Actions>
-                            <InitCommunication signMessage={signMessage} latestNonce={latestNonce} state={state} self={selfPlayer} setState={setState} />
-                        </Actions>
-                    </div>
+                        {
+                            processingAction ?
+                            <div role="status"> <svg aria-hidden="true" className="mr-2 w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+                                    <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+                                </svg>
+                                <span className="sr-only">Loading...</span>
+                            </div>
+                            : ""
+                        }
+                        <div className="border-dashed border-2 border-gray-600">
+                            <Actions>
+                                {
+                                matchAddress ?
+                                    !joined ?
+                                        <JoinMatch match={matchAddress} setJoined={setJoined} processingAction={processingAction} setProcessingAction={setProcessingAction} />
+                                        :
+                                        <>
+                                            <SpellTruco match={matchAddress}  setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                            <SpellReTruco match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                            <SpellValeCuatro match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                            <SpellEnvido match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                            <SpellEnvidoCount match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} count={currentEnvido}/>
+                                            <RecalculateEnvido cards={cleanCards} setCurrentEnvido={setCurrentEnvido} />
+                                            <SpellFaltaEnvido match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                            <SpellEnvidoEnvido match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                            <SpellRealEnvido match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                            <AcceptChallenge match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                            <AcceptChallengeForRaising match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                        </>
+                                    :
+                                    <>
+                                        <InitCommunication signMessage={signMessage} latestNonce={latestNonce} state={state} self={selfPlayer} setState={setState} />
+                                    </>
+                                }
+                            </Actions>
+                        </div>
                 </div>
             </div>
         </div>
