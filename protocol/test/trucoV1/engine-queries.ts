@@ -32,28 +32,28 @@ describe('Engine Queries', function () {
             // One invalid card
             let cards = [BigNumber.from(0)]
 
-            expect(sut.getEnvidoPointsForCards(cards)).to.be.revertedWith(
+            await expect(sut.getEnvidoPointsForCards(cards)).to.be.revertedWith(
                 'Invalid card'
             )
 
             // Multiple invalid cards
             cards = [BigNumber.from(0), BigNumber.from(44)]
 
-            expect(sut.getEnvidoPointsForCards(cards)).to.be.revertedWith(
+            await expect(sut.getEnvidoPointsForCards(cards)).to.be.revertedWith(
                 'Invalid card'
             )
 
             // Mix invalid with valid cards
             cards = [BigNumber.from(0), BigNumber.from(2), BigNumber.from(3)]
 
-            expect(sut.getEnvidoPointsForCards(cards)).to.be.revertedWith(
+            await expect(sut.getEnvidoPointsForCards(cards)).to.be.revertedWith(
                 'Invalid card'
             )
 
             // Mix valid with invalid upper bound
             cards = [BigNumber.from(2), BigNumber.from(3), BigNumber.from(44)]
 
-            expect(sut.getEnvidoPointsForCards(cards)).to.be.revertedWith(
+            await expect(sut.getEnvidoPointsForCards(cards)).to.be.revertedWith(
                 'Invalid card'
             )
         })

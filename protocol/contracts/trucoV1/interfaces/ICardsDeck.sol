@@ -15,8 +15,8 @@ interface ICardsDeck {
 
     function areSameSuit(uint8 _card1, uint8 _card2)
         external
-        view
+        pure
         returns (bool);
 
-    function decodeCard(uint8 _card) external view returns (Card memory);
+    function decodeCard(uint8 _card) external pure returns (Card memory);
 }
