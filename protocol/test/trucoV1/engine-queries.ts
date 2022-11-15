@@ -2,7 +2,7 @@ import { expect } from 'chai'
 import { ethers } from 'hardhat'
 
 import { BigNumber } from 'ethers'
-import {basicGameState} from "../basic-game-state";
+import { basicGameState } from '../basic-game-state'
 import { ChallengeEnum, ResponseEnum } from './struct-enums'
 
 import { IERC3333 } from '../../typechain-types/contracts/trucoV1/interfaces/IERC3333'
@@ -37,7 +37,8 @@ describe('Engine Queries', function () {
 
                 let state: GameStateStruct = basicGameState()
 
-                expect(await sut.cardsShouldBeRevealedForEnvido(state)).to.be.false
+                expect(await sut.cardsShouldBeRevealedForEnvido(state)).to.be
+                    .false
             })
 
             it('Envido is pending acceptance', async function () {
@@ -45,11 +46,14 @@ describe('Engine Queries', function () {
 
                 let state: GameStateStruct = basicGameState()
 
-                state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Envido)
+                state.currentChallenge.challenge = BigNumber.from(
+                    ChallengeEnum.Envido
+                )
                 state.envido.spelled = true
                 state.currentChallenge.waitingChallengeResponse = true
 
-                expect(await sut.cardsShouldBeRevealedForEnvido(state)).to.be.false
+                expect(await sut.cardsShouldBeRevealedForEnvido(state)).to.be
+                    .false
             })
 
             it('Envido accepted, no point count spelled', async function () {
@@ -57,26 +61,35 @@ describe('Engine Queries', function () {
 
                 let state: GameStateStruct = basicGameState()
 
-                state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Envido)
+                state.currentChallenge.challenge = BigNumber.from(
+                    ChallengeEnum.Envido
+                )
                 state.envido.spelled = true
                 state.currentChallenge.waitingChallengeResponse = false
-                state.currentChallenge.response = BigNumber.from(ResponseEnum.Accept)
+                state.currentChallenge.response = BigNumber.from(
+                    ResponseEnum.Accept
+                )
 
-                expect(await sut.cardsShouldBeRevealedForEnvido(state)).to.be.false
+                expect(await sut.cardsShouldBeRevealedForEnvido(state)).to.be
+                    .false
             })
-
 
             it('Envido refused', async function () {
                 const { sut } = await deployContract()
 
                 let state: GameStateStruct = basicGameState()
 
-                state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Envido)
+                state.currentChallenge.challenge = BigNumber.from(
+                    ChallengeEnum.Envido
+                )
                 state.envido.spelled = true
                 state.currentChallenge.waitingChallengeResponse = false
-                state.currentChallenge.response = BigNumber.from(ResponseEnum.Refuse)
+                state.currentChallenge.response = BigNumber.from(
+                    ResponseEnum.Refuse
+                )
 
-                expect(await sut.cardsShouldBeRevealedForEnvido(state)).to.be.false
+                expect(await sut.cardsShouldBeRevealedForEnvido(state)).to.be
+                    .false
             })
 
             it('Envido accepted, points partially spelled', async function () {
@@ -84,13 +97,16 @@ describe('Engine Queries', function () {
 
                 let state: GameStateStruct = basicGameState()
 
-                state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Envido)
+                state.currentChallenge.challenge = BigNumber.from(
+                    ChallengeEnum.Envido
+                )
                 state.envido.spelled = true
                 state.currentChallenge.waitingChallengeResponse = true
 
                 state.envido.playerCount[0] = BigNumber.from(23)
 
-                expect(await sut.cardsShouldBeRevealedForEnvido(state)).to.be.false
+                expect(await sut.cardsShouldBeRevealedForEnvido(state)).to.be
+                    .false
             })
 
             it('Envido finished, no cards were played by winner', async function () {
@@ -98,7 +114,9 @@ describe('Engine Queries', function () {
 
                 let state: GameStateStruct = basicGameState()
 
-                state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Envido)
+                state.currentChallenge.challenge = BigNumber.from(
+                    ChallengeEnum.Envido
+                )
                 state.envido.spelled = true
                 state.currentChallenge.waitingChallengeResponse = false
                 state.envido.pointsRewarded = 2
@@ -106,16 +124,18 @@ describe('Engine Queries', function () {
                 state.envido.playerCount[0] = BigNumber.from(23)
                 state.envido.playerCount[1] = BigNumber.from(20)
 
-                expect(await sut.cardsShouldBeRevealedForEnvido(state)).to.be.true
+                expect(await sut.cardsShouldBeRevealedForEnvido(state)).to.be
+                    .true
             })
-
 
             it('Envido finished, not involved cards that sum envido were played', async function () {
                 const { sut, cardsDeck } = await deployContract()
 
                 let state: GameStateStruct = basicGameState()
 
-                state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Envido)
+                state.currentChallenge.challenge = BigNumber.from(
+                    ChallengeEnum.Envido
+                )
                 state.currentChallenge.waitingChallengeResponse = false
 
                 state.envido.spelled = true
@@ -124,9 +144,14 @@ describe('Engine Queries', function () {
                 state.envido.playerCount[1] = BigNumber.from(20)
 
                 // Player 0 played 1 card, which is unrelated to the envido points count he/she spelled
-                state.revealedCardsByPlayer[0] = [BigNumber.from(1), await cardsDeck.maskedCardId(), await cardsDeck.maskedCardId()]
+                state.revealedCardsByPlayer[0] = [
+                    BigNumber.from(1),
+                    await cardsDeck.maskedCardId(),
+                    await cardsDeck.maskedCardId(),
+                ]
 
-                expect(await sut.cardsShouldBeRevealedForEnvido(state)).to.be.true
+                expect(await sut.cardsShouldBeRevealedForEnvido(state)).to.be
+                    .true
             })
 
             it('Envido finished, some cards that sum envido were played', async function () {
@@ -134,7 +159,9 @@ describe('Engine Queries', function () {
 
                 let state: GameStateStruct = basicGameState()
 
-                state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Envido)
+                state.currentChallenge.challenge = BigNumber.from(
+                    ChallengeEnum.Envido
+                )
                 state.currentChallenge.waitingChallengeResponse = false
 
                 state.envido.spelled = true
@@ -143,9 +170,14 @@ describe('Engine Queries', function () {
                 state.envido.playerCount[1] = BigNumber.from(20)
 
                 // Player 0 played 2 card, one is related to the envido (3 of Coins)
-                state.revealedCardsByPlayer[0] = [BigNumber.from(1), BigNumber.from(3), await cardsDeck.maskedCardId()]
+                state.revealedCardsByPlayer[0] = [
+                    BigNumber.from(1),
+                    BigNumber.from(3),
+                    await cardsDeck.maskedCardId(),
+                ]
 
-                expect(await sut.cardsShouldBeRevealedForEnvido(state)).to.be.true
+                expect(await sut.cardsShouldBeRevealedForEnvido(state)).to.be
+                    .true
             })
 
             it('Envido finished, all cards that sum envido were played', async function () {
@@ -153,7 +185,9 @@ describe('Engine Queries', function () {
 
                 let state: GameStateStruct = basicGameState()
 
-                state.currentChallenge.challenge = BigNumber.from(ChallengeEnum.Envido)
+                state.currentChallenge.challenge = BigNumber.from(
+                    ChallengeEnum.Envido
+                )
                 state.currentChallenge.waitingChallengeResponse = false
 
                 state.envido.spelled = true
@@ -162,12 +196,16 @@ describe('Engine Queries', function () {
                 state.envido.playerCount[1] = BigNumber.from(20)
 
                 // Player 0 played 2 cards witch sum envido
-                state.revealedCardsByPlayer[0] = [BigNumber.from(3), BigNumber.from(8), await cardsDeck.maskedCardId()]
+                state.revealedCardsByPlayer[0] = [
+                    BigNumber.from(3),
+                    BigNumber.from(8),
+                    await cardsDeck.maskedCardId(),
+                ]
 
                 // console.log(state)
-                expect(await sut.cardsShouldBeRevealedForEnvido(state)).to.be.false
+                expect(await sut.cardsShouldBeRevealedForEnvido(state)).to.be
+                    .false
             })
-
         })
 
         describe('Points calculation', function () {

@@ -243,17 +243,15 @@ contract GameStateQueries {
     }
 
     // Check if envido can be spelled at this game
-    function cardsShouldBeRevealedForEnvido(IERC3333.GameState memory _gameState)
-        public
-        view
-        returns (bool)
-    {
-        if (! envidoResolver.isFinal(_gameState)) {
+    function cardsShouldBeRevealedForEnvido(
+        IERC3333.GameState memory _gameState
+    ) public view returns (bool) {
+        if (!envidoResolver.isFinal(_gameState)) {
             return false;
         }
 
         // Check if it was a refusal (no points by any party should be spelled)
-        if (! envidoResolver.validEnvido(_gameState.envido.playerCount[0])) {
+        if (!envidoResolver.validEnvido(_gameState.envido.playerCount[0])) {
             return false;
         }
 
@@ -263,7 +261,10 @@ contract GameStateQueries {
         // Check for unmasked cards in the revealed cards array
         uint8 numRevealedCards = 0;
         for (uint8 i = 0; i <= 2; i++) {
-            if (_gameState.revealedCardsByPlayer[envidoWinner][i] != cardsDeck.maskedCardId())  {
+            if (
+                _gameState.revealedCardsByPlayer[envidoWinner][i] !=
+                cardsDeck.maskedCardId()
+            ) {
                 numRevealedCards++;
             }
         }
@@ -279,12 +280,15 @@ contract GameStateQueries {
 
         // Since cards are revaled in consecutive order all unmasked cards should start at index 0 and be contiguous
         for (uint8 i = 0; i < numRevealedCards; i++) {
-            envidoWinnerCards[i] = _gameState.revealedCardsByPlayer[envidoWinner][i];
+            envidoWinnerCards[i] = _gameState.revealedCardsByPlayer[
+                envidoWinner
+            ][i];
         }
 
         // If envido from revealed cards does not match the envido from the challenge, cards should be revealed
         if (
-            getEnvidoPointsForCards(envidoWinnerCards) != _gameState.envido.playerCount[envidoWinner]
+            getEnvidoPointsForCards(envidoWinnerCards) !=
+            _gameState.envido.playerCount[envidoWinner]
         ) {
             return true;
         }
