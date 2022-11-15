@@ -1,6 +1,6 @@
 import { ethers, upgrades } from "hardhat"
 
-export async function deployMatchFactoryContract(engine: Engine, trucoin: Trucoin, gameStateQueries: GameStateQueries, min_bet) {
+export async function deployMatchFactoryContract(engine: Engine, trucoin: Trucoin, trucoChampionsToken: TrucoChampionsToken, gameStateQueries: GameStateQueries, min_bet) {
 
     const TrucoMatchFactory = await ethers.getContractFactory(
         'TrucoMatchFactory'
@@ -8,6 +8,7 @@ export async function deployMatchFactoryContract(engine: Engine, trucoin: Trucoi
     const factory = await upgrades.deployProxy(TrucoMatchFactory, [
         engine.address,
         trucoin.address,
+        trucoChampionsToken.address,
         gameStateQueries.address,
         min_bet,
     ])

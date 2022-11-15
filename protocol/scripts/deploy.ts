@@ -1,4 +1,5 @@
 import { ethers } from "hardhat";
+import { deployTrucoChampionsTokenContract } from "../test/deploy-contracts"
 import { deployDeckContract } from "./helpers/deck-deploy"
 import { deployEnvidoResolverContract } from "./helpers/envido-resolver-deploy"
 import { deployFrontMatchFacadeContract } from "./helpers/front-match-facade-deploy"
@@ -30,10 +31,13 @@ async function main() {
     const { engine } = await deployEngineContract(trucoin, trucoResolver, envidoResolver, gameStateQueries)
     console.log(`Engine deployed in address: ${engine.address}`)
 
+    const { trucoChampionsToken } = await deployTrucoChampionsTokenContract()
+    console.log(`TrucoChampionsToken deployed in address: ${trucoChampionsToken.address}`)
+
     // Minimum bet is the engine minimum fee divided by 2 players plus some extra
     const min_bet = (await engine.MINIMUM_FEE()).div(2).add(1000)
 
-    const { factory } = await deployMatchFactoryContract(engine, trucoin, gameStateQueries, min_bet)
+    const { factory } = await deployMatchFactoryContract(engine, trucoin, trucoChampionsToken, gameStateQueries, min_bet)
     console.log(`MatchFactory deployed in address: ${factory.address}`)
 }
 
