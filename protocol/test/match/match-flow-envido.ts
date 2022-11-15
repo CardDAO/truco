@@ -65,8 +65,9 @@ describe('Multi Transaction Test: Envido', function () {
 
             await match.connect(player2).spellEnvido()
 
-            await expect(match.connect(player1).spellEnvidoCount(BigNumber.from(33)))
-                .to.be.reverted
+            await expect(
+                match.connect(player1).spellEnvidoCount(BigNumber.from(33))
+            ).to.be.reverted
         })
 
         it('Spelling envido again after refusal', async function () {
@@ -113,8 +114,9 @@ describe('Multi Transaction Test: Envido', function () {
             await match.connect(player2).spellEnvido()
             await match.connect(player1).refuseChallenge()
 
-            await expect(match.connect(player1).spellEnvidoCount(BigNumber.from(34)))
-                .to.be.reverted
+            await expect(
+                match.connect(player1).spellEnvidoCount(BigNumber.from(34))
+            ).to.be.reverted
         })
 
         it('Spelling an envido count that is used internally as "not spelled" indicator', async function () {
@@ -125,8 +127,9 @@ describe('Multi Transaction Test: Envido', function () {
             await match.connect(player2).spellEnvido()
             await match.connect(player1).refuseChallenge()
 
-            await expect(match.connect(player1).spellEnvidoCount(BigNumber.from(99)))
-                .to.be.reverted
+            await expect(
+                match.connect(player1).spellEnvidoCount(BigNumber.from(99))
+            ).to.be.reverted
         })
 
         it('Spelling refusal after accepting', async function () {
@@ -136,7 +139,8 @@ describe('Multi Transaction Test: Envido', function () {
 
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
-            await expect(match.connect(player1).refuseChallenge()).to.be.reverted
+            await expect(match.connect(player1).refuseChallenge()).to.be
+                .reverted
         })
 
         it('Out of turn Envido Count spelling', async function () {
@@ -146,8 +150,9 @@ describe('Multi Transaction Test: Envido', function () {
 
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
-            await expect(match.connect(player1).spellEnvidoCount(BigNumber.from(33)))
-                .to.be.reverted
+            await expect(
+                match.connect(player1).spellEnvidoCount(BigNumber.from(33))
+            ).to.be.reverted
         })
     })
 
