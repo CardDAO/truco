@@ -2,6 +2,7 @@ import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import { deployMatchContract } from '../deploy-contracts'
+import { deployMatchContractReadyToPlay } from './deploy-match-ready-to-play'
 
 import { MatchStateEnum } from './struct-enums'
 import { BigNumber } from 'ethers'
@@ -138,16 +139,9 @@ describe('Truco Match', function () {
         })
 
         it('Player joined, first shuffling', async function () {
-            const { match, trucoin, player1, player2, bet } = await loadFixture(
-                deployMatchContract
+            const { match } = await loadFixture(
+                deployMatchContractReadyToPlay
             )
-
-            // Allow trucoin transfer
-            await trucoin.connect(player2).approve(match.address, bet)
-
-            await match.connect(player2).join()
-
-            await match.connect(player1).newDeal()
 
             let matchState = await match.matchState()
 
@@ -156,16 +150,9 @@ describe('Truco Match', function () {
         })
 
         it('Game ongoing, no final state reached', async function () {
-            const { match, trucoin, player1, player2, bet } = await loadFixture(
-                deployMatchContract
+            const { match, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
             )
-
-            // Allow trucoin transfer
-            await trucoin.connect(player2).approve(match.address, bet)
-
-            await match.connect(player2).join()
-
-            await match.connect(player1).newDeal()
 
             await match.connect(player2).playCard(BigNumber.from(1))
 
@@ -176,16 +163,9 @@ describe('Truco Match', function () {
         })
 
         it('Game reached final state, new shuffling is needed', async function () {
-            const { match, trucoin, player1, player2, bet } = await loadFixture(
-                deployMatchContract
+            const { match, player1, player2  } = await loadFixture(
+                deployMatchContractReadyToPlay
             )
-
-            // Allow trucoin transfer
-            await trucoin.connect(player2).approve(match.address, bet)
-
-            await match.connect(player2).join()
-
-            await match.connect(player1).newDeal()
 
             await match.connect(player2).playCard(BigNumber.from(1))
             await match.connect(player1).playCard(BigNumber.from(4))
@@ -200,16 +180,9 @@ describe('Truco Match', function () {
         })
 
         it('Game reached a state were envido reveal is needed', async function () {
-            const { match, trucoin, player1, player2, bet } = await loadFixture(
-                deployMatchContract
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
             )
-
-            // Allow trucoin transfer
-            await trucoin.connect(player2).approve(match.address, bet)
-
-            await match.connect(player2).join()
-
-            await match.connect(player1).newDeal()
 
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
@@ -229,17 +202,31 @@ describe('Truco Match', function () {
             expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_REVEAL)
             expect(matchState.dealNonce).to.equal(BigNumber.from(1))
         })
+
+
+        it('Game reached final state', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            let gameState = await match.currentGameState();
+
+            await match.setTeamPoints(await match.connect(player1).currentPlayerIdx(), gameState.pointsToWin )
+
+            await match.connect(player2).playCard(BigNumber.from(2))
+
+            let matchState = await match.matchState()
+
+            expect(matchState.state).to.equal(MatchStateEnum.FINISHED)
+            expect(matchState.dealNonce).to.equal(BigNumber.from(1))
+        })
     })
 
     describe('Card Deal', function () {
         it('Game is waiting for play, not shuffling', async function () {
-            const { match, trucoin, player1, player2, bet } = await loadFixture(
-                deployMatchContract
+            const { match, player1} = await loadFixture(
+                deployMatchContractReadyToPlay
             )
-
-            await trucoin.connect(player2).approve(match.address, bet)
-            await match.connect(player2).join()
-            await match.connect(player1).newDeal()
 
             await expect(match.connect(player1).newDeal()).to.be.reverted
         })

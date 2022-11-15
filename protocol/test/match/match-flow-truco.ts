@@ -1,7 +1,6 @@
 import { expect } from 'chai'
-import { ethers } from 'hardhat'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
-import { deployMatchContract } from '../deploy-contracts'
+import { deployMatchContractReadyToPlay } from './deploy-match-ready-to-play'
 
 import { BigNumber } from 'ethers'
 
@@ -9,39 +8,11 @@ import { TrucoMatch } from '../../typechain-types/contracts/TrucoMatch'
 import { ChallengeEnum, ResponseEnum } from '../trucoV1/struct-enums'
 
 describe('Multi Transaction Test: Truco', function () {
-    async function deployContract() {
-        // Contracts are deployed using the first signer/account by default
-        const [player1, player2, invalid_player] = await ethers.getSigners()
-
-        const { match, trucoin, engine, gameStateQueries, bet } =
-            await deployMatchContract()
-
-        await engine.setWhiteListed(match.address, true)
-
-        // Approve trucoins to be used by the match contract
-        await trucoin.connect(player2).approve(match.address, bet)
-
-        // Player2 joins the match
-        await match.connect(player2).join()
-
-        // Start deal
-        await match.connect(player1).newDeal()
-
-        return {
-            match,
-            engine,
-            trucoin,
-            player1,
-            player2,
-            invalid_player,
-            gameStateQueries,
-        }
-    }
 
     describe('Invalid Moves', function () {
         it('Spell Truco when Truco was already Challenged', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.connect(player2).spellTruco()
@@ -52,7 +23,7 @@ describe('Multi Transaction Test: Truco', function () {
 
         it('Raising without accepting', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.connect(player2).spellTruco()
@@ -61,14 +32,14 @@ describe('Multi Transaction Test: Truco', function () {
         })
 
         it('Spelling ReTruco without any previous challenge', async function () {
-            const { match, player2 } = await loadFixture(deployContract)
+            const { match, player2 } = await loadFixture(deployMatchContractReadyToPlay)
 
             await expect(match.connect(player2).spellReTruco()).to.be.reverted
         })
 
         it('Spelling same challenge', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.connect(player2).spellTruco()
@@ -79,7 +50,7 @@ describe('Multi Transaction Test: Truco', function () {
 
         it('Play card without accepting', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.connect(player2).spellTruco()
@@ -90,7 +61,7 @@ describe('Multi Transaction Test: Truco', function () {
 
         it('Playing an invalid card', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.connect(player2).spellTruco()
@@ -102,7 +73,7 @@ describe('Multi Transaction Test: Truco', function () {
 
         it('PLaying a card id that is used internally as a masked card indicator', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.connect(player2).spellTruco()
@@ -114,7 +85,7 @@ describe('Multi Transaction Test: Truco', function () {
 
         it('Spelling refusal after accepting', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.connect(player2).spellTruco()
@@ -125,7 +96,7 @@ describe('Multi Transaction Test: Truco', function () {
 
         it('Out of turn Truco Count spelling', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.connect(player2).spellTruco()
@@ -137,7 +108,7 @@ describe('Multi Transaction Test: Truco', function () {
 
     describe('Turn Handling', function () {
         it('Spelling Truco out of turn', async function () {
-            const { match, player1 } = await loadFixture(deployContract)
+            const { match, player1 } = await loadFixture(deployMatchContractReadyToPlay)
 
             // TRANSACTION: Player 1 should be the first to play
             await expect(match.connect(player1).spellTruco()).to.be.reverted
@@ -145,7 +116,7 @@ describe('Multi Transaction Test: Truco', function () {
 
         it('Raising out of turn', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.setPlayerTurn(
@@ -162,7 +133,7 @@ describe('Multi Transaction Test: Truco', function () {
 
         it('Playing card out of turn: after round 1', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.setPlayerTurn(
@@ -186,7 +157,7 @@ describe('Multi Transaction Test: Truco', function () {
 
         it('Playing card out of turn: after round 2', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.setPlayerTurn(
@@ -214,7 +185,7 @@ describe('Multi Transaction Test: Truco', function () {
 
         it('No truco spelled, but playing cards', async function () {
             const { match, player1, player2, engine } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.setPlayerTurn(
@@ -248,7 +219,7 @@ describe('Multi Transaction Test: Truco', function () {
 
         it('No truco spelled, but playing cards, draw on first round', async function () {
             const { match, player1, player2, engine } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.setPlayerTurn(
@@ -266,7 +237,7 @@ describe('Multi Transaction Test: Truco', function () {
 
         it('No truco spelled, but playing cards, draw on first round', async function () {
             const { match, player1, player2, engine } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.setPlayerTurn(
@@ -297,7 +268,7 @@ describe('Multi Transaction Test: Truco', function () {
 
         it('No truco spelled, draw on 1st and 2nd round ', async function () {
             const { match, player1, player2, engine } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.setPlayerTurn(
@@ -319,7 +290,7 @@ describe('Multi Transaction Test: Truco', function () {
 
         it('No truco spelled, draw on 1st and 2nd round and 3rd round, mano should win', async function () {
             const { match, player1, player2, engine } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.setPlayerTurn(
@@ -360,7 +331,7 @@ describe('Multi Transaction Test: Truco', function () {
 
         it('Spelling Truco after an Envido refused', async function () {
             const { match, player1, player2, engine } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             await match.setPlayerTurn(
@@ -402,7 +373,7 @@ describe('Multi Transaction Test: Truco', function () {
 
         it('Spelling Truco after an Envido refused, and spell it again', async function () {
             const { match, player1, player2, gameStateQueries } =
-                await loadFixture(deployContract)
+                await loadFixture(deployMatchContractReadyToPlay)
 
             await match.setPlayerTurn(
                 await match.connect(player2).currentPlayerIdx()
@@ -447,7 +418,7 @@ describe('Multi Transaction Test: Truco', function () {
     describe('Refusals', function () {
         it('Truco from None', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             // TRANSACTION: Player 2 is the first to play (mano)
@@ -476,7 +447,7 @@ describe('Multi Transaction Test: Truco', function () {
 
         it('Retruco declined', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             // TRANSACTION: Player 2 is the first to play (mano)
@@ -523,7 +494,7 @@ describe('Multi Transaction Test: Truco', function () {
 
         it('Vale4 declined', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             // TRANSACTION: Player 2 is the first to play (mano)
@@ -558,7 +529,7 @@ describe('Multi Transaction Test: Truco', function () {
     describe('Acceptances', function () {
         it('Spell Truco with an acceptance', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             let state: TrucoMatch.Match = await match.currentMatch()
@@ -586,7 +557,7 @@ describe('Multi Transaction Test: Truco', function () {
 
         it('Truco raising to ReTruco', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             let state: TrucoMatch.Match = await match.currentMatch()
@@ -618,7 +589,7 @@ describe('Multi Transaction Test: Truco', function () {
 
         it('Retruco raising to Vale4', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             let state: TrucoMatch.Match = await match.currentMatch()
@@ -656,7 +627,7 @@ describe('Multi Transaction Test: Truco', function () {
     describe('Full State Assertions', function () {
         it('Complete Truco Flow: Spell truco, accept it, play rounds of cards till truco ends', async function () {
             const { match, player1, player2, engine } = await loadFixture(
-                deployContract
+                deployMatchContractReadyToPlay
             )
 
             let state: TrucoMatch.Match = await match.currentMatch()
