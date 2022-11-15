@@ -6,7 +6,7 @@ import { ActionButton } from "../Actions/Button"
 
 const TRUCOMATCH_FACTORY: string = process.env.TRUCOMATCH_FACTORY_ADDRESS as string
 
-export const DeployMatch = ({ processingAction, setProcessingAction }) => {
+export const DeployMatch = ({ processingAction, setProcessingAction, setMatchAddress, matchAddress}) => {
     const [enableAction, setEnableAction] = useState(false)
     const [inProgress, setInProgress] = useState(false)
     const [error, setError] = useState("")
@@ -30,10 +30,10 @@ export const DeployMatch = ({ processingAction, setProcessingAction }) => {
                 setError("")
                 setEnableAction(true)
             }
-            console.log('can deploy contract', data)
+            console.log('can approve trucoin', data)
         },
         onError: (error: Error) => {
-            console.log('cant deploy contract', error)
+            console.log('cant approve trucoin', error)
             setEnableAction(false)
         }
     })
@@ -44,12 +44,13 @@ export const DeployMatch = ({ processingAction, setProcessingAction }) => {
         functionName: "newMatch",
         args: [BigNumber.from(10000)],
         overrides: {
-            gasLimit: process.env.GAS_LIMIT_WRITE
+            gasLimit: process.env.GAS_LIMIT_WRITE * 2
         },
         onSuccess: (data: any) => {
-            //console.log('run spell truco', data)
+            console.log('can deploy', data)
         },
         onError: (error: Error) => {
+            console.log('cant deploy', data)
             //console.log('deploy match calc', error)
         }
     })
@@ -87,18 +88,39 @@ export const DeployMatch = ({ processingAction, setProcessingAction }) => {
         wait: dataApprove?.wait
     })
 
+    useWaitForTransaction({
+        hash: dataDeploy?.hash,
+        onSuccess: async (data) => {
+            if (data?.status === 1) {
+                console.log('data', data)
+            } else {
+                setError("TX: Deploy failed")
+                finishProcess()
+            }
+        },
+        onError: (e: Error) => {
+            if (inProgress) { 
+                setError("TX: deploy failed")
+                finishProcess()
+            }
+            console.log("ERROR deploy")
+        },
+        wait: dataDeploy?.wait
+    })
     useContractEvent({
         addressOrName: TRUCOMATCH_FACTORY, // match factory
         contractInterface: new Interface([
-            'event TrucoMatchCreated(address, address, uint256)'
+            'event TrucoMatchCreated(address indexed match_address, address indexed player1, uint256 bet)'
         ]),
         eventName: 'TrucoMatchCreated',
         listener: (event) => {
             if (inProgress) {
+                setMatchAddress(event[0])
                 finishProcess()
+                setEnableAction(false)
+                localStorage.setItem('latest_deployed_match', event[0])
             }
             setError("")
-            console.log('truco match created', event)
         },
     })
 

@@ -38,7 +38,6 @@ const arrayToBuffer = (array: any[]) => array.map(simpleObject => Buffer.from(si
 
 
 export const Dashboard = ({ address, inSession, matchAddress }: any) => {
-    console.log("ADDRESS CONTRACT", process.env.TRUCOMATCH_FACTORY_ADDRESS)
     // TODO add hasPeers -> allow actions
     const { p2pt, peers, messages, sendToPeers, latestNonce } = useP2PT(inSession, 'UNIQUE_KEY_GAME')
     const [ sharedCodewordFragment, setSharedCodewordFragments ] = useState([])

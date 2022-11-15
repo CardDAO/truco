@@ -4,6 +4,7 @@ import { useTruco } from "../../engine/truco/useTruco"
 import {  useAccountInformation, AccountType, useCreateRoom, Player, Message, sendMessage } from '../../hooks/providers/Wagmi'
 import { Dashboard } from "../Dashboard"
 import { DeployMatch } from "../DeployMatch"
+import { Toast } from "../Toast"
 
 const BUTTON_STYLE = "text-white focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
 
@@ -27,6 +28,12 @@ export const Game = () => {
             setInvalidAddress("Error, verifique el address del match")
         }
     }
+    useEffect(() => {
+        const latestDeployedMatch = localStorage.getItem('latest_deployed_match')
+        if (latestDeployedMatch) {
+            setMatchAddress(latestDeployedMatch)
+        }
+    }, [])
 
     return (
         <>
@@ -42,7 +49,7 @@ export const Game = () => {
                         !processingAction ?
                             <>
                                 <div>
-                                    <input placeholder="Match Addresss (empty to deploy)" type="text" onChange={verifyAndSetMatchAddress} className="block p-2 w-full rounded-lg border sm:text-xs bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 my-5" />
+                                    <input placeholder="Match Addresss (empty to deploy)" value={matchAddress} type="text" onChange={verifyAndSetMatchAddress} className="block p-2 w-full rounded-lg border sm:text-xs bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 my-5" />
                                 </div>
                                 <button type="button" disabled={invalidAddress? true : false} className={ invalidAddress ? BUTTON_STYLE + " bg-gray-400" : BUTTON_STYLE + " bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl" } onClick={() => { setInSession(!inSession) }}>Join game</button>
                                 <p className="text-sm text-red-500">{invalidAddress ?? ""}</p>
@@ -50,7 +57,7 @@ export const Game = () => {
                             :""
                         }
                         <div>
-                            <DeployMatch setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                            <DeployMatch setProcessingAction={setProcessingAction} processingAction={processingAction} matchAddress={matchAddress} setMatchAddress={setMatchAddress}/>
                         </div>
                     </div>
                     :
@@ -62,6 +69,8 @@ export const Game = () => {
                         setMessageInput={setMessageInput}
                     />
             }
+
+            <Toast />
         </>
     )
 }
