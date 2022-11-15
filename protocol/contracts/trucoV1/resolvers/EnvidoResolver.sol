@@ -58,6 +58,7 @@ contract EnvidoResolver is IChallengeResolver {
                 _gameState.revealedCardsByPlayer[_gameState.playerTurn][0] == 0
             );
 
+            // Envido count should not be spelled for any player
             require(
                 validEnvido(
                     _gameState.envido.playerCount[_gameState.playerTurn]

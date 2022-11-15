@@ -27,7 +27,7 @@ contract CastillianDeck is ICardsDeck {
 
     uint8 public constant numberOfCards = 40;
 
-    function suitName(uint8 _card) public view returns (string memory) {
+    function suitName(uint8 _card) public pure returns (string memory) {
         Card memory card = decodeCard(_card);
 
         if (card.suit == 0) {
@@ -51,7 +51,7 @@ contract CastillianDeck is ICardsDeck {
 
     function areSameSuit(uint8 _card1, uint8 _card2)
         public
-        view
+        pure
         returns (bool)
     {
         Card memory card1 = decodeCard(_card1);
@@ -61,8 +61,8 @@ contract CastillianDeck is ICardsDeck {
     }
 
     // Decode points of a given set of cards
-    function decodeCard(uint8 _card) public view returns (Card memory) {
-        require(_card != 0 || _card > 40, 'Invalid card');
+    function decodeCard(uint8 _card) public pure returns (Card memory) {
+        require(_card != 0 && _card <= 40, 'Invalid card');
 
         Card memory card;
         uint8 offset = 0;

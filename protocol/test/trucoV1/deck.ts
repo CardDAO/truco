@@ -25,16 +25,13 @@ describe('Deck logic', function () {
         const { sut } = await deployContract()
 
         // Card reserved
-        expect(sut.decodeCard(BigNumber.from(0))).to.be.reverted
+        await expect(sut.decodeCard(BigNumber.from(0))).to.be.reverted
 
         // Out of bonds but right on upper limit
-        expect(sut.decodeCard(BigNumber.from(41))).to.be.reverted
+        await expect(sut.decodeCard(BigNumber.from(41))).to.be.reverted
 
         // Out of bonds by far
-        expect(sut.decodeCard(BigNumber.from(100))).to.be.reverted
-
-        // Our of bond lower limit
-        expect(sut.decodeCard(BigNumber.from(-1))).to.be.reverted
+        await expect(sut.decodeCard(BigNumber.from(100))).to.be.reverted
     })
 
     it('Check suits from cards', async function () {
@@ -57,7 +54,7 @@ describe('Deck logic', function () {
             .be.true
 
         // Invalid card
-        expect(await sut.areSameSuit(BigNumber.from(1), BigNumber.from(41))).to
+        await expect(sut.areSameSuit(BigNumber.from(1), BigNumber.from(41))).to
             .be.reverted
     })
 })

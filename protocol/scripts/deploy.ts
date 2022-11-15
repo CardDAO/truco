@@ -9,6 +9,7 @@ import { deployEngineContract } from "./helpers/truco-engine-deploy"
 import { deployTrucoResolverContract } from "./helpers/truco-resolver-deploy"
 import { deployTrucoinContract } from "./helpers/trucoin-deploy"
 
+
 async function main() {
     const { trucoin } = await deployTrucoinContract()
     console.log(`Trucoin deployed in address: ${trucoin.address}`)

@@ -44,7 +44,7 @@ describe('Multi Transaction Test: Truco', function () {
             await match.connect(player2).spellTruco()
 
             await match.connect(player1).acceptChallengeForRaising()
-            expect(match.connect(player1).spellTruco()).to.be.reverted
+            await expect(match.connect(player1).spellTruco()).to.be.reverted
         })
 
         it('Raising without accepting', async function () {
@@ -54,13 +54,13 @@ describe('Multi Transaction Test: Truco', function () {
 
             await match.connect(player2).spellTruco()
 
-            expect(match.connect(player1).spellReTruco()).to.be.reverted
+            await expect(match.connect(player1).spellReTruco()).to.be.reverted
         })
 
         it('Spelling ReTruco without any previous challenge', async function () {
             const { match, player2 } = await loadFixture(deployContract)
 
-            expect(match.connect(player2).spellReTruco()).to.be.reverted
+            await expect(match.connect(player2).spellReTruco()).to.be.reverted
         })
 
         it('Spelling same challenge', async function () {
@@ -71,7 +71,7 @@ describe('Multi Transaction Test: Truco', function () {
             await match.connect(player2).spellTruco()
 
             await match.connect(player1).acceptChallengeForRaising()
-            expect(match.connect(player1).spellTruco()).to.be.reverted
+            await expect(match.connect(player1).spellTruco()).to.be.reverted
         })
 
         it('Play card without accepting', async function () {
@@ -81,7 +81,7 @@ describe('Multi Transaction Test: Truco', function () {
 
             await match.connect(player2).spellTruco()
 
-            expect(match.connect(player1).playCard(BigNumber.from(1))).to.be
+            await expect(match.connect(player1).playCard(BigNumber.from(1))).to.be
                 .reverted
         })
 
@@ -93,7 +93,7 @@ describe('Multi Transaction Test: Truco', function () {
             await match.connect(player2).spellTruco()
             await match.connect(player1).acceptChallenge()
 
-            expect(match.connect(player1).playCard(BigNumber.from(41))).to.be
+            await expect(match.connect(player1).playCard(BigNumber.from(41))).to.be
                 .reverted
         })
 
@@ -105,7 +105,7 @@ describe('Multi Transaction Test: Truco', function () {
             await match.connect(player2).spellTruco()
             await match.connect(player1).acceptChallenge()
 
-            expect(match.connect(player1).playCard(BigNumber.from(0))).to.be
+            await expect(match.connect(player1).playCard(BigNumber.from(0))).to.be
                 .reverted
         })
 
@@ -116,7 +116,8 @@ describe('Multi Transaction Test: Truco', function () {
 
             await match.connect(player2).spellTruco()
             await match.connect(player1).acceptChallenge()
-            expect(match.connect(player1).refuseChallenge()).to.be.reverted
+            await expect(match.connect(player1).refuseChallenge()).to.be
+                .reverted
         })
 
         it('Out of turn Truco Count spelling', async function () {
@@ -126,7 +127,7 @@ describe('Multi Transaction Test: Truco', function () {
 
             await match.connect(player2).spellTruco()
             await match.connect(player1).acceptChallenge()
-            expect(match.connect(player2).playCard(BigNumber.from(1))).to.be
+            await expect(match.connect(player1).playCard(BigNumber.from(1))).to.be
                 .reverted
         })
     })
@@ -136,7 +137,7 @@ describe('Multi Transaction Test: Truco', function () {
             const { match, player1 } = await loadFixture(deployContract)
 
             // TRANSACTION: Player 1 should be the first to play
-            expect(match.connect(player1).spellTruco()).to.be.reverted
+            await expect(match.connect(player1).spellTruco()).to.be.reverted
         })
 
         it('Raising out of turn', async function () {
@@ -153,7 +154,7 @@ describe('Multi Transaction Test: Truco', function () {
 
             // TRANSACTION: Player 2 accepts the challenge but not for rising
             await match.connect(player1).acceptChallenge()
-            expect(match.connect(player1).spellReTruco()).to.be.reverted
+            await expect(match.connect(player1).spellReTruco()).to.be.reverted
         })
 
         it('Playing card out of turn: after round 1', async function () {
@@ -176,7 +177,7 @@ describe('Multi Transaction Test: Truco', function () {
             await match.connect(player1).playCard(BigNumber.from(3)) // 3 of Coins
 
             // Player 1 won first round, so it's player1 turn
-            expect(match.connect(player2).playCard(BigNumber.from(5))).to.be
+            await expect(match.connect(player2).playCard(BigNumber.from(5))).to.be
                 .reverted
         })
 
@@ -204,7 +205,7 @@ describe('Multi Transaction Test: Truco', function () {
             await match.connect(player2).playCard(BigNumber.from(5))
 
             // Player 2 won round 2, so it's player 2 turn
-            expect(match.connect(player1).playCard(BigNumber.from(7))).to.be
+            await expect(match.connect(player1).playCard(BigNumber.from(7))).to.be
                 .reverted
         })
 
@@ -256,7 +257,7 @@ describe('Multi Transaction Test: Truco', function () {
             await match.connect(player1).playCard(BigNumber.from(12)) // 2 of Cups
 
             // Previous round was a draw, mano should play next
-            expect(match.connect(player1).playCard(BigNumber.from(14))).to.be
+            await expect(match.connect(player1).playCard(BigNumber.from(14))).to.be
                 .reverted
         })
 
@@ -309,7 +310,7 @@ describe('Multi Transaction Test: Truco', function () {
             await match.connect(player1).playCard(BigNumber.from(23)) // 5 of Coins
 
             // Previous round was a draw, mano should play next
-            expect(match.connect(player1).playCard(BigNumber.from(14))).to.be
+            await expect(match.connect(player1).playCard(BigNumber.from(14))).to.be
                 .reverted
         })
 
