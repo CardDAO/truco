@@ -48,10 +48,8 @@ async function main() {
     if (matchFactoryAddress === factory.address) {
         console.log(`Transfered owner TrucoChampionsToken to MatchFactory`)
     } else {
-        console.log(`FAIL: Transfer owner TrucoChampionsToken`)
+        throw Error('FAIL: Transfer owner TrucoChampionsToken')
     }
-
-
 }
 
 main().catch((error) => {
