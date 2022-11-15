@@ -57,7 +57,7 @@ describe('Deck logic', function () {
             .be.true
 
         // Invalid card
-        expect(await sut.areSameSuit(BigNumber.from(1), BigNumber.from(41))).to
+        await expect(sut.areSameSuit(BigNumber.from(1), BigNumber.from(41))).to
             .be.reverted
     })
 })
