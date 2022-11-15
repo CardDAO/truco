@@ -12,19 +12,22 @@ export async function deployEngineContract() {
     const trucoin = await Trucoin.deploy()
 
     const TrucoResolver = await ethers.getContractFactory('TrucoResolver')
-    const trucoResolver = await TrucoResolver.deploy()
+    const trucoResolver = await upgrades.deployProxy(TrucoResolver)
+    await trucoResolver.deployed()
 
     const EnvidoResolver = await ethers.getContractFactory('EnvidoResolver')
-    const envidoResolver = await EnvidoResolver.deploy()
+    const envidoResolver = await upgrades.deployProxy(EnvidoResolver, [])
+    await envidoResolver.deployed()
 
     const { cardsDeck } = await deployDeckContract()
 
     const GameStateQueries = await ethers.getContractFactory('GameStateQueries')
-    const gameStateQueries = await GameStateQueries.deploy(
+    const gameStateQueries = await upgrades.deployProxy(GameStateQueries, [
         trucoResolver.address,
         envidoResolver.address,
-        cardsDeck.address
-    )
+        cardsDeck.address,
+    ])
+    await gameStateQueries.deployed()
 
     const TrucoEngine = await ethers.getContractFactory('Engine2PlayersTester')
     const engine = await TrucoEngine.deploy(
@@ -34,7 +37,7 @@ export async function deployEngineContract() {
         gameStateQueries.address
     )
 
-    return { engine, trucoin, gameStateQueries }
+    return { engine, trucoin, gameStateQueries, cardsDeck }
 }
 
 export async function deployMatchContract() {
