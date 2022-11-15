@@ -47,7 +47,6 @@ describe('Truco Match Factory', function () {
             )
             const match_address = event.args['match_address']
 
-            console.log('Match address: ', match_address)
             // Check if the bet was transfered to the match contract
             expect(await trucoin.balanceOf(match_address)).to.equal(min_bet)
         })
