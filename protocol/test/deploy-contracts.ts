@@ -30,12 +30,13 @@ export async function deployEngineContract() {
     await gameStateQueries.deployed()
 
     const TrucoEngine = await ethers.getContractFactory('Engine2PlayersTester')
-    const engine = await TrucoEngine.deploy(
+    const engine = await upgrades.deployProxy(TrucoEngine, [
         trucoin.address,
         trucoResolver.address,
         envidoResolver.address,
         gameStateQueries.address
-    )
+    ])
+    await engine.deployed()
 
     return { engine, trucoin, gameStateQueries, cardsDeck }
 }
