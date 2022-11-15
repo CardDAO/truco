@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
-import { deployEngineContract } from '../deploy-contracts'
+import { deployMatchContract } from '../deploy-contracts'
 
 import { BigNumber } from 'ethers'
 
@@ -9,32 +9,17 @@ import { TrucoMatch } from '../../typechain-types/contracts/TrucoMatch'
 import { ChallengeEnum, ResponseEnum } from '../trucoV1/struct-enums'
 
 describe('Multi Transaction Test: Truco', function () {
-    const tokenAtStake = BigNumber.from(10)
-
     async function deployContract() {
         // Contracts are deployed using the first signer/account by default
         const [player1, player2, invalid_player] = await ethers.getSigners()
 
-        const { trucoin, engine, gameStateQueries } =
-            await deployEngineContract()
-
-        // Transfer trucoins to players
-        await trucoin.mint(player1.address, tokenAtStake)
-        await trucoin.mint(player2.address, tokenAtStake)
-
-        const TrucoMatch = await ethers.getContractFactory('TrucoMatchTester')
-        const match = await TrucoMatch.deploy(
-            engine.address,
-            trucoin.address,
-            gameStateQueries.address,
-            tokenAtStake
-        )
+        const { match, trucoin, engine, gameStateQueries, bet } =
+            await deployMatchContract()
 
         await engine.setWhiteListed(match.address, true)
 
         // Approve trucoins to be used by the match contract
-        await trucoin.connect(player1).approve(match.address, tokenAtStake)
-        await trucoin.connect(player2).approve(match.address, tokenAtStake)
+        await trucoin.connect(player2).approve(match.address, bet)
 
         // Player2 joins the match
         await match.connect(player2).join()
@@ -338,8 +323,12 @@ describe('Multi Transaction Test: Truco', function () {
             )
 
             // Round 1
-            await match.connect(player2).playCard(BigNumber.from(2)) // 2 of Coins
-            await match.connect(player1).playCard(BigNumber.from(22)) // 3 of Coins
+            await expect(match.connect(player2).playCard(BigNumber.from(2)))
+                .to.emit(match, 'TurnSwitch')
+                .withArgs(player1.address) // 2 of Coins
+            await expect(match.connect(player1).playCard(BigNumber.from(22)))
+                .to.emit(match, 'TurnSwitch')
+                .withArgs(player2.address) // 3 of Coins
 
             // Round 2: Player 1 won first round, so it's player1 turn
             await match.connect(player2).playCard(BigNumber.from(3)) // 4 of Cups
@@ -347,7 +336,9 @@ describe('Multi Transaction Test: Truco', function () {
 
             // Player 2 won round 2, so it's player 2 turn
             await match.connect(player2).playCard(BigNumber.from(4)) // 3 of Cups
-            await match.connect(player1).playCard(BigNumber.from(14)) // 2 of Swords
+            await expect(
+                await match.connect(player1).playCard(BigNumber.from(14))
+            ).to.not.emit(match, 'TurnSwitch') // 2 of Swords  (turn shouldn't switch because it's final)
 
             let state = await match.currentMatch()
 
@@ -413,10 +404,21 @@ describe('Multi Transaction Test: Truco', function () {
                 await match.connect(player2).currentPlayerIdx()
             )
 
-            await match.connect(player2).spellTruco()
+            // Spell truco and check turn event emitted
+            await expect(match.connect(player2).spellTruco())
+                .to.emit(match, 'TurnSwitch')
+                .withArgs(player1.address)
 
-            await match.connect(player1).spellEnvido()
-            await match.connect(player2).refuseChallenge()
+            // Spell envido and check turn event emitted
+            await expect(match.connect(player1).spellEnvido())
+                .to.emit(match, 'TurnSwitch')
+                .withArgs(player2.address)
+
+            // After refusal, player 2 keeps turn
+            await expect(match.connect(player2).refuseChallenge()).to.not.emit(
+                match,
+                'TurnSwitch'
+            )
 
             let state = await match.currentMatch()
             expect(await gameStateQueries.isEnvidoEnded(state.gameState)).to.be
@@ -448,7 +450,10 @@ describe('Multi Transaction Test: Truco', function () {
             await match.connect(player2).spellTruco()
 
             // TRANSACTION: Player 1 refuses
-            await match.connect(player1).refuseChallenge()
+            await expect(match.connect(player1).refuseChallenge()).to.not.emit(
+                match,
+                'TurnSwitch'
+            ) // turn should not switch because after truco refusal it needs a new deal to switch turns
 
             let state = await match.currentMatch()
 
