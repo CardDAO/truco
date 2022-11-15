@@ -183,7 +183,7 @@ contract GameStateQueries {
     function getEnvidoPointsForCardPair(
         ICardsDeck.Card memory card1,
         ICardsDeck.Card memory card2
-    ) internal view returns (uint8) {
+    ) internal pure returns (uint8) {
         // Check if cards are of the same suit, in that case return the number that's bigger
         if (card1.suit != card2.suit) {
             // Both figures

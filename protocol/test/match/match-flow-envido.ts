@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
-import { deployEngineContract } from '../deploy-contracts'
+import { deployMatchContract } from '../deploy-contracts'
 
 import { BigNumber } from 'ethers'
 
@@ -9,37 +9,30 @@ import { TrucoMatch } from '../../typechain-types/contracts/TrucoMatch'
 import { ChallengeEnum, ResponseEnum } from '../trucoV1/struct-enums'
 
 describe('Multi Transaction Test: Envido', function () {
-    const tokenAtStake = BigNumber.from(10)
-
     async function deployContract() {
         // Contracts are deployed using the first signer/account by default
         const [player1, player2, invalid_player] = await ethers.getSigners()
 
-        const { trucoin, engine, gameStateQueries } =
-            await deployEngineContract()
-
-        // Transfer trucoins to players
-        await trucoin.mint(player1.address, tokenAtStake)
-        await trucoin.mint(player2.address, tokenAtStake)
-
-        const TrucoMatch = await ethers.getContractFactory('TrucoMatchTester')
-        const match = await TrucoMatch.deploy(
-            engine.address,
-            trucoin.address,
-            gameStateQueries.address,
-            tokenAtStake
-        )
+        const { match, trucoin, engine, gameStateQueries, bet } =
+            await deployMatchContract()
 
         await engine.setWhiteListed(match.address, true)
 
         // Approve trucoins to be used by the match contract
-        await trucoin.connect(player1).approve(match.address, tokenAtStake)
-        await trucoin.connect(player2).approve(match.address, tokenAtStake)
+        await trucoin.connect(player2).approve(match.address, bet)
 
         // Player2 joins the match
         await match.connect(player2).join()
 
-        return { match, engine, trucoin, player1, player2, invalid_player }
+        return {
+            match,
+            engine,
+            trucoin,
+            player1,
+            player2,
+            invalid_player,
+            gameStateQueries,
+        }
     }
 
     describe('Invalid Moves', function () {
@@ -184,7 +177,9 @@ describe('Multi Transaction Test: Envido', function () {
             )
 
             // TRANSACTION: Player 2 is the first to play (mano)
-            await match.connect(player2).spellEnvido()
+            await expect(match.connect(player2).spellEnvido())
+                .to.emit(match, 'TurnSwitch')
+                .withArgs(player1.address)
 
             state = await match.currentMatch()
 
@@ -204,7 +199,9 @@ describe('Multi Transaction Test: Envido', function () {
             )
 
             // TRANSACTION: Player 1 refuses challenge
-            await match.connect(player1).refuseChallenge()
+            await expect(match.connect(player1).refuseChallenge())
+                .to.emit(match, 'TurnSwitch')
+                .withArgs(player2.address)
 
             state = await match.currentMatch()
 
@@ -294,7 +291,9 @@ describe('Multi Transaction Test: Envido', function () {
             await match.connect(player2).spellRealEnvido()
 
             // TRANSACTION: Player 2 accepts and raises the challenge
-            await match.connect(player1).acceptChallengeForRaising()
+            await expect(
+                match.connect(player1).acceptChallengeForRaising()
+            ).to.not.emit(match, 'TurnSwitch') // turn should not change
             await match.connect(player1).spellFaltaEnvido()
 
             // TRANSACTION: Player 1 refuses
@@ -639,7 +638,12 @@ describe('Multi Transaction Test: Envido', function () {
             )
 
             // TRANSACTION: Player 1 spells envido count and resolves envido
-            await match.connect(player1).spellEnvidoCount(BigNumber.from(33))
+
+            await expect(
+                match.connect(player1).spellEnvidoCount(BigNumber.from(33))
+            )
+                .to.emit(match, 'TurnSwitch')
+                .withArgs(player2.address) // turn should return to player2
 
             state = await match.currentMatch()
 

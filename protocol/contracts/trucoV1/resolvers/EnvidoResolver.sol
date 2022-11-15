@@ -222,7 +222,7 @@ contract EnvidoResolver is IChallengeResolver {
 
     function canResolve(IERC3333.Challenge _challenge)
         external
-        view
+        pure
         returns (bool)
     {
         if (
@@ -239,7 +239,7 @@ contract EnvidoResolver is IChallengeResolver {
 
     function isFinal(IERC3333.GameState memory _gameState)
         external
-        view
+        pure
         returns (bool)
     {
         // Check if it's waiting for a response
@@ -331,7 +331,7 @@ contract EnvidoResolver is IChallengeResolver {
 
     function isEnvidoCountFinished(IERC3333.GameState memory _gameState)
         internal
-        view
+        pure
         returns (bool)
     {
         if (

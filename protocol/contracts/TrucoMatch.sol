@@ -4,6 +4,7 @@ pragma solidity 0.8.16;
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import './trucoV1/interfaces/IERC3333.sol';
 import './trucoV1/GameStateQueries.sol';
+import './token/TrucoChampionsToken.sol';
 
 contract TrucoMatch {
     struct Match {
@@ -15,6 +16,7 @@ contract TrucoMatch {
     IERC3333 trucoEngine;
     GameStateQueries gameStateQueries;
     IERC20 truCoin;
+    TrucoChampionsToken TCT;
     Match public currentMatch;
     bool isDealOpen;
 
@@ -27,11 +29,17 @@ contract TrucoMatch {
     );
     event DealStarted(address shuffler);
     event DealEnded();
+    event TurnSwitch(address indexed playerTurn);
 
     modifier enforceTurnSwitching() {
         require(getPlayerIdx() == currentMatch.gameState.playerTurn);
         _;
-        switchTurn();
+        if (switchTurn()) {
+            // Turn switched
+            emit TurnSwitch(
+                currentMatch.players[currentMatch.gameState.playerTurn]
+            );
+        }
     }
 
     modifier resetFinalEnvido() {
@@ -63,14 +71,17 @@ contract TrucoMatch {
     constructor(
         IERC3333 _trucoEngine,
         IERC20 _truCoin,
+        TrucoChampionsToken _TCT,
         GameStateQueries _gameStateQueries,
+        address player1,
         uint256 _bet
     ) {
         trucoEngine = _trucoEngine;
         truCoin = _truCoin;
+        TCT = _TCT;
         gameStateQueries = _gameStateQueries;
         currentMatch.bet = _bet;
-        currentMatch.players[0] = msg.sender;
+        currentMatch.players[0] = player1;
 
         //Mint Sould Bound Token
 
@@ -252,10 +263,10 @@ contract TrucoMatch {
     // INTERNAL METHODS -------------------------------------------------------------------------
 
     // Change turn
-    function switchTurn() internal {
+    function switchTurn() internal returns (bool) {
         if (gameStateQueries.isGameEnded(currentMatch.gameState)) {
             // Game ended, do not switch turn
-            return;
+            return false;
         }
 
         uint8 inversePlayer = currentMatch.gameState.playerTurn ^ 1;
@@ -263,7 +274,7 @@ contract TrucoMatch {
         // if we are waiting for challenge response it should switch to opponent no matter what
         if (currentMatch.gameState.currentChallenge.waitingChallengeResponse) {
             currentMatch.gameState.playerTurn = inversePlayer;
-            return;
+            return true;
         }
 
         uint8 playerWhoShouldPlayCard = gameStateQueries
@@ -281,21 +292,30 @@ contract TrucoMatch {
                 IERC3333.Response.Refuse ||
                 gameStateQueries.isEnvidoEnded(currentMatch.gameState)
             ) {
+                // Check if we should switch turn
+                if (
+                    currentMatch.gameState.playerTurn == playerWhoShouldPlayCard
+                ) {
+                    return false;
+                }
+
                 currentMatch.gameState.playerTurn = playerWhoShouldPlayCard;
-                return;
+                return true;
             }
 
             // Inverse player, since we are at spelling points stage
             currentMatch.gameState.playerTurn = inversePlayer;
-            return;
+            return true;
         }
 
         // We are at a truco challenge (or None), so return which player should play card
         currentMatch.gameState.playerTurn = playerWhoShouldPlayCard;
+        return true;
     }
 
     function buildTransaction(IERC3333.Action _action, uint8 _param)
         internal
+        view
         returns (IERC3333.Transaction memory)
     {
         uint8[] memory params = new uint8[](1);

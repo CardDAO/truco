@@ -8,9 +8,20 @@ contract TrucoMatchTester is TrucoMatch {
     constructor(
         IERC3333 _trucoEngine,
         IERC20 _truCoin,
+        TrucoChampionsToken _TCT,
         GameStateQueries _gameStateQueries,
+        address _player1,
         uint256 _tokensAtStake
-    ) TrucoMatch(_trucoEngine, _truCoin, _gameStateQueries, _tokensAtStake) {}
+    )
+        TrucoMatch(
+            _trucoEngine,
+            _truCoin,
+            _TCT,
+            _gameStateQueries,
+            _player1,
+            _tokensAtStake
+        )
+    {}
 
     function getEnvidoCountPerPlayer() public view returns (uint8[] memory) {
         return currentMatch.gameState.envido.playerCount;
