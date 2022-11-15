@@ -7,6 +7,20 @@ import './trucoV1/GameStateQueries.sol';
 import './token/TrucoChampionsToken.sol';
 
 contract TrucoMatch {
+
+    enum MatchStateEnum {
+        WAITING_FOR_PLAYERS,
+        WAITING_FOR_DEAL,
+        WAITING_FOR_PLAY,
+        WAITING_FOR_REVEAL,
+        FINISHED
+    }
+
+    struct MatchState {
+        uint8 dealNonce;
+        MatchStateEnum state;
+    }
+
     struct Match {
         address[2] players; // player 0 is the creator of the match
         IERC3333.GameState gameState;
@@ -18,7 +32,7 @@ contract TrucoMatch {
     IERC20 truCoin;
     TrucoChampionsToken TCT;
     Match public currentMatch;
-    bool isDealOpen;
+    MatchState matchState;
 
     // Events
     event MatchCreated(address indexed match_address, uint256 bet);
@@ -27,8 +41,7 @@ contract TrucoMatch {
         address indexed player2,
         uint256 bet
     );
-    event DealStarted(address shuffler);
-    event DealEnded();
+    event NewDeal(address shuffler);
     event TurnSwitch(address indexed playerTurn);
 
     modifier enforceTurnSwitching() {
@@ -83,7 +96,7 @@ contract TrucoMatch {
         currentMatch.bet = _bet;
         currentMatch.players[0] = player1;
 
-        //Mint Sould Bound Token
+        matchState.state = MatchStateEnum.WAITING_FOR_PLAYERS;
 
         emit MatchCreated(address(this), _bet);
     }
@@ -114,6 +127,9 @@ contract TrucoMatch {
         // Set second player
         currentMatch.players[1] = msg.sender;
 
+        // Change match status
+        matchState.state = MatchStateEnum.WAITING_FOR_DEAL;
+
         // Start match
         currentMatch.gameState = trucoEngine.startGame();
         emit MatchStarted(
@@ -125,7 +141,7 @@ contract TrucoMatch {
 
     function newDeal() public {
         // Check if current game state enables new card shufflings
-        require(!isDealOpen, 'Deal is already open');
+        require(matchState.state == MatchStateEnum.WAITING_FOR_DEAL, 'Deal not allowed');
 
         // Determine the new shuffler and check that corresponds to the current player
         uint8 new_shuffler = currentMatch.gameState.playerWhoShuffled ^ 1;
@@ -149,10 +165,11 @@ contract TrucoMatch {
         // Assign turn to player not shuffling
         currentMatch.gameState.playerTurn = new_shuffler ^ 1;
 
-        // Set deal as open
-        isDealOpen = true;
+        // Update state and deal nonce
+        matchState.state = MatchStateEnum.WAITING_FOR_PLAY;
+        matchState.dealNonce++;
 
-        emit DealStarted(msg.sender);
+        emit NewDeal(msg.sender);
     }
 
     // Get players addresses
