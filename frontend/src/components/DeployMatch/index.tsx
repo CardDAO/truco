@@ -19,7 +19,7 @@ export const DeployMatch = ({ processingAction, setProcessingAction }) => {
 
     const {config: configApprove} = usePrepareContractWrite({
         addressOrName: process.env.TRUCOIN_ADDRESS as string, // trucoin
-        contractInterface: new Interface(["function approve(address, uint) public returns (bool)"]),
+        contractInterface: new Interface(["function approve(address, uint256) external returns (bool)"]),
         functionName: "approve",
         args: [
             TRUCOMATCH_FACTORY, // match factory
