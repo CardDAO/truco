@@ -1,4 +1,4 @@
-import { ethers } from "hardhat";
+import { ethers } from 'hardhat'
 
 export async function deployDeckContract() {
     const CardsDeck = await ethers.getContractFactory('CastillianDeck')
