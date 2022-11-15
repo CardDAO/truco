@@ -178,13 +178,14 @@ describe('Multi Transaction Test: Envido', function () {
                 await match.connect(player2).currentPlayerIdx()
             )
 
+            // Challenge state is resetted after a refusal
             expect(state.gameState.currentChallenge.challenge).to.be.equal(
-                BigNumber.from(ChallengeEnum.Envido)
+                BigNumber.from(ChallengeEnum.None)
             )
             expect(state.gameState.currentChallenge.waitingChallengeResponse).to
                 .be.false
             expect(state.gameState.currentChallenge.response).to.be.equal(
-                BigNumber.from(ResponseEnum.Refuse)
+                BigNumber.from(ResponseEnum.None)
             )
 
             expect(state.gameState.envido.pointsRewarded).to.be.equal(
@@ -209,13 +210,14 @@ describe('Multi Transaction Test: Envido', function () {
 
             let state: TrucoMatch.Match = await match.currentMatch()
 
+            // Challenge state is resetted after a refusal
             expect(state.gameState.currentChallenge.challenge).to.be.equal(
-                BigNumber.from(ChallengeEnum.EnvidoEnvido)
+                BigNumber.from(ChallengeEnum.None)
             )
             expect(state.gameState.currentChallenge.waitingChallengeResponse).to
                 .be.false
             expect(state.gameState.currentChallenge.response).to.be.equal(
-                BigNumber.from(ResponseEnum.Refuse)
+                BigNumber.from(ResponseEnum.None)
             )
 
             expect(state.gameState.envido.pointsRewarded).to.be.equal(
@@ -236,13 +238,14 @@ describe('Multi Transaction Test: Envido', function () {
 
             let state: TrucoMatch.Match = await match.currentMatch()
 
+            // Challenge state is resetted after a refusal
             expect(state.gameState.currentChallenge.challenge).to.be.equal(
-                BigNumber.from(ChallengeEnum.FaltaEnvido)
+                BigNumber.from(ChallengeEnum.None)
             )
             expect(state.gameState.currentChallenge.waitingChallengeResponse).to
                 .be.false
             expect(state.gameState.currentChallenge.response).to.be.equal(
-                BigNumber.from(ResponseEnum.Refuse)
+                BigNumber.from(ResponseEnum.None)
             )
 
             expect(state.gameState.envido.pointsRewarded).to.be.equal(
@@ -269,13 +272,14 @@ describe('Multi Transaction Test: Envido', function () {
 
             let state: TrucoMatch.Match = await match.currentMatch()
 
+            // Challenge state is resetted after a refusal
             expect(state.gameState.currentChallenge.challenge).to.be.equal(
-                BigNumber.from(ChallengeEnum.FaltaEnvido)
+                BigNumber.from(ChallengeEnum.None)
             )
             expect(state.gameState.currentChallenge.waitingChallengeResponse).to
                 .be.false
             expect(state.gameState.currentChallenge.response).to.be.equal(
-                BigNumber.from(ResponseEnum.Refuse)
+                BigNumber.from(ResponseEnum.None)
             )
 
             expect(state.gameState.envido.pointsRewarded).to.be.equal(

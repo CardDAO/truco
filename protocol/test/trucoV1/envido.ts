@@ -374,8 +374,9 @@ describe('Envido Resolver', function () {
 
             // Check resulting state
             expect(result.currentChallenge.waitingChallengeResponse).to.be.false
+            // Challenge state is resetted after refusal
             expect(result.currentChallenge.response).to.be.equal(
-                BigNumber.from(ResponseEnum.Refuse)
+                BigNumber.from(ResponseEnum.None)
             )
 
             const nonAcceptedChallenge: BigNumber = BigNumber.from(1)
@@ -1180,7 +1181,7 @@ describe('Envido Resolver', function () {
 
                 //Check that points rewarded are correct
                 expect(result.envido.pointsRewarded).to.be.equal(
-                    result.currentChallenge.pointsAtStake
+                    state.currentChallenge.pointsAtStake
                 )
             })
 
@@ -1281,7 +1282,7 @@ describe('Envido Resolver', function () {
 
                 // Points should be rewarded since envido count from other player is already spelled
                 expect(result.envido.pointsRewarded).to.be.equal(
-                    result.currentChallenge.pointsAtStake
+                    state.currentChallenge.pointsAtStake
                 )
             })
         })

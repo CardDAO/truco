@@ -140,6 +140,10 @@ contract EnvidoResolver is IChallengeResolver, OwnableUpgradeable {
                 _gameState.envido.pointsRewarded = _gameState
                     .currentChallenge
                     .pointsAtStake;
+
+                // Reset current challenge
+                _gameState = resetChallenge(_gameState);
+
                 return _gameState;
             }
 
@@ -220,9 +224,7 @@ contract EnvidoResolver is IChallengeResolver, OwnableUpgradeable {
                     .pointsAtStake;
 
                 // Reset current challenge
-                _gameState.currentChallenge.challenge = IERC3333.Challenge.None;
-                _gameState.currentChallenge.waitingChallengeResponse = false;
-                _gameState.currentChallenge.response = IERC3333.Response.None;
+                _gameState = resetChallenge(_gameState);
             }
 
             return _gameState;
@@ -368,5 +370,14 @@ contract EnvidoResolver is IChallengeResolver, OwnableUpgradeable {
     // Check if envido count is valid, if not it means that player didn't spell it's points
     function validEnvido(uint8 _envidoCount) public pure returns (bool) {
         return _envidoCount >= 0 && _envidoCount <= 33;
+    }
+
+    function resetChallenge(IERC3333.GameState memory _gameState) internal view  returns (IERC3333.GameState memory) {
+        _gameState.currentChallenge.challenge = IERC3333.Challenge.None;
+        _gameState.currentChallenge.waitingChallengeResponse = false;
+        _gameState.currentChallenge.pointsAtStake = 1;
+        _gameState.currentChallenge.response = IERC3333.Response.None;
+
+        return _gameState;
     }
 }

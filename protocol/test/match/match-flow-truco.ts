@@ -351,13 +351,15 @@ describe('Multi Transaction Test: Truco', function () {
             await engine.setGameState(state.gameState)
 
             expect(await engine.isEnvidoFinal()).to.be.true
+
+            // Challenge state is resetted after a refusal
             expect(state.gameState.currentChallenge.waitingChallengeResponse).to
                 .be.false
             expect(state.gameState.currentChallenge.challenge).to.be.equal(
-                BigNumber.from(ChallengeEnum.Envido)
+                BigNumber.from(ChallengeEnum.None)
             )
             expect(state.gameState.currentChallenge.response).to.be.equal(
-                BigNumber.from(ResponseEnum.Refuse)
+                BigNumber.from(ResponseEnum.None)
             )
 
             // After envido refusal, player 2 plays a card

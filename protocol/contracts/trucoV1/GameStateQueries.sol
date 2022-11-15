@@ -112,6 +112,24 @@ contract GameStateQueries is Initializable, OwnableUpgradeable {
         return false;
     }
 
+    // Should be called only if truco is final, else will fail
+    function getTrucoWinner(IERC3333.GameState memory gameState)
+    external
+    view
+    returns (uint8)
+    {
+        return trucoResolver.getWinner(gameState);
+    }
+
+    // Should be called only if envido is final, else will fail
+    function getEnvidoWinner(IERC3333.GameState memory gameState)
+    external
+    view
+    returns (uint8)
+    {
+        return envidoResolver.getWinner(gameState);
+    }
+
     function isEnvidoChallenge(IERC3333.Challenge _challenge)
         external
         view
@@ -127,6 +145,25 @@ contract GameStateQueries is Initializable, OwnableUpgradeable {
     {
         return envidoResolver.isFinal(gameState);
     }
+
+    // Check if both players have played their envido count
+    function envidoPointsCountWereSpelled(IERC3333.GameState memory _gameState)
+        external
+        view
+        returns (bool)
+    {
+        return  this.envidoPointsCountWereSpelledForPlayer(_gameState, 0) && this.envidoPointsCountWereSpelledForPlayer(_gameState, 1);
+    }
+
+    // Check if both players have played their envido count
+    function envidoPointsCountWereSpelledForPlayer(IERC3333.GameState memory _gameState, uint8 _player)
+        external
+        view
+        returns (bool)
+    {
+        return  envidoResolver.validEnvido(_gameState.envido.playerCount[_player]);
+    }
+
 
     // Check if envido can be spelled at this game
     function canEnvidoBeSpelled(IERC3333.GameState memory gameState)
