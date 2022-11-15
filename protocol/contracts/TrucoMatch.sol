@@ -62,7 +62,6 @@ contract TrucoMatch {
         updateMatchState();
     }
 
-
     constructor(
         IERC3333 _trucoEngine,
         IERC20 _truCoin,
@@ -167,19 +166,30 @@ contract TrucoMatch {
         // Check for envido accepted challenge points
         if (
             currentMatch.gameState.envido.pointsRewarded > 0 &&
-            gameStateQueries.envidoPointsCountWereSpelled(currentMatch.gameState)
+            gameStateQueries.envidoPointsCountWereSpelled(
+                currentMatch.gameState
+            )
         ) {
             // Envido points to apply that were resolved from an Accepted envido challenge (refusal points are handled
             // on refusal move processing at current match level
-            uint8 envidoWinner = gameStateQueries.getEnvidoWinner(currentMatch.gameState);
-            currentMatch.gameState.teamPoints[envidoWinner] += currentMatch.gameState.envido.pointsRewarded;
+            uint8 envidoWinner = gameStateQueries.getEnvidoWinner(
+                currentMatch.gameState
+            );
+            currentMatch.gameState.teamPoints[envidoWinner] += currentMatch
+                .gameState
+                .envido
+                .pointsRewarded;
         }
 
         // Check for truco points
-        uint8 trucoWinner = gameStateQueries.getTrucoWinner(currentMatch.gameState);
-        currentMatch.gameState.teamPoints[trucoWinner] += currentMatch.gameState.currentChallenge.pointsAtStake;
+        uint8 trucoWinner = gameStateQueries.getTrucoWinner(
+            currentMatch.gameState
+        );
+        currentMatch.gameState.teamPoints[trucoWinner] += currentMatch
+            .gameState
+            .currentChallenge
+            .pointsAtStake;
     }
-
 
     // Get players addresses
     function getPlayers() public view returns (address[2] memory) {
@@ -210,10 +220,7 @@ contract TrucoMatch {
         currentMatch.gameState = trucoEngine.transact(transaction);
     }
 
-    function playCard(uint8 _card)
-        public
-        enforceTurnSwitching
-    {
+    function playCard(uint8 _card) public enforceTurnSwitching {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.PlayCard,
             _card
@@ -278,7 +285,9 @@ contract TrucoMatch {
     }
 
     function refuseChallenge() public enforceTurnSwitching {
-        bool isEnvido = gameStateQueries.isEnvidoChallenge(currentMatch.gameState.currentChallenge.challenge);
+        bool isEnvido = gameStateQueries.isEnvidoChallenge(
+            currentMatch.gameState.currentChallenge.challenge
+        );
 
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.Response,
@@ -288,8 +297,14 @@ contract TrucoMatch {
 
         // Check if Envido was refused, in that case we should assign points to the challenger rightaway
         if (isEnvido) {
-            uint8 envidoChalleger = currentMatch.gameState.currentChallenge.challenger;
-            currentMatch.gameState.teamPoints[envidoChalleger] += currentMatch.gameState.envido.pointsRewarded;
+            uint8 envidoChalleger = currentMatch
+                .gameState
+                .currentChallenge
+                .challenger;
+            currentMatch.gameState.teamPoints[envidoChalleger] += currentMatch
+                .gameState
+                .envido
+                .pointsRewarded;
         }
     }
 
@@ -323,15 +338,24 @@ contract TrucoMatch {
         // IF the player who should play card (mano) already spelled the points so it be needed to switch turn, if not
         // since player is mano should always spell first and turn shouldn't switch (should never enter this if statement)
         if (
-            gameStateQueries.isEnvidoChallenge(currentMatch.gameState.currentChallenge.challenge) &&
-            gameStateQueries.envidoPointsCountWereSpelled(currentMatch.gameState) == false &&
-            gameStateQueries.envidoPointsCountWereSpelledForPlayer(currentMatch.gameState, playerWhoShouldPlayCard)
+            gameStateQueries.isEnvidoChallenge(
+                currentMatch.gameState.currentChallenge.challenge
+            ) &&
+            gameStateQueries.envidoPointsCountWereSpelled(
+                currentMatch.gameState
+            ) ==
+            false &&
+            gameStateQueries.envidoPointsCountWereSpelledForPlayer(
+                currentMatch.gameState,
+                playerWhoShouldPlayCard
+            )
         ) {
             currentMatch.gameState.playerTurn = inversePlayer;
             return true;
         }
 
-        bool playerSwitched = playerWhoShouldPlayCard != currentMatch.gameState.playerTurn;
+        bool playerSwitched = playerWhoShouldPlayCard !=
+            currentMatch.gameState.playerTurn;
 
         // We are at a truco challenge (or None), so return which player should play card
         currentMatch.gameState.playerTurn = playerWhoShouldPlayCard;

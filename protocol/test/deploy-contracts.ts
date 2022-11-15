@@ -34,7 +34,7 @@ export async function deployEngineContract() {
         trucoin.address,
         trucoResolver.address,
         envidoResolver.address,
-        gameStateQueries.address
+        gameStateQueries.address,
     ])
     await engine.deployed()
 

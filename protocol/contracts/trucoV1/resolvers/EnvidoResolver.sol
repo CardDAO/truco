@@ -372,7 +372,11 @@ contract EnvidoResolver is IChallengeResolver, OwnableUpgradeable {
         return _envidoCount >= 0 && _envidoCount <= 33;
     }
 
-    function resetChallenge(IERC3333.GameState memory _gameState) internal view  returns (IERC3333.GameState memory) {
+    function resetChallenge(IERC3333.GameState memory _gameState)
+        internal
+        view
+        returns (IERC3333.GameState memory)
+    {
         _gameState.currentChallenge.challenge = IERC3333.Challenge.None;
         _gameState.currentChallenge.waitingChallengeResponse = false;
         _gameState.currentChallenge.pointsAtStake = 1;
