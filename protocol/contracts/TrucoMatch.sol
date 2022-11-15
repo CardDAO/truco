@@ -151,7 +151,7 @@ contract TrucoMatch {
         uint8 new_shuffler = currentMatch.gameState.playerWhoShuffled ^ 1;
 
         // Check that the player who is calling the function is the new shuffler, avoid if it's first shuffle
-        if (matchState.dealNonce > 0 ) {
+        if (matchState.dealNonce > 0) {
             require(
                 msg.sender == currentMatch.players[new_shuffler],
                 'You are not the shuffler'
@@ -171,7 +171,9 @@ contract TrucoMatch {
         currentMatch.gameState.playerWhoShuffled = getPlayerIdx();
 
         // Assign turn to player not shuffling
-        currentMatch.gameState.playerTurn = currentMatch.gameState.playerWhoShuffled ^ 1;
+        currentMatch.gameState.playerTurn =
+            currentMatch.gameState.playerWhoShuffled ^
+            1;
 
         // Update state and deal nonce
         matchState.state = MatchStateEnum.WAITING_FOR_PLAY;
@@ -353,8 +355,11 @@ contract TrucoMatch {
     }
 
     function isGameFinished() public view returns (bool) {
-        return  currentMatch.gameState.teamPoints[0] >= currentMatch.gameState.pointsToWin ||
-        currentMatch.gameState.teamPoints[1] >= currentMatch.gameState.pointsToWin;
+        return
+            currentMatch.gameState.teamPoints[0] >=
+            currentMatch.gameState.pointsToWin ||
+            currentMatch.gameState.teamPoints[1] >=
+            currentMatch.gameState.pointsToWin;
     }
 
     function buildTransaction(IERC3333.Action _action, uint8 _param)
