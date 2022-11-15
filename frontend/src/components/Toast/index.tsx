@@ -1,6 +1,8 @@
+import { useState } from "react"
+
 export const Toast = () => {
 
-    const [ toastContent, setToastContent ] = useState({message: "", show: false, icon: })
+    const [ toastContent, setToastContent ] = useState({message: "", show: false, icon: 'success'})
 
     return (
         <>
