@@ -1,5 +1,5 @@
 import { ethers } from 'hardhat'
-import { deployTrucoChampionsTokenContract } from '../test/deploy-contracts'
+import { deployTrucoChampionsTokenContract } from './helpers/truco-champions-token-deploy'
 import { deployDeckContract } from './helpers/deck-deploy'
 import { deployEnvidoResolverContract } from './helpers/envido-resolver-deploy'
 import { deployFrontMatchFacadeContract } from './helpers/front-match-facade-deploy'
