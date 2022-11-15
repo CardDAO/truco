@@ -1,7 +1,6 @@
 import { ethers } from "ethers"
-import { useEffect, useState, useCallback, KeyboardEventHandler} from 'react'
-import { useTruco } from "../../engine/truco/useTruco"
-import {  useAccountInformation, AccountType, useCreateRoom, Player, Message, sendMessage } from '../../hooks/providers/Wagmi'
+import { useEffect, useState } from 'react'
+import {  useAccountInformation, AccountType } from '../../hooks/providers/Wagmi'
 import { Dashboard } from "../Dashboard"
 import { DeployMatch } from "../DeployMatch"
 import { Toast } from "../Toast"
