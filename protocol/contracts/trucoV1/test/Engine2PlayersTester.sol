@@ -5,19 +5,14 @@ import '../Engine2Players.sol';
 
 // Test infrastructure for Engine testing: workaround for hardhat tests handling non view return values
 contract Engine2PlayersTester is Engine2Players {
-    constructor(
+    function initialize (
         IERC20 _trucoin,
         IChallengeResolver _trucoResolver,
         IChallengeResolver _envidoResolver,
         GameStateQueries _gameStateQueries
-    )
-        Engine2Players(
-            _trucoin,
-            _trucoResolver,
-            _envidoResolver,
-            _gameStateQueries
-        )
-    {
+    ) public override initializer {
+        super.initialize(_trucoin, _trucoResolver, _envidoResolver, _gameStateQueries);
+
         // Since transactions are executed using current executeTransaction implementation and this
         // call makes an external call to ERC3333 'execute()' method interface current contract will
         // be the caller. So for testing purposes we whitelist this contract address

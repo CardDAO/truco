@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-import '@openzeppelin/contracts/access/Ownable.sol';
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 import './interfaces/IERC3333.sol';
@@ -9,7 +9,8 @@ import './interfaces/IChallengeResolver.sol';
 import './interfaces/ICardsDeck.sol';
 import './GameStateQueries.sol';
 
-contract Engine2Players is IERC3333, Ownable {
+contract Engine2Players is IERC3333, Initializable, OwnableUpgradeable {
+
     struct ClientMatch {
         bool matchStarted;
         bool whiteListed;
@@ -47,12 +48,18 @@ contract Engine2Players is IERC3333, Ownable {
         clientMatches[msg.sender].txCount++;
     }
 
-    constructor(
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(
         IERC20 _trucoin,
         IChallengeResolver _trucoResolver,
         IChallengeResolver _envidoResolver,
         GameStateQueries _gameStateQueries
-    ) {
+    ) initializer public virtual {
+        __Ownable_init();
         trucoin = _trucoin;
         envidoResolver = _envidoResolver;
         trucoResolver = _trucoResolver;
