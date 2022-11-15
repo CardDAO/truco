@@ -29,7 +29,7 @@ export async function deployEngineContract() {
         trucoResolver
     )
 
-    const {engine } = await deployTrucoEngineContract(
+    const { engine } = await deployTrucoEngineContract(
         trucoin,
         trucoResolver,
         envidoResolver,

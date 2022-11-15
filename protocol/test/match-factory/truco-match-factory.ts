@@ -28,8 +28,9 @@ describe('Truco Match Factory', function () {
         })
 
         it('Should transfer the bet to the match contract', async function () {
-            const { factory, trucoin, min_bet } =
-                await loadFixture(deployFactoryContract)
+            const { factory, trucoin, min_bet } = await loadFixture(
+                deployFactoryContract
+            )
             const [player1] = await ethers.getSigners()
 
             // Mint trucoins to player1

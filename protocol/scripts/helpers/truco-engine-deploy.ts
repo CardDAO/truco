@@ -9,15 +9,14 @@ export async function deployTrucoEngineContract(
     test: boolean
 ) {
     let TrucoEngine: ContractFactory
-    if (test) 
+    if (test)
         TrucoEngine = await ethers.getContractFactory('Engine2PlayersTester')
-    else
-        TrucoEngine = await ethers.getContractFactory('Engine2Players')
+    else TrucoEngine = await ethers.getContractFactory('Engine2Players')
     const engine = await upgrades.deployProxy(TrucoEngine, [
         trucoin.address,
         trucoResolver.address,
         envidoResolver.address,
-        gameStateQueries.address
+        gameStateQueries.address,
     ])
     await engine.deployed()
     return { engine }
