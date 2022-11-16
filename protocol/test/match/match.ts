@@ -704,8 +704,8 @@ describe('Truco Match', function () {
                 .connect(player2)
                 .currentPlayerIdx()
 
-             let currentMatch = await match.currentMatch()
-            let  matchState = await match.matchState()
+            let currentMatch = await match.currentMatch()
+            let matchState = await match.matchState()
 
             expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
                 BigNumber.from(1)
@@ -733,7 +733,7 @@ describe('Truco Match', function () {
                 .currentPlayerIdx()
 
             let currentMatch = await match.currentMatch()
-            let  matchState = await match.matchState()
+            let matchState = await match.matchState()
 
             expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
                 BigNumber.from(0)
@@ -764,7 +764,7 @@ describe('Truco Match', function () {
                 .currentPlayerIdx()
 
             let currentMatch = await match.currentMatch()
-            let  matchState = await match.matchState()
+            let matchState = await match.matchState()
 
             expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
                 BigNumber.from(3)
@@ -774,8 +774,6 @@ describe('Truco Match', function () {
             )
             expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_DEAL)
         })
-
-
 
         it('Resign on truco spelling challenge (previous envido was refused)', async function () {
             const { match, player1, player2 } = await loadFixture(
@@ -799,7 +797,7 @@ describe('Truco Match', function () {
                 .currentPlayerIdx()
 
             let currentMatch = await match.currentMatch()
-            let  matchState = await match.matchState()
+            let matchState = await match.matchState()
 
             expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
                 BigNumber.from(1)
@@ -830,7 +828,6 @@ describe('Truco Match', function () {
             await match.connect(player2).playCard(8) // 10 of Coins
             await match.connect(player1).resign()
 
-
             let player1Idx: BigNumber = await match
                 .connect(player1)
                 .currentPlayerIdx()
@@ -839,7 +836,7 @@ describe('Truco Match', function () {
                 .currentPlayerIdx()
 
             let currentMatch = await match.currentMatch()
-            let  matchState = await match.matchState()
+            let matchState = await match.matchState()
 
             expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
                 BigNumber.from(0)
@@ -849,7 +846,6 @@ describe('Truco Match', function () {
             )
             expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_DEAL)
         })
-
 
         it('Resign after envido was played', async function () {
             const { match, player1, player2 } = await loadFixture(
@@ -876,7 +872,7 @@ describe('Truco Match', function () {
                 .currentPlayerIdx()
 
             let currentMatch = await match.currentMatch()
-            let  matchState = await match.matchState()
+            let matchState = await match.matchState()
 
             expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
                 BigNumber.from(0)
@@ -906,7 +902,7 @@ describe('Truco Match', function () {
                 .currentPlayerIdx()
 
             let currentMatch = await match.currentMatch()
-            let  matchState = await match.matchState()
+            let matchState = await match.matchState()
 
             expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
                 BigNumber.from(0)
@@ -936,7 +932,7 @@ describe('Truco Match', function () {
                 .currentPlayerIdx()
 
             let currentMatch = await match.currentMatch()
-            let  matchState = await match.matchState()
+            let matchState = await match.matchState()
 
             expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
                 BigNumber.from(0)
@@ -969,7 +965,7 @@ describe('Truco Match', function () {
                 .currentPlayerIdx()
 
             let currentMatch = await match.currentMatch()
-            let  matchState = await match.matchState()
+            let matchState = await match.matchState()
 
             expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
                 BigNumber.from(0)
@@ -979,6 +975,5 @@ describe('Truco Match', function () {
             )
             expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_REVEAL)
         })
-
     })
 })
