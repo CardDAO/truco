@@ -670,7 +670,8 @@ describe('Truco Match', function () {
             await match.connect(player1).playCard(4) // 4 of Coins
 
             let currentMatch = await match.currentMatch()
-
+            let matchState = await match.matchState()
+            
             let player1Idx: BigNumber = await match
                 .connect(player1)
                 .currentPlayerIdx()
@@ -684,6 +685,7 @@ describe('Truco Match', function () {
             expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
                 BigNumber.from(currentMatch.gameState.pointsToWin)
             )
+            expect(matchState.state).to.equal(MatchStateEnum.FINISHED)
         })
     })
 })
