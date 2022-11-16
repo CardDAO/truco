@@ -60,6 +60,7 @@ contract TrucoMatch {
             );
         }
         updateMatchState();
+        addPointsFromRoundIfApply();
     }
 
     constructor(
@@ -163,6 +164,10 @@ contract TrucoMatch {
 
     // Applies the points awarded from round if it's final
     function addPointsFromRoundIfApply() internal {
+        if (matchState.state != MatchStateEnum.WAITING_FOR_DEAL) {
+            return;
+        }
+
         // Check for envido accepted challenge points
         if (
             currentMatch.gameState.envido.pointsRewarded > 0 &&
@@ -179,6 +184,11 @@ contract TrucoMatch {
                 .gameState
                 .envido
                 .pointsRewarded;
+        }
+
+        // If game ended return
+        if (trucoEngine.isGameEnded(currentMatch.gameState)) {
+            return;
         }
 
         // Check for truco points
@@ -362,12 +372,8 @@ contract TrucoMatch {
         return playerSwitched;
     }
 
+    // Updates match state based on game state
     function updateMatchState() internal {
-        if (trucoEngine.isGameEnded(currentMatch.gameState)) {
-            matchState.state = MatchStateEnum.FINISHED;
-            return;
-        }
-
         // Check if current round is finished, signal that a new shuffle is needed to start playing again
         if (gameStateQueries.isTrucoEnded(currentMatch.gameState)) {
             // Check if an envido winner has to reveal cards
@@ -380,10 +386,12 @@ contract TrucoMatch {
                 return;
             }
 
-            // Add points to match counter from this closing round
-            addPointsFromRoundIfApply();
-
             matchState.state = MatchStateEnum.WAITING_FOR_DEAL;
+            return;
+        }
+
+        if (trucoEngine.isGameEnded(currentMatch.gameState)) {
+            matchState.state = MatchStateEnum.FINISHED;
             return;
         }
 

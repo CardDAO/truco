@@ -314,11 +314,7 @@ contract EnvidoResolver is IChallengeResolver, OwnableUpgradeable {
     }
 
     function reversePlayer(uint8 _player) internal pure returns (uint8) {
-        if (_player == 0) {
-            return 1;
-        }
-
-        return 0;
+        return _player ^ 1;
     }
 
     // Return points that should be at stake for a given challenge
