@@ -221,6 +221,14 @@ contract TrucoMatch {
 
     function playCard(uint8 _card, bytes memory signature)
         public
+    {
+        validateSignature(abi.encodePacked(msg.sender, 'playCard', _card));
+
+        _playCard(_card);
+    }
+
+    function _playCard(uint8 _card)
+        internal
         resetFinalEnvido
         enforceTurnSwitching
     {
