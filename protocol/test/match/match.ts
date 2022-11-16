@@ -310,6 +310,37 @@ describe('Truco Match', function () {
             )
         })
 
+        it('Assign points for refused truco and refused envido different winners', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            await match.connect(player2).playCard(2) // 2 of Coins
+            await match.connect(player1).spellEnvido()
+            await match.connect(player2).refuseChallenge()
+
+            await match.connect(player1).playCard(1) // 1 of Coins
+
+            await match.connect(player2).spellTruco()
+            await match.connect(player1).refuseChallenge()
+
+            let currentMatch = await match.currentMatch()
+
+            let player1Idx: BigNumber = await match
+                .connect(player1)
+                .currentPlayerIdx()
+            let player2Idx: BigNumber = await match
+                .connect(player2)
+                .currentPlayerIdx()
+
+            expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
+                BigNumber.from(1)
+            )
+            expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
+                BigNumber.from(1)
+            )
+        })
+
         it('Assign points for envido accepted and  no truco spelled (envido cards reveled at play)', async function () {
             const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
@@ -341,6 +372,40 @@ describe('Truco Match', function () {
             )
             expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
                 BigNumber.from(3)
+            )
+        })
+
+        it('Assign points for envido accepted and no truco spelled (envido cards reveled at play) - different winners', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            await match.connect(player2).spellEnvido()
+            await match.connect(player1).acceptChallenge()
+
+            await match.connect(player2).spellEnvidoCount(25)
+            await match.connect(player1).spellEnvidoCount(0)
+
+            await match.connect(player2).playCard(1) // 1 of Coins
+            await match.connect(player1).playCard(2) // 2 of Coins
+
+            await match.connect(player1).playCard(8) // 10 of Coins
+            await match.connect(player2).playCard(4) // 4 of Coins
+
+            let currentMatch = await match.currentMatch()
+
+            let player1Idx: BigNumber = await match
+                .connect(player1)
+                .currentPlayerIdx()
+            let player2Idx: BigNumber = await match
+                .connect(player2)
+                .currentPlayerIdx()
+
+            expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
+                BigNumber.from(1)
+            )
+            expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
+                BigNumber.from(2)
             )
         })
 
@@ -378,6 +443,43 @@ describe('Truco Match', function () {
             )
             expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
                 BigNumber.from(4)
+            )
+        })
+
+        it('Assign points for envido and truco accepted, different winners (envido cards reveled at play)', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            await match.connect(player2).spellEnvido()
+            await match.connect(player1).acceptChallenge()
+
+            await match.connect(player2).spellEnvidoCount(22)
+            await match.connect(player1).spellEnvidoCount(0)
+
+            await match.connect(player2).spellTruco()
+            await match.connect(player1).acceptChallenge()
+
+            await match.connect(player2).playCard(2) // 2 of Coins
+            await match.connect(player1).playCard(3) // 3 of Coins
+
+            await match.connect(player1).playCard(22) // 2 of Swords
+            await match.connect(player2).playCard(8) // 10 of Coins
+
+            let currentMatch = await match.currentMatch()
+
+            let player1Idx: BigNumber = await match
+                .connect(player1)
+                .currentPlayerIdx()
+            let player2Idx: BigNumber = await match
+                .connect(player2)
+                .currentPlayerIdx()
+
+            expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
+                BigNumber.from(2)
+            )
+            expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
+                BigNumber.from(2)
             )
         })
 
@@ -420,6 +522,170 @@ describe('Truco Match', function () {
             expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
                 BigNumber.from(7)
             )
+        })
+
+        it('Assign points for re truco accepted  (no envido spelled)', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            await match.connect(player2).spellTruco()
+            await match.connect(player1).acceptChallengeForRaising()
+            await match.connect(player1).spellReTruco()
+            await match.connect(player2).acceptChallenge()
+
+            await match.connect(player2).playCard(2) // 2 of Coins
+            await match.connect(player1).playCard(1) // 1 of Coins
+
+            await match.connect(player2).playCard(8) // 10 of Coins
+            await match.connect(player1).playCard(4) // 4 of Coins
+
+            let currentMatch = await match.currentMatch()
+
+            let player1Idx: BigNumber = await match
+                .connect(player1)
+                .currentPlayerIdx()
+            let player2Idx: BigNumber = await match
+                .connect(player2)
+                .currentPlayerIdx()
+
+            expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
+                BigNumber.from(0)
+            )
+            expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
+                BigNumber.from(3)
+            )
+        })
+
+        it('Assign points for re truco rejected  (no envido spelled)', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            await match.connect(player2).spellTruco()
+            await match.connect(player1).acceptChallengeForRaising()
+            await match.connect(player1).spellReTruco()
+            await match.connect(player2).refuseChallenge()
+
+            let currentMatch = await match.currentMatch()
+
+            let player1Idx: BigNumber = await match
+                .connect(player1)
+                .currentPlayerIdx()
+            let player2Idx: BigNumber = await match
+                .connect(player2)
+                .currentPlayerIdx()
+
+            expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
+                BigNumber.from(2)
+            )
+            expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
+                BigNumber.from(0)
+            )
+        })
+
+        it('Assign points for vale4 rejected  (no envido spelled)', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            await match.connect(player2).spellTruco()
+            await match.connect(player1).acceptChallengeForRaising()
+
+            await match.connect(player1).spellReTruco()
+            await match.connect(player2).acceptChallengeForRaising()
+
+            await match.connect(player2).spellValeCuatro()
+            await match.connect(player1).refuseChallenge()
+
+            let currentMatch = await match.currentMatch()
+
+            let player1Idx: BigNumber = await match
+                .connect(player1)
+                .currentPlayerIdx()
+            let player2Idx: BigNumber = await match
+                .connect(player2)
+                .currentPlayerIdx()
+
+            expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
+                BigNumber.from(0)
+            )
+            expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
+                BigNumber.from(3)
+            )
+        })
+
+        it('Assign points for vale4 accepted (no envido spelled)', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            await match.connect(player2).spellTruco()
+            await match.connect(player1).acceptChallengeForRaising()
+
+            await match.connect(player1).spellReTruco()
+            await match.connect(player2).acceptChallengeForRaising()
+
+            await match.connect(player2).spellValeCuatro()
+            await match.connect(player1).acceptChallenge()
+
+            await match.connect(player2).playCard(2) // 2 of Coins
+            await match.connect(player1).playCard(1) // 1 of Coins
+
+            await match.connect(player2).playCard(8) // 10 of Coins
+            await match.connect(player1).playCard(4) // 4 of Coins
+
+            let currentMatch = await match.currentMatch()
+
+            let player1Idx: BigNumber = await match
+                .connect(player1)
+                .currentPlayerIdx()
+            let player2Idx: BigNumber = await match
+                .connect(player2)
+                .currentPlayerIdx()
+
+            expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
+                BigNumber.from(0)
+            )
+            expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
+                BigNumber.from(4)
+            )
+        })
+
+        it('Assign points for falta envido accepted (cards revealed at play)', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            await match.connect(player2).spellFaltaEnvido()
+            await match.connect(player1).acceptChallenge()
+
+            await match.connect(player2).spellEnvidoCount(22)
+            await match.connect(player1).spellEnvidoCount(0)
+
+            await match.connect(player2).playCard(2) // 2 of Coins
+            await match.connect(player1).playCard(1) // 1 of Coins
+
+            await match.connect(player2).playCard(8) // 10 of Coins
+            await match.connect(player1).playCard(4) // 4 of Coins
+
+            let currentMatch = await match.currentMatch()
+            let matchState = await match.matchState()
+
+            let player1Idx: BigNumber = await match
+                .connect(player1)
+                .currentPlayerIdx()
+            let player2Idx: BigNumber = await match
+                .connect(player2)
+                .currentPlayerIdx()
+
+            expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
+                BigNumber.from(0)
+            )
+            expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
+                BigNumber.from(currentMatch.gameState.pointsToWin)
+            )
+            expect(matchState.state).to.equal(MatchStateEnum.FINISHED)
         })
     })
 })
