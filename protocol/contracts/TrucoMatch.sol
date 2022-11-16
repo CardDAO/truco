@@ -188,6 +188,7 @@ contract TrucoMatch {
 
         // If game ended return
         if (trucoEngine.isGameEnded(currentMatch.gameState)) {
+            updateMatchState(); // update state to finished match
             return;
         }
 
@@ -374,6 +375,11 @@ contract TrucoMatch {
 
     // Updates match state based on game state
     function updateMatchState() internal {
+        if (trucoEngine.isGameEnded(currentMatch.gameState)) {
+            matchState.state = MatchStateEnum.FINISHED;
+            return;
+        }
+
         // Check if current round is finished, signal that a new shuffle is needed to start playing again
         if (gameStateQueries.isTrucoEnded(currentMatch.gameState)) {
             // Check if an envido winner has to reveal cards
@@ -387,11 +393,6 @@ contract TrucoMatch {
             }
 
             matchState.state = MatchStateEnum.WAITING_FOR_DEAL;
-            return;
-        }
-
-        if (trucoEngine.isGameEnded(currentMatch.gameState)) {
-            matchState.state = MatchStateEnum.FINISHED;
             return;
         }
 
