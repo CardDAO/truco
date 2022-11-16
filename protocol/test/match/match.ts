@@ -997,7 +997,6 @@ describe('Truco Match', function () {
             await match.connect(player1).playCard(8) // 10 of Coins
             await match.connect(player2).resign()
 
-
             let player1Idx: BigNumber = await match
                 .connect(player1)
                 .currentPlayerIdx()
@@ -1006,7 +1005,7 @@ describe('Truco Match', function () {
                 .currentPlayerIdx()
 
             let currentMatch = await match.currentMatch()
-            let  matchState = await match.matchState()
+            let matchState = await match.matchState()
 
             expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
                 BigNumber.from(2)
