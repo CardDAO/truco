@@ -389,7 +389,7 @@ describe('Truco Match', function () {
             await match.connect(player2).playCard(1) // 1 of Coins
             await match.connect(player1).playCard(2) // 2 of Coins
 
-            await match.connect(player1).playCard(8)  // 10 of Coins
+            await match.connect(player1).playCard(8) // 10 of Coins
             await match.connect(player2).playCard(4) // 4 of Coins
 
             let currentMatch = await match.currentMatch()
@@ -557,7 +557,6 @@ describe('Truco Match', function () {
             )
         })
 
-
         it('Assign points for re truco rejected  (no envido spelled)', async function () {
             const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
@@ -630,7 +629,6 @@ describe('Truco Match', function () {
             await match.connect(player2).spellValeCuatro()
             await match.connect(player1).acceptChallenge()
 
-
             await match.connect(player2).playCard(2) // 2 of Coins
             await match.connect(player1).playCard(1) // 1 of Coins
 
@@ -670,7 +668,6 @@ describe('Truco Match', function () {
 
             await match.connect(player2).playCard(8) // 10 of Coins
             await match.connect(player1).playCard(4) // 4 of Coins
-
 
             let currentMatch = await match.currentMatch()
 
