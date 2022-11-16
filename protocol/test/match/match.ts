@@ -808,7 +808,7 @@ describe('Truco Match', function () {
             expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_DEAL)
         })
 
-        it('Resign on vale4', async function () {
+        it('Resign on vale4, no envido was spelled', async function () {
             const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
@@ -847,7 +847,7 @@ describe('Truco Match', function () {
             expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_DEAL)
         })
 
-        it('Resign after envido was played', async function () {
+        it('Resign after envido was played, no truco was spelled', async function () {
             const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
@@ -913,7 +913,7 @@ describe('Truco Match', function () {
             expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_DEAL)
         })
 
-        it('Resign after envido accepting envido', async function () {
+        it('Resign after envido accepting envido, no cards needs to be revealed', async function () {
             const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
@@ -943,7 +943,7 @@ describe('Truco Match', function () {
             expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_DEAL)
         })
 
-        it('Resign after after paying envido', async function () {
+        it('Resign after after paying envido, no envido cards were revealed', async function () {
             const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
@@ -972,6 +972,47 @@ describe('Truco Match', function () {
             )
             expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
                 BigNumber.from(3)
+            )
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_REVEAL)
+        })
+
+        it('Envido was spelled. Different player resigns at truco', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            await match.connect(player2).spellEnvido()
+            await match.connect(player1).acceptChallenge()
+
+            await match.connect(player2).spellEnvidoCount(22)
+            await match.connect(player1).spellEnvidoCount(0)
+
+            await match.connect(player2).playCard(2) // 2 of Coins
+
+            await match.connect(player1).spellTruco()
+            await match.connect(player2).acceptChallenge()
+
+            await match.connect(player1).playCard(3) // 3 of Coins
+
+            await match.connect(player1).playCard(8) // 10 of Coins
+            await match.connect(player2).resign()
+
+
+            let player1Idx: BigNumber = await match
+                .connect(player1)
+                .currentPlayerIdx()
+            let player2Idx: BigNumber = await match
+                .connect(player2)
+                .currentPlayerIdx()
+
+            let currentMatch = await match.currentMatch()
+            let  matchState = await match.matchState()
+
+            expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
+                BigNumber.from(2)
+            )
+            expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
+                BigNumber.from(2)
             )
             expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_REVEAL)
         })
