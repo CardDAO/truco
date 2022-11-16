@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 
 library SignatureValidation {
     using ECDSA for bytes32;
@@ -11,7 +11,6 @@ library SignatureValidation {
         view
         returns (bool)
     {
-        return hash.toEthSignedMessageHash()
-            .recover(signature) == address(0); // TODO use IV addresses
+        return hash.toEthSignedMessageHash().recover(signature) == address(0); // TODO use IV addresses
     }
 }

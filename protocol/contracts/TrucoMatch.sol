@@ -224,13 +224,7 @@ contract TrucoMatch {
         resetFinalEnvido
         enforceTurnSwitching
     {
-        validateSignature(
-            abi.encodePacked(
-                msg.sender,
-                'playCard',
-                _card
-            )
-        );
+        validateSignature(abi.encodePacked(msg.sender, 'playCard', _card));
 
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.PlayCard,
@@ -273,11 +267,7 @@ contract TrucoMatch {
 
     function spellEnvidoCount(uint8 _points) public enforceTurnSwitching {
         validateSignature(
-            abi.encodePacked(
-                msg.sender,
-                'spellEnvidoCount',
-                _points
-            )
+            abi.encodePacked(msg.sender, 'spellEnvidoCount', _points)
         );
 
         IERC3333.Transaction memory transaction = buildTransaction(
@@ -435,14 +425,8 @@ contract TrucoMatch {
         return currentMatch.gameState;
     }
 
-    function validateSignature(bytes memory encodedMessage)
-        internal
-        view
-    {
+    function validateSignature(bytes memory encodedMessage) internal view {
         bytes32 hash = keccak256(encodedMessage);
-        require(
-            hash.isValidSignature(signature),
-            "Invalid signature"
-        );
+        require(hash.isValidSignature(signature), 'Invalid signature');
     }
 }
