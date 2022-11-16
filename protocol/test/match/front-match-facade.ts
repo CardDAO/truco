@@ -12,7 +12,7 @@ describe('Front Match Facade', function () {
     async function deployContract() {
         // Contracts are deployed using the first signer/account by default
         const [player1, player2, invalid_player] = await ethers.getSigners()
-j
+
         const { match, engine, trucoin, gameStateQueries } = await deployMatchContract()
 
         const { frontMatchFacade } = await deployFrontMatchFacadeContract(
@@ -21,6 +21,8 @@ j
 
         // Player2 joins the match
         await match.connect(player2).join()
+
+        await match.connect(player1).newDeal()
 
         return {
             frontMatchFacade,
@@ -77,6 +79,7 @@ j
 
             // player 2 spell truco
             await match.connect(player2).spellTruco()
+
             // challenge it is truco
             expect(
                 await frontMatchFacade
