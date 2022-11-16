@@ -60,6 +60,7 @@ contract TrucoMatch {
             );
         }
         updateMatchState();
+        finishMatchIfApply();
     }
 
     constructor(
@@ -365,6 +366,7 @@ contract TrucoMatch {
     function updateMatchState() internal {
         if (trucoEngine.isGameEnded(currentMatch.gameState)) {
             matchState.state = MatchStateEnum.FINISHED;
+
             return;
         }
 
@@ -421,5 +423,17 @@ contract TrucoMatch {
         }
 
         revert('You are not a player in this match');
+    }
+
+    function finishMatchIfApply() internal {
+        if (!trucoEngine.isGameEnded(currentMatch.gameState)) {
+            // Game is not finished, do not do anything
+            return;
+        }
+        
+        // Transfer trucoins to winner
+        trucoEngine.
+
+        // Assign Truco Champions Token
     }
 }
