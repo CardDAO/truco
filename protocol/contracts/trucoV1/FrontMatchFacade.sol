@@ -17,7 +17,7 @@ contract FrontMatchFacade {
         view
         returns (bool)
     {
-        (IERC3333.GameState memory gameState) = _contractMatch.currentMatch();
+        IERC3333.GameState memory gameState = _contractMatch.currentMatch();
 
         IERC3333.Move memory move = prepareMove(
             IERC3333.Action.Challenge,
@@ -26,10 +26,7 @@ contract FrontMatchFacade {
 
         return
             isPlayerTurn(_contractMatch) &&
-            gameStateQueries.isMoveValid(
-                gameState,
-                move
-            );
+            gameStateQueries.isMoveValid(gameState, move);
     }
 
     function canSpellTruco(TrucoMatch _contractMatch)
@@ -37,7 +34,7 @@ contract FrontMatchFacade {
         view
         returns (bool)
     {
-        (IERC3333.GameState memory gameState) = _contractMatch.currentMatch();
+        IERC3333.GameState memory gameState = _contractMatch.currentMatch();
 
         IERC3333.Move memory move = prepareMove(
             IERC3333.Action.Challenge,
@@ -46,10 +43,7 @@ contract FrontMatchFacade {
 
         return
             isPlayerTurn(_contractMatch) &&
-            gameStateQueries.isMoveValid(
-                gameState,
-                move
-            );
+            gameStateQueries.isMoveValid(gameState, move);
     }
 
     function canResponse(TrucoMatch _contractMatch)
@@ -119,8 +113,8 @@ contract FrontMatchFacade {
         view
         returns (bool result)
     {
-        (IERC3333.GameState memory gameState) = _contractMatch.currentMatch();
-            //.currentGameState();
+        IERC3333.GameState memory gameState = _contractMatch.currentMatch();
+        //.currentGameState();
 
         if (gameState.playerTurn == currentPlayerIdx(_contractMatch)) {
             result = true;
@@ -132,8 +126,7 @@ contract FrontMatchFacade {
         view
         returns (IERC3333.GameState memory)
     {
-
-        (IERC3333.GameState memory gameState) = _contractMatch.currentMatch();
+        IERC3333.GameState memory gameState = _contractMatch.currentMatch();
         return gameState;
     }
 }
