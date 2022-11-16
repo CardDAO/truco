@@ -54,7 +54,7 @@ contract GameStateQueries is Initializable, OwnableUpgradeable {
 
     function isGameEnded(IERC3333.GameState memory _gameState)
         external
-        view
+        pure
         returns (bool)
     {
         return
