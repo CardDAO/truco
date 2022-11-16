@@ -1,9 +1,10 @@
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
-import { deployEngineContract } from '../deploy-contracts'
+import { deployEngineContract, deployFactoryContract, deployMatchContract } from '../deploy-contracts'
 import { BigNumber } from 'ethers'
 import { deployFrontMatchFacadeContract } from '../../scripts/helpers/front-match-facade-deploy'
+import { GameStateQueries } from "../../typechain-types"
 
 describe('Front Match Facade', function () {
     const tokenAtStake = BigNumber.from(10)
@@ -11,32 +12,12 @@ describe('Front Match Facade', function () {
     async function deployContract() {
         // Contracts are deployed using the first signer/account by default
         const [player1, player2, invalid_player] = await ethers.getSigners()
-
-        const { trucoin, engine, gameStateQueries } =
-            await deployEngineContract()
+j
+        const { match, engine, trucoin, gameStateQueries } = await deployMatchContract()
 
         const { frontMatchFacade } = await deployFrontMatchFacadeContract(
-            gameStateQueries
+            gameStateQueries as GameStateQueries
         )
-
-        // Transfer trucoins to players
-        await trucoin.mint(player1.address, tokenAtStake)
-        await trucoin.mint(player2.address, tokenAtStake)
-
-        const TrucoMatch = await ethers.getContractFactory('TrucoMatchTester')
-        const match = await TrucoMatch.deploy(
-            engine.address,
-            trucoin.address,
-            gameStateQueries.address,
-            tokenAtStake
-        )
-
-        // Approve trucoins to be used by the match contract
-        await trucoin.connect(player1).approve(match.address, tokenAtStake)
-        await trucoin.connect(player2).approve(match.address, tokenAtStake)
-
-        // Owner stakes tokens
-        await match.connect(player1).stake(0)
 
         // Player2 joins the match
         await match.connect(player2).join()

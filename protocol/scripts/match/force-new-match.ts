@@ -5,13 +5,12 @@ export const forceDeployNewMatch = async (_, { ethers }) => {
 
     console.log(`Deploy match...`)
 
-    //
-    //
     const TrucoMatch = await ethers.getContractFactory('TrucoMatch')
-    const match = await TrucoMatch.connect(player3).deploy(
+    const match = await TrucoMatch.connect(_.player).deploy(
         _.engine,
         _.trucoin,
         _.gamestatequeries,
+        _.player,
         10000
     )
     await match.deployed()

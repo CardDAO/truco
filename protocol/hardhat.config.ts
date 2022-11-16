@@ -5,7 +5,7 @@ import "@nomiclabs/hardhat-etherscan"
 
 import "dotenv/config";
 import { mint } from "./scripts/trucoin/mintTo"
-import { deployNewMatch } from "./scripts/match/new-match"
+import { newMatchDeployTask } from "./scripts/match/new-match"
 import { forceDeployNewMatch } from "./scripts/match/force-new-match"
 
 task("mint", "Mint Trucoin to address")
@@ -18,13 +18,16 @@ task("new-match", "Deploy new match")
     .addParam("factory", "MatchFactory Contract Address")
     .addParam("trucoin", "Trucoin Contract Address")
     .addParam("amount", "Amount to mint")
-    .setAction(deployNewMatch)
+    .addParam("player", "Player 1 -> Deployer")
+    .setAction(newMatchDeployTask)
 
 task("force-match-deploy", "Direct TrucoMatch deploy -> new match with account3 owner")
     .addParam("engine", "Engine Contract Address")
     .addParam("gamestatequeries", "GameStateQuery Contract Address")
     .addParam("trucoin", "Trucoin Contract Address")
+    .addParam("player", "Player 1 -> Deployer")
     .setAction(forceDeployNewMatch)
+
 
 const { REPORT_GAS, COINMARKETCAP_KEY }  = process.env;
 

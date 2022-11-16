@@ -1,22 +1,21 @@
 import '@nomiclabs/hardhat-ethers'
 
-export const deployNewMatch = async (_, { ethers }) => {
+export const newMatchDeployTask = async (_, { ethers }) => {
     const MatchFactory = await ethers.getContractFactory('TrucoMatchFactory')
     const matchFactory = await MatchFactory.attach(_.factory)
-    // TODO use param
-    const [player1, player2, player3] = await ethers.getSigners()
 
     const Trucoin = await ethers.getContractFactory('Trucoin')
     const trucoin = await Trucoin.attach(_.trucoin)
     const amount = _.amount
 
     console.log(
-        `Approve Trucoin amount ${amount} from ${player3.address} to TrucoMatchFactory...`
+        `Approve Trucoin amount ${amount} from ${_.player} to TrucoMatchFactory...`
     )
-    await trucoin.connect(player3).approve(_.factory, amount)
+
+    await trucoin.connect(_.player).approve(_.factory, amount)
 
     console.log(`Deploy match...`)
-    const tx = await matchFactory.connect(player3).newMatch(amount)
+    const tx = await matchFactory.connect(_.player).newMatch(amount)
     const { events } = await tx.wait()
     const event = events.find(
         (e: { event: string }) => e.event === 'TrucoMatchCreated'
