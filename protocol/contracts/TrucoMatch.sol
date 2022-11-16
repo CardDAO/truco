@@ -458,7 +458,8 @@ contract TrucoMatch {
         address loserAddress = currentMatch.players[loser];
 
         // Transfer trucoins to winner
-        truCoin.transfer(winnerAddress, address(this).balance);
+        uint256 reward = truCoin.balanceOf(address(this));
+        truCoin.transfer(winnerAddress, reward);
 
         // Assign Truco Champions Token
         TCT.assign(winnerAddress, winnerScore, loserAddress, loserScore);

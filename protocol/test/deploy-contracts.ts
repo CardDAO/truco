@@ -1,3 +1,4 @@
+import { BigNumber } from 'ethers'
 import { ethers } from 'hardhat'
 import { deployEnvidoResolverContract } from '../scripts/helpers/envido-resolver-deploy'
 import { deployGameStateQueriesContract } from '../scripts/helpers/game-state-queries-deploy'
@@ -55,6 +56,7 @@ export async function deployMatchContract() {
     await trucoin.mint(player2.address, bet)
     await trucoin.mint(invalid_player.address, bet)
 
+    // Create a match
     const TrucoMatch = await ethers.getContractFactory('TrucoMatchTester')
     const match = await TrucoMatch.deploy(
         engine.address,
@@ -75,6 +77,54 @@ export async function deployMatchContract() {
         match,
         engine,
         trucoin,
+        trucoChampionsToken,
+        player1,
+        player2,
+        invalid_player,
+        bet,
+        gameStateQueries,
+    }
+}
+
+export async function deployMatchFromFactory() {
+    // Contracts are deployed using the first signer/account by default
+    const [player1, player2, invalid_player] = await ethers.getSigners()
+
+    const { factory, trucoin, engine, gameStateQueries, trucoChampionsToken } =
+        await deployFactoryContract()
+
+    // Minimum bet is the engine minimum fee divided by 2 players plus some extra
+    const bet = (await engine.MINIMUM_FEE()).div(2).add(1000)
+
+    // Transfer trucoins to players
+    await trucoin.mint(player1.address, bet)
+    await trucoin.mint(player2.address, bet)
+    await trucoin.mint(invalid_player.address, bet)
+
+    // Create a match
+    await trucoin.connect(player1).approve(factory.address, bet)
+    const tx = await factory.connect(player1).newMatch(bet)
+    const { events } = await tx.wait()
+    const matchAddress = events[4].args['match_address']
+    const match = await ethers.getContractAt('TrucoMatch', matchAddress)
+
+    await engine.setWhiteListed(matchAddress, true)
+
+    // Approve trucoins to be used by the match contract
+    await trucoin.connect(player2).approve(matchAddress, bet)
+
+    // Player2 joins the match
+    await match.connect(player2).join()
+
+    // Start Deal
+    await match.connect(player1).newDeal()
+
+    return {
+        match,
+        factory,
+        engine,
+        trucoin,
+        trucoChampionsToken,
         player1,
         player2,
         invalid_player,

@@ -1,11 +1,13 @@
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
-import { deployMatchContract } from '../deploy-contracts'
+import { deployMatchContract, deployMatchFromFactory } from '../deploy-contracts'
 import { deployMatchContractReadyToPlay } from './deploy-match-ready-to-play'
 
 import { MatchStateEnum } from './struct-enums'
 import { BigNumber } from 'ethers'
+import { deployMatchFactoryContract } from '../../scripts/helpers/match-factory-contract'
+
 
 describe('Truco Match', function () {
     // Constructor tests
@@ -198,26 +200,6 @@ describe('Truco Match', function () {
             let matchState = await match.matchState()
 
             expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_REVEAL)
-            expect(matchState.dealNonce).to.equal(BigNumber.from(1))
-        })
-
-        it('Game reached final state', async function () {
-            const { match, player1, player2 } = await loadFixture(
-                deployMatchContractReadyToPlay
-            )
-
-            let gameState = (await match.currentMatch()).gameState
-
-            await match.setTeamPoints(
-                await match.connect(player1).currentPlayerIdx(),
-                gameState.pointsToWin
-            )
-
-            await match.connect(player2).playCard(BigNumber.from(2))
-
-            let matchState = await match.matchState()
-
-            expect(matchState.state).to.equal(MatchStateEnum.FINISHED)
             expect(matchState.dealNonce).to.equal(BigNumber.from(1))
         })
     })
@@ -654,7 +636,7 @@ describe('Truco Match', function () {
 
         it('Assign points for falta envido accepted (cards revealed at play)', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployMatchContractReadyToPlay
+                deployMatchFromFactory
             )
 
             await match.connect(player2).spellFaltaEnvido()
@@ -672,20 +654,69 @@ describe('Truco Match', function () {
             let currentMatch = await match.currentMatch()
             let matchState = await match.matchState()
 
-            let player1Idx: BigNumber = await match
-                .connect(player1)
-                .currentPlayerIdx()
-            let player2Idx: BigNumber = await match
-                .connect(player2)
-                .currentPlayerIdx()
-
-            expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
+            expect(currentMatch.gameState.teamPoints[0]).to.equal(
                 BigNumber.from(0)
             )
-            expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
+            expect(currentMatch.gameState.teamPoints[1]).to.equal(
                 BigNumber.from(currentMatch.gameState.pointsToWin)
             )
             expect(matchState.state).to.equal(MatchStateEnum.FINISHED)
         })
     })
+    describe('Game finished', function () {
+        async function reachPointstoWin(_match, _winner, _loser) {
+            await _match.connect(_winner).spellFaltaEnvido()
+            await _match.connect(_loser).acceptChallenge()
+
+            await _match.connect(_winner).spellEnvidoCount(22)
+            await _match.connect(_loser).spellEnvidoCount(0)
+
+            await _match.connect(_winner).playCard(2) // 2 of Coins
+            await _match.connect(_loser).playCard(1) // 1 of Coins
+
+            await _match.connect(_winner).playCard(8) // 10 of Coins
+
+        }
+
+        // Transfer trucoins to winner
+        it('Transfer trucoins to winner', async function () {
+            const { match, player1, player2, trucoin, trucoChampionsToken } = await loadFixture(
+                deployMatchFromFactory
+            )
+            
+            const matchBalanceBefore = await trucoin.balanceOf(match.address)
+            
+            await reachPointstoWin(match, player2, player1)
+            // 4 of Coins
+            await expect(match.connect(player1).playCard(4))
+                .to.changeTokenBalances(
+                    trucoin,
+                    [match.address, player2.address],
+                    [matchBalanceBefore.mul(-1), matchBalanceBefore]
+                    )
+        })
+
+        it('Game reached final state', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchFromFactory
+            )
+
+            let gameState = (await match.currentMatch()).gameState
+
+            await reachPointstoWin(match, player2, player1)
+
+            await match.connect(player1).playCard(BigNumber.from(4))
+
+            let matchState = await match.matchState()
+
+            expect(matchState.state).to.equal(MatchStateEnum.FINISHED)
+            expect(matchState.dealNonce).to.equal(BigNumber.from(1))
+        })
+
+
+        // Assign Truco Champions Token 
+
+        // Emit Event
+    })
+    
 })
