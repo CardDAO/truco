@@ -6,7 +6,6 @@ import { deployMatchContractReadyToPlay } from './deploy-match-ready-to-play'
 
 import { MatchStateEnum } from './struct-enums'
 import { BigNumber } from 'ethers'
-import { deployMatchFactoryContract } from '../../scripts/helpers/match-factory-contract'
 
 
 describe('Truco Match', function () {
@@ -700,8 +699,6 @@ describe('Truco Match', function () {
             const { match, player1, player2 } = await loadFixture(
                 deployMatchFromFactory
             )
-
-            let gameState = (await match.currentMatch()).gameState
 
             await reachPointstoWin(match, player2, player1)
 
