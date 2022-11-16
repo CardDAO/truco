@@ -206,7 +206,7 @@ describe('Truco Match', function () {
                 deployMatchContractReadyToPlay
             )
 
-            let gameState = await match.currentGameState()
+            let gameState = (await match.currentMatch()).gameState
 
             await match.setTeamPoints(
                 await match.connect(player1).currentPlayerIdx(),
