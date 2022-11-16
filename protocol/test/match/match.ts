@@ -671,7 +671,7 @@ describe('Truco Match', function () {
 
             let currentMatch = await match.currentMatch()
             let matchState = await match.matchState()
-            
+
             let player1Idx: BigNumber = await match
                 .connect(player1)
                 .currentPlayerIdx()
