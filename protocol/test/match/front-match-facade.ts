@@ -1,10 +1,14 @@
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
-import { deployEngineContract, deployFactoryContract, deployMatchContract } from '../deploy-contracts'
+import {
+    deployEngineContract,
+    deployFactoryContract,
+    deployMatchContract,
+} from '../deploy-contracts'
 import { BigNumber } from 'ethers'
 import { deployFrontMatchFacadeContract } from '../../scripts/helpers/front-match-facade-deploy'
-import { GameStateQueries } from "../../typechain-types"
+import { GameStateQueries } from '../../typechain-types'
 
 describe('Front Match Facade', function () {
     const tokenAtStake = BigNumber.from(10)
@@ -13,7 +17,8 @@ describe('Front Match Facade', function () {
         // Contracts are deployed using the first signer/account by default
         const [player1, player2, invalid_player] = await ethers.getSigners()
 
-        const { match, engine, trucoin, gameStateQueries } = await deployMatchContract()
+        const { match, engine, trucoin, gameStateQueries } =
+            await deployMatchContract()
 
         const { frontMatchFacade } = await deployFrontMatchFacadeContract(
             gameStateQueries as GameStateQueries
