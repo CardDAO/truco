@@ -192,7 +192,6 @@ describe('Engine Queries', function () {
                     await cardsDeck.maskedCardId(),
                 ]
 
-                // console.log(state)
                 expect(
                     await gameStateQueries.cardsShouldBeRevealedForEnvido(state)
                 ).to.be.false
