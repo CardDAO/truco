@@ -17,8 +17,6 @@ contract FrontMatchFacade {
         view
         returns (bool)
     {
-        (IERC3333.GameState memory gameState) = _contractMatch.currentMatch();
-
         IERC3333.Move memory move = prepareMove(
             IERC3333.Action.Challenge,
             IERC3333.Challenge.Envido
@@ -27,7 +25,7 @@ contract FrontMatchFacade {
         return
             isPlayerTurn(_contractMatch) &&
             gameStateQueries.isMoveValid(
-                gameState,
+                getCurrentGameState(_contractMatch),
                 move
             );
     }
@@ -37,8 +35,6 @@ contract FrontMatchFacade {
         view
         returns (bool)
     {
-        (IERC3333.GameState memory gameState) = _contractMatch.currentMatch();
-
         IERC3333.Move memory move = prepareMove(
             IERC3333.Action.Challenge,
             IERC3333.Challenge.Truco
@@ -47,7 +43,7 @@ contract FrontMatchFacade {
         return
             isPlayerTurn(_contractMatch) &&
             gameStateQueries.isMoveValid(
-                gameState,
+                getCurrentGameState(_contractMatch),
                 move
             );
     }
@@ -65,18 +61,27 @@ contract FrontMatchFacade {
         return
             isPlayerTurn(_contractMatch) &&
             gameStateQueries.isMoveValid(
-                _contractMatch.currentGameState(),
+                getCurrentGameState(_contractMatch),
                 move
             );
-        return true;
     }
 
-    function canPlayCard(TrucoMatch contractMatch)
+    function canPlayCard(TrucoMatch _contractMatch)
         external
         view
         returns (bool)
     {
-        return true;
+        IERC3333.Move memory move = prepareMove(
+            IERC3333.Action.PlayCard,
+            IERC3333.Challenge.None
+        );
+
+        return
+            isPlayerTurn(_contractMatch) &&
+            gameStateQueries.isMoveValid(
+                getCurrentGameState(_contractMatch),
+                move
+            );
     }
 
     function getEnvidoPointsForCards(uint8[] memory _cards)
@@ -119,10 +124,7 @@ contract FrontMatchFacade {
         view
         returns (bool result)
     {
-        (IERC3333.GameState memory gameState) = _contractMatch.currentMatch();
-            //.currentGameState();
-
-        if (gameState.playerTurn == currentPlayerIdx(_contractMatch)) {
+        if (getCurrentGameState(_contractMatch).playerTurn == currentPlayerIdx(_contractMatch)) {
             result = true;
         }
     }
@@ -132,8 +134,7 @@ contract FrontMatchFacade {
         view
         returns (IERC3333.GameState memory)
     {
-
-        (IERC3333.GameState memory gameState) = _contractMatch.currentMatch();
+        (IERC3333.GameState memory gameState, ) = _contractMatch.currentMatch();
         return gameState;
     }
 }
