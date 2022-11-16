@@ -19,7 +19,6 @@ async function assignTokens() {
     const { events } = await tx.wait()
 
     const event = events?.find((e) => e.event === 'TrucoTrophyMinted')
-    const match_address = event?.args!['trucoMatch']
     const trophy_id = event?.args!['trophyId']
 
     const winnerScore = BigNumber.from(30)
@@ -32,8 +31,7 @@ async function assignTokens() {
             winner.address,
             winnerScore,
             loser.address,
-            loserScore,
-            trophy_id
+            loserScore
         )
 
     return {
@@ -106,7 +104,7 @@ describe('Truco Champions Token', function () {
             await expect(
                 trucoChampionsToken
                     .connect(non_match)
-                    .assign(winner.address, 30, loser.address, 20, trophy_id)
+                    .assign(winner.address, 30, loser.address, 20)
             ).to.be.revertedWith(
                 'TrucoChampionsToken: Only the match contract can assign tokens'
             )

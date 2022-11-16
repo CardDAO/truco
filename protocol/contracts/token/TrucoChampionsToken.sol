@@ -35,9 +35,9 @@ contract TrucoChampionsToken is Ownable {
         uint256 tokenId
     );
 
-    modifier onlyMatch(uint256 _tokenId) {
+    modifier onlyMatch() {
         require(
-            trophies[_tokenId].trucoMatch == msg.sender,
+            trophiesByMatchAddress[msg.sender].trucoMatch != address(0),
             'TrucoChampionsToken: Only the match contract can assign tokens'
         );
         _;
@@ -71,10 +71,9 @@ contract TrucoChampionsToken is Ownable {
         address _winner,
         uint8 _winnerScore,
         address _loser,
-        uint8 _loserScore,
-        uint256 _trophyId
-    ) public onlyMatch(_trophyId) {
-        TrucoTrophy memory trophy = trophies[_trophyId];
+        uint8 _loserScore
+    ) public onlyMatch() {
+        TrucoTrophy memory trophy = trophiesByMatchAddress[msg.sender];
         trophy.winner = _winner;
         trophy.winnerScore = _winnerScore;
         trophy.loser = _loser;
