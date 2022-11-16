@@ -5,6 +5,7 @@ import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import './trucoV1/interfaces/IERC3333.sol';
 import './trucoV1/GameStateQueries.sol';
 import './token/TrucoChampionsToken.sol';
+import './IV/SignatureValidation.sol';
 
 contract TrucoMatch {
     enum MatchStateEnum {
@@ -32,6 +33,7 @@ contract TrucoMatch {
     TrucoChampionsToken TCT;
     Match public currentMatch;
     MatchState public matchState;
+    using SignatureValidation for bytes32;
 
     // Events
     event MatchCreated(address indexed match_address, uint256 bet);
@@ -217,11 +219,19 @@ contract TrucoMatch {
         currentMatch.gameState = trucoEngine.transact(transaction);
     }
 
-    function playCard(uint8 _card)
+    function playCard(uint8 _card, bytes memory signature)
         public
         resetFinalEnvido
         enforceTurnSwitching
     {
+        validateSignature(
+            abi.encodePacked(
+                msg.sender,
+                'playCard',
+                _card
+            )
+        );
+
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.PlayCard,
             _card
@@ -262,6 +272,14 @@ contract TrucoMatch {
     }
 
     function spellEnvidoCount(uint8 _points) public enforceTurnSwitching {
+        validateSignature(
+            abi.encodePacked(
+                msg.sender,
+                'spellEnvidoCount',
+                _points
+            )
+        );
+
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.EnvidoCount,
             _points
@@ -415,5 +433,16 @@ contract TrucoMatch {
         returns (IERC3333.GameState memory)
     {
         return currentMatch.gameState;
+    }
+
+    function validateSignature(bytes memory encodedMessage)
+        internal
+        view
+    {
+        bytes32 hash = keccak256(encodedMessage);
+        require(
+            hash.isValidSignature(signature),
+            "Invalid signature"
+        );
     }
 }
