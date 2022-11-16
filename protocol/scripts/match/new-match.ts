@@ -8,14 +8,20 @@ export const newMatchDeployTask = async (_, { ethers }) => {
     const trucoin = await Trucoin.attach(_.trucoin)
     const amount = _.amount
 
-    console.log(
-        `Approve Trucoin amount ${amount} from ${_.player} to TrucoMatchFactory...`
-    )
+    const [owner] = await ethers.getSigners()
 
-    await trucoin.connect(_.player).approve(_.factory, amount)
+    let balance = await trucoin.balanceOf(owner.address)
+    if (balance < amount) {
+        throw Error('Insufficient Trucoin\'s')
+    }
+
+    console.log(
+        `Approve Trucoin amount ${amount} from ${owner.address} to TrucoMatchFactory...`
+    )
+    const txApprove = await trucoin.connect(owner).approve(_.factory, amount)
 
     console.log(`Deploy match...`)
-    const tx = await matchFactory.connect(_.player).newMatch(amount)
+    const tx = await matchFactory.connect(owner).newMatch(amount, { gasLimit: 3000000 })
     const { events } = await tx.wait()
     const event = events.find(
         (e: { event: string }) => e.event === 'TrucoMatchCreated'

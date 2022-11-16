@@ -18,14 +18,12 @@ task("new-match", "Deploy new match")
     .addParam("factory", "MatchFactory Contract Address")
     .addParam("trucoin", "Trucoin Contract Address")
     .addParam("amount", "Amount to mint")
-    .addParam("player", "Player 1 -> Deployer")
     .setAction(newMatchDeployTask)
 
 task("force-match-deploy", "Direct TrucoMatch deploy -> new match with account3 owner")
     .addParam("engine", "Engine Contract Address")
     .addParam("gamestatequeries", "GameStateQuery Contract Address")
     .addParam("trucoin", "Trucoin Contract Address")
-    .addParam("player", "Player 1 -> Deployer")
     .setAction(forceDeployNewMatch)
 
 
