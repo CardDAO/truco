@@ -124,7 +124,10 @@ contract FrontMatchFacade {
         view
         returns (bool result)
     {
-        if (getCurrentGameState(_contractMatch).playerTurn == currentPlayerIdx(_contractMatch)) {
+        if (
+            getCurrentGameState(_contractMatch).playerTurn ==
+            currentPlayerIdx(_contractMatch)
+        ) {
             result = true;
         }
     }

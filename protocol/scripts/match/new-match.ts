@@ -12,7 +12,7 @@ export const newMatchDeployTask = async (_, { ethers }) => {
 
     let balance = await trucoin.balanceOf(owner.address)
     if (balance < amount) {
-        throw Error('Insufficient Trucoin\'s')
+        throw Error("Insufficient Trucoin's")
     }
 
     console.log(
@@ -21,7 +21,9 @@ export const newMatchDeployTask = async (_, { ethers }) => {
     const txApprove = await trucoin.connect(owner).approve(_.factory, amount)
 
     console.log(`Deploy match...`)
-    const tx = await matchFactory.connect(owner).newMatch(amount, { gasLimit: 3000000 })
+    const tx = await matchFactory
+        .connect(owner)
+        .newMatch(amount, { gasLimit: 3000000 })
     const { events } = await tx.wait()
     const event = events.find(
         (e: { event: string }) => e.event === 'TrucoMatchCreated'
