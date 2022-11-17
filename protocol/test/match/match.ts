@@ -9,6 +9,8 @@ import { deployMatchContractReadyToPlay } from './deploy-match-ready-to-play'
 
 import { MatchStateEnum } from './struct-enums'
 import { BigNumber } from 'ethers'
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { TrucoMatch } from '../../typechain-types'
 
 describe('Truco Match', function () {
     // Constructor tests
@@ -993,7 +995,7 @@ describe('Truco Match', function () {
         })
     })
     describe('Game finished', function () {
-        async function reachPointstoWin(_match, _winner, _loser) {
+        async function reachPointstoWin(_match: TrucoMatch, _winner: SignerWithAddress, _loser: SignerWithAddress) {
             await _match.connect(_winner).spellFaltaEnvido()
             await _match.connect(_loser).acceptChallenge()
 
@@ -1008,7 +1010,7 @@ describe('Truco Match', function () {
 
         // Transfer trucoins to winner
         it('Transfer trucoins to winner', async function () {
-            const { match, player1, player2, trucoin, trucoChampionsToken } =
+            const { match, player1, player2, trucoin } =
                 await loadFixture(deployMatchFromFactory)
 
             const matchBalanceBefore = await trucoin.balanceOf(match.address)

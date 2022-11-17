@@ -1,4 +1,3 @@
-import { BigNumber } from 'ethers'
 import { ethers } from 'hardhat'
 import { deployEnvidoResolverContract } from '../scripts/helpers/envido-resolver-deploy'
 import { deployGameStateQueriesContract } from '../scripts/helpers/game-state-queries-deploy'
