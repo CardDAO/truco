@@ -639,7 +639,7 @@ describe('Truco Match', function () {
 
         it('Assign points for falta envido accepted (cards revealed at play)', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployMatchFromFactory
+                deployMatchContractReadyToPlay
             )
 
             await match.connect(player2).spellFaltaEnvido()
@@ -1053,7 +1053,6 @@ describe('Truco Match', function () {
             await match.connect(player1).playCard(BigNumber.from(4))
 
             let matchState = await match.matchState()
-            console.log('match state', matchState.state)
 
             const trophy = await trucoChampionsToken.getTrophyByMatch(
                 match.address
