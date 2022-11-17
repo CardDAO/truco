@@ -319,11 +319,11 @@ describe('Truco Match', function () {
                 deployMatchContractReadyToPlay
             )
 
-            await match.connect(player2).playCard(2) // 2 of Coins
+            await match.connect(player2).playCard(2, []) // 2 of Coins
             await match.connect(player1).spellEnvido()
             await match.connect(player2).refuseChallenge()
 
-            await match.connect(player1).playCard(1) // 1 of Coins
+            await match.connect(player1).playCard(1, []) // 1 of Coins
 
             await match.connect(player2).spellTruco()
             await match.connect(player1).refuseChallenge()
@@ -353,14 +353,14 @@ describe('Truco Match', function () {
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
 
-            await match.connect(player2).spellEnvidoCount(22)
-            await match.connect(player1).spellEnvidoCount(0)
+            await match.connect(player2).spellEnvidoCount(22, [])
+            await match.connect(player1).spellEnvidoCount(0, [])
 
-            await match.connect(player2).playCard(2) // 2 of Coins
-            await match.connect(player1).playCard(1) // 1 of Coins
+            await match.connect(player2).playCard(2, []) // 2 of Coins
+            await match.connect(player1).playCard(1, []) // 1 of Coins
 
-            await match.connect(player2).playCard(8) // 10 of Coins
-            await match.connect(player1).playCard(4) // 4 of Coins
+            await match.connect(player2).playCard(8, []) // 10 of Coins
+            await match.connect(player1).playCard(4, []) // 4 of Coins
 
             let currentMatch = await match.currentMatch()
 
@@ -387,14 +387,14 @@ describe('Truco Match', function () {
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
 
-            await match.connect(player2).spellEnvidoCount(25)
-            await match.connect(player1).spellEnvidoCount(0)
+            await match.connect(player2).spellEnvidoCount(25, [])
+            await match.connect(player1).spellEnvidoCount(0, [])
 
-            await match.connect(player2).playCard(1) // 1 of Coins
-            await match.connect(player1).playCard(2) // 2 of Coins
+            await match.connect(player2).playCard(1, []) // 1 of Coins
+            await match.connect(player1).playCard(2, []) // 2 of Coins
 
-            await match.connect(player1).playCard(8) // 10 of Coins
-            await match.connect(player2).playCard(4) // 4 of Coins
+            await match.connect(player1).playCard(8, []) // 10 of Coins
+            await match.connect(player2).playCard(4, []) // 4 of Coins
 
             let currentMatch = await match.currentMatch()
 
@@ -421,17 +421,17 @@ describe('Truco Match', function () {
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
 
-            await match.connect(player2).spellEnvidoCount(22)
-            await match.connect(player1).spellEnvidoCount(0)
+            await match.connect(player2).spellEnvidoCount(22, [])
+            await match.connect(player1).spellEnvidoCount(0, [])
 
             await match.connect(player2).spellTruco()
             await match.connect(player1).acceptChallenge()
 
-            await match.connect(player2).playCard(2) // 2 of Coins
-            await match.connect(player1).playCard(1) // 1 of Coins
+            await match.connect(player2).playCard(2, []) // 2 of Coins
+            await match.connect(player1).playCard(1, []) // 1 of Coins
 
-            await match.connect(player2).playCard(8) // 10 of Coins
-            await match.connect(player1).playCard(4) // 4 of Coins
+            await match.connect(player2).playCard(8, []) // 10 of Coins
+            await match.connect(player1).playCard(4, []) // 4 of Coins
 
             let currentMatch = await match.currentMatch()
 
@@ -458,17 +458,17 @@ describe('Truco Match', function () {
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
 
-            await match.connect(player2).spellEnvidoCount(22)
-            await match.connect(player1).spellEnvidoCount(0)
+            await match.connect(player2).spellEnvidoCount(22, [])
+            await match.connect(player1).spellEnvidoCount(0, [])
 
             await match.connect(player2).spellTruco()
             await match.connect(player1).acceptChallenge()
 
-            await match.connect(player2).playCard(2) // 2 of Coins
-            await match.connect(player1).playCard(3) // 3 of Coins
+            await match.connect(player2).playCard(2, []) // 2 of Coins
+            await match.connect(player1).playCard(3, []) // 3 of Coins
 
-            await match.connect(player1).playCard(22) // 2 of Swords
-            await match.connect(player2).playCard(8) // 10 of Coins
+            await match.connect(player1).playCard(22, []) // 2 of Swords
+            await match.connect(player2).playCard(8, []) // 10 of Coins
 
             let currentMatch = await match.currentMatch()
 
@@ -499,17 +499,17 @@ describe('Truco Match', function () {
 
             await match.connect(player2).acceptChallenge()
 
-            await match.connect(player2).spellEnvidoCount(22)
-            await match.connect(player1).spellEnvidoCount(0)
+            await match.connect(player2).spellEnvidoCount(22, [])
+            await match.connect(player1).spellEnvidoCount(0, [])
 
             await match.connect(player2).spellTruco()
             await match.connect(player1).acceptChallenge()
 
-            await match.connect(player2).playCard(2) // 2 of Coins
-            await match.connect(player1).playCard(1) // 1 of Coins
+            await match.connect(player2).playCard(2, []) // 2 of Coins
+            await match.connect(player1).playCard(1, []) // 1 of Coins
 
-            await match.connect(player2).playCard(8) // 10 of Coins
-            await match.connect(player1).playCard(4) // 4 of Coins
+            await match.connect(player2).playCard(8, []) // 10 of Coins
+            await match.connect(player1).playCard(4, []) // 4 of Coins
 
             let currentMatch = await match.currentMatch()
 
@@ -538,11 +538,11 @@ describe('Truco Match', function () {
             await match.connect(player1).spellReTruco()
             await match.connect(player2).acceptChallenge()
 
-            await match.connect(player2).playCard(2) // 2 of Coins
-            await match.connect(player1).playCard(1) // 1 of Coins
+            await match.connect(player2).playCard(2, []) // 2 of Coins
+            await match.connect(player1).playCard(1, []) // 1 of Coins
 
-            await match.connect(player2).playCard(8) // 10 of Coins
-            await match.connect(player1).playCard(4) // 4 of Coins
+            await match.connect(player2).playCard(8, []) // 10 of Coins
+            await match.connect(player1).playCard(4, []) // 4 of Coins
 
             let currentMatch = await match.currentMatch()
 
@@ -633,11 +633,11 @@ describe('Truco Match', function () {
             await match.connect(player2).spellValeCuatro()
             await match.connect(player1).acceptChallenge()
 
-            await match.connect(player2).playCard(2) // 2 of Coins
-            await match.connect(player1).playCard(1) // 1 of Coins
+            await match.connect(player2).playCard(2, []) // 2 of Coins
+            await match.connect(player1).playCard(1, []) // 1 of Coins
 
-            await match.connect(player2).playCard(8) // 10 of Coins
-            await match.connect(player1).playCard(4) // 4 of Coins
+            await match.connect(player2).playCard(8, []) // 10 of Coins
+            await match.connect(player1).playCard(4, []) // 4 of Coins
 
             let currentMatch = await match.currentMatch()
 
@@ -664,14 +664,14 @@ describe('Truco Match', function () {
             await match.connect(player2).spellFaltaEnvido()
             await match.connect(player1).acceptChallenge()
 
-            await match.connect(player2).spellEnvidoCount(22)
-            await match.connect(player1).spellEnvidoCount(0)
+            await match.connect(player2).spellEnvidoCount(22, [])
+            await match.connect(player1).spellEnvidoCount(0, [])
 
-            await match.connect(player2).playCard(2) // 2 of Coins
-            await match.connect(player1).playCard(1) // 1 of Coins
+            await match.connect(player2).playCard(2, []) // 2 of Coins
+            await match.connect(player1).playCard(1, []) // 1 of Coins
 
-            await match.connect(player2).playCard(8) // 10 of Coins
-            await match.connect(player1).playCard(4) // 4 of Coins
+            await match.connect(player2).playCard(8, []) // 10 of Coins
+            await match.connect(player1).playCard(4, []) // 4 of Coins
 
             let currentMatch = await match.currentMatch()
             let matchState = await match.matchState()
@@ -784,11 +784,11 @@ describe('Truco Match', function () {
                 deployMatchContractReadyToPlay
             )
 
-            await match.connect(player2).playCard(2) // 2 of Coins
+            await match.connect(player2).playCard(2, []) // 2 of Coins
             await match.connect(player1).spellEnvido()
             await match.connect(player2).refuseChallenge()
 
-            await match.connect(player1).playCard(1) // 1 of Coins
+            await match.connect(player1).playCard(1, []) // 1 of Coins
 
             await match.connect(player2).spellTruco()
             await match.connect(player1).resign()
@@ -826,10 +826,10 @@ describe('Truco Match', function () {
             await match.connect(player2).spellValeCuatro()
             await match.connect(player1).acceptChallenge()
 
-            await match.connect(player2).playCard(2) // 2 of Coins
-            await match.connect(player1).playCard(1) // 1 of Coins
+            await match.connect(player2).playCard(2, []) // 2 of Coins
+            await match.connect(player1).playCard(1, []) // 1 of Coins
 
-            await match.connect(player2).playCard(8) // 10 of Coins
+            await match.connect(player2).playCard(8, []) // 10 of Coins
             await match.connect(player1).resign()
 
             let player1Idx: BigNumber = await match
@@ -859,13 +859,13 @@ describe('Truco Match', function () {
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
 
-            await match.connect(player2).spellEnvidoCount(22)
-            await match.connect(player1).spellEnvidoCount(0)
+            await match.connect(player2).spellEnvidoCount(22, [])
+            await match.connect(player1).spellEnvidoCount(0, [])
 
-            await match.connect(player2).playCard(2) // 2 of Coins
-            await match.connect(player1).playCard(1) // 1 of Coins
+            await match.connect(player2).playCard(2, []) // 2 of Coins
+            await match.connect(player1).playCard(1, []) // 1 of Coins
 
-            await match.connect(player2).playCard(8) // 10 of Coins
+            await match.connect(player2).playCard(8, []) // 10 of Coins
             await match.connect(player1).resign()
 
             let player1Idx: BigNumber = await match
@@ -895,7 +895,7 @@ describe('Truco Match', function () {
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
 
-            await match.connect(player2).spellEnvidoCount(22)
+            await match.connect(player2).spellEnvidoCount(22, [])
             await match.connect(player1).resign()
 
             let player1Idx: BigNumber = await match
@@ -925,7 +925,7 @@ describe('Truco Match', function () {
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
 
-            await match.connect(player2).spellEnvidoCount(22)
+            await match.connect(player2).spellEnvidoCount(22, [])
             await match.connect(player1).resign()
 
             let player1Idx: BigNumber = await match
@@ -955,10 +955,10 @@ describe('Truco Match', function () {
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
 
-            await match.connect(player2).spellEnvidoCount(22)
-            await match.connect(player1).spellEnvidoCount(0)
+            await match.connect(player2).spellEnvidoCount(22, [])
+            await match.connect(player1).spellEnvidoCount(0, [])
 
-            await match.connect(player2).playCard(2) // 2 of Coins
+            await match.connect(player2).playCard(2, []) // 2 of Coins
             await match.connect(player1).resign() // 1 of Coins
 
             let player1Idx: BigNumber = await match
@@ -988,17 +988,17 @@ describe('Truco Match', function () {
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
 
-            await match.connect(player2).spellEnvidoCount(22)
-            await match.connect(player1).spellEnvidoCount(0)
+            await match.connect(player2).spellEnvidoCount(22, [])
+            await match.connect(player1).spellEnvidoCount(0, [])
 
-            await match.connect(player2).playCard(2) // 2 of Coins
+            await match.connect(player2).playCard(2, []) // 2 of Coins
 
             await match.connect(player1).spellTruco()
             await match.connect(player2).acceptChallenge()
 
-            await match.connect(player1).playCard(3) // 3 of Coins
+            await match.connect(player1).playCard(3, []) // 3 of Coins
 
-            await match.connect(player1).playCard(8) // 10 of Coins
+            await match.connect(player1).playCard(8, []) // 10 of Coins
             await match.connect(player2).resign()
 
             let player1Idx: BigNumber = await match
