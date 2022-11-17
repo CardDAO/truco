@@ -357,9 +357,9 @@ contract TrucoResolver is Initializable, OwnableUpgradeable {
 
     // Check if card is not repeated in the array
     function _cardNotRepeated(uint8[3][] memory _revealedCards, uint8 _card)
-    internal
-    pure
-    returns (bool)
+        internal
+        pure
+        returns (bool)
     {
         for (uint8 i = 0; i < _revealedCards.length; i++) {
             for (uint8 j = 0; j < _revealedCards[i].length; j++) {
