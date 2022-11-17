@@ -35,6 +35,8 @@ contract TrucoMatch {
     MatchState public matchState;
     using SignatureValidation for bytes32;
 
+    mapping(address => uint) public impartialVerifiers;
+
     // Events
     event MatchCreated(address indexed match_address, uint256 bet);
     event MatchStarted(
@@ -97,6 +99,7 @@ contract TrucoMatch {
         TrucoChampionsToken _TCT,
         GameStateQueries _gameStateQueries,
         address player1,
+        address[2] ivs,
         uint256 _bet
     ) {
         trucoEngine = _trucoEngine;
@@ -107,6 +110,9 @@ contract TrucoMatch {
         currentMatch.players[0] = player1;
 
         matchState.state = MatchStateEnum.WAITING_FOR_PLAYERS;
+
+        impartialVerifiers[ivs[0]] = true;
+        impartialVerifiers[ivs[1]] = true;
 
         emit MatchCreated(address(this), _bet);
     }
