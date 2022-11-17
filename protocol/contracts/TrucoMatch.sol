@@ -299,10 +299,7 @@ contract TrucoMatch {
         _playCard(_card);
     }
 
-    function _playCard(uint8 _card)
-        internal
-        enforceTurnSwitching
-    {
+    function _playCard(uint8 _card) internal enforceTurnSwitching {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.PlayCard,
             _card
