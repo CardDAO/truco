@@ -1070,4 +1070,184 @@ describe('Truco Match', function () {
 
         // Emit Event
     })
+    
+    describe('Cards Reveal', function () {
+        it('Reveal incorrect number of cards', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            // Not in reveal state
+            await expect(match.connect(player2).revealCards([])).to.be.reverted
+
+            await match.connect(player2).spellEnvido()
+            await match.connect(player1).acceptChallenge()
+
+            await match.connect(player2).spellEnvidoCount(22)
+            await match.connect(player1).spellEnvidoCount(0)
+
+            await match.connect(player2).playCard(2) // 2 of Coins
+            await match.connect(player1).resign()
+
+            let matchState = await match.matchState()
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_REVEAL)
+
+            let tooMuchCardsToReveal = [
+                BigNumber.from(1),
+                BigNumber.from(2),
+                BigNumber.from(3),
+                BigNumber.from(4),
+            ]
+            await expect(
+                match.connect(player2).revealCards(tooMuchCardsToReveal)
+            ).to.be.reverted
+        })
+
+        it('Reveal incorrect envido sum cards', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            // Not in reveal state
+            await expect(match.connect(player2).revealCards([])).to.be.reverted
+
+            await match.connect(player2).spellEnvido()
+            await match.connect(player1).acceptChallenge()
+
+            await match.connect(player2).spellEnvidoCount(22)
+            await match.connect(player1).spellEnvidoCount(0)
+
+            await match.connect(player2).playCard(2) // 2 of Coins
+            await match.connect(player1).resign()
+
+            let matchState = await match.matchState()
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_REVEAL)
+
+            let cardsThatDoesNotSumEnvidoCountSpelledInMatch = [
+                BigNumber.from(1),
+                BigNumber.from(2),
+            ]
+            await expect(
+                match
+                    .connect(player2)
+                    .revealCards(cardsThatDoesNotSumEnvidoCountSpelledInMatch)
+            ).to.be.revertedWith('Envido count from cards does not match')
+        })
+
+        it('Reveal ok - Match not ended after reveal', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            // Not in reveal state
+            await expect(match.connect(player2).revealCards([])).to.be.reverted
+
+            await match.connect(player2).spellEnvido()
+            await match.connect(player1).acceptChallenge()
+
+            await match.connect(player2).spellEnvidoCount(22)
+            await match.connect(player1).spellEnvidoCount(0)
+
+            await match.connect(player2).playCard(2) // 2 of Coins
+            await match.connect(player1).resign()
+
+            let matchState = await match.matchState()
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_REVEAL)
+
+            // 2 of Coins and 10 of Coins should sum 22
+            let cardsThatSumEnvidoSpelledOk = [
+                BigNumber.from(2),
+                BigNumber.from(8),
+            ]
+            await match
+                .connect(player2)
+                .revealCards(cardsThatSumEnvidoSpelledOk)
+
+            matchState = await match.matchState()
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_DEAL)
+        })
+
+        it('Reveal ok - Match ended after reveal', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            let player2Idx: BigNumber = await match
+                .connect(player2)
+                .currentPlayerIdx()
+
+            let currentMatch = await match.currentMatch()
+            await match.setTeamPoints(
+                player2Idx,
+                currentMatch.gameState.pointsToWin - 2
+            )
+
+            await match.connect(player2).spellEnvido()
+            await match.connect(player1).acceptChallenge()
+
+            await match.connect(player2).spellEnvidoCount(22)
+            await match.connect(player1).spellEnvidoCount(0)
+
+            await match.connect(player2).playCard(2) // 2 of Coins
+            await match.connect(player1).playCard(21) // 1 of Swords
+
+            await match.connect(player1).playCard(3) // 3 of Coins
+            await match.connect(player2).playCard(4) // 4 of Coins
+
+            let matchState = await match.matchState()
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_REVEAL)
+
+            // 2 of Coins and 10 of Coins should sum 22
+            let cardsThatSumEnvidoSpelledOk = [
+                BigNumber.from(2),
+                BigNumber.from(8),
+            ]
+            await match
+                .connect(player2)
+                .revealCards(cardsThatSumEnvidoSpelledOk)
+
+            matchState = await match.matchState()
+            expect(matchState.state).to.equal(MatchStateEnum.FINISHED)
+        })
+
+        it('Reveal ok - Match ended after with a resignation after reveal', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            let player2Idx: BigNumber = await match
+                .connect(player2)
+                .currentPlayerIdx()
+
+            let currentMatch = await match.currentMatch()
+            await match.setTeamPoints(
+                player2Idx,
+                currentMatch.gameState.pointsToWin - 2
+            )
+
+            await match.connect(player2).spellEnvido()
+            await match.connect(player1).acceptChallenge()
+
+            await match.connect(player2).spellEnvidoCount(22)
+            await match.connect(player1).spellEnvidoCount(0)
+
+            await match.connect(player2).playCard(2) // 2 of Coins
+            await match.connect(player1).resign()
+
+            let matchState = await match.matchState()
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_REVEAL)
+
+            // 2 of Coins and 10 of Coins should sum 22
+            let cardsThatSumEnvidoSpelledOk = [
+                BigNumber.from(2),
+                BigNumber.from(8),
+            ]
+            await match
+                .connect(player2)
+                .revealCards(cardsThatSumEnvidoSpelledOk)
+
+            matchState = await match.matchState()
+            expect(matchState.state).to.equal(MatchStateEnum.FINISHED)
+        })
+    })
 })
