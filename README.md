@@ -1,9 +1,9 @@
 ![The CardDAO Logo](https://github.com/CardDAO/truco/blob/main/docs/card-dao-logo.png?raw=true)
 
-# CardDAO Truco Implementation
+# Truco Implementation
 
 
-## Componentes
+## Main Components
 
 ### Decentralized Frontend 
 
