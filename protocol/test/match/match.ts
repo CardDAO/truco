@@ -688,4 +688,332 @@ describe('Truco Match', function () {
             expect(matchState.state).to.equal(MatchStateEnum.FINISHED)
         })
     })
+
+    describe('Resign', function () {
+        it('Resign on none challenge', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            await match.connect(player2).resign()
+
+            let player1Idx: BigNumber = await match
+                .connect(player1)
+                .currentPlayerIdx()
+            let player2Idx: BigNumber = await match
+                .connect(player2)
+                .currentPlayerIdx()
+
+            let currentMatch = await match.currentMatch()
+            let matchState = await match.matchState()
+
+            expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
+                BigNumber.from(1)
+            )
+            expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
+                BigNumber.from(0)
+            )
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_DEAL)
+        })
+
+        it('Resign on envido challenge', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            await match.connect(player2).spellEnvido()
+
+            await match.connect(player1).resign()
+
+            let player1Idx: BigNumber = await match
+                .connect(player1)
+                .currentPlayerIdx()
+            let player2Idx: BigNumber = await match
+                .connect(player2)
+                .currentPlayerIdx()
+
+            let currentMatch = await match.currentMatch()
+            let matchState = await match.matchState()
+
+            expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
+                BigNumber.from(0)
+            )
+            expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
+                BigNumber.from(2)
+            )
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_DEAL)
+        })
+
+        it('Resign on envido raising challenge', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            await match.connect(player2).spellEnvido()
+            await match.connect(player1).acceptChallengeForRaising()
+
+            await match.connect(player1).spellFaltaEnvido()
+
+            await match.connect(player2).resign()
+
+            let player1Idx: BigNumber = await match
+                .connect(player1)
+                .currentPlayerIdx()
+            let player2Idx: BigNumber = await match
+                .connect(player2)
+                .currentPlayerIdx()
+
+            let currentMatch = await match.currentMatch()
+            let matchState = await match.matchState()
+
+            expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
+                BigNumber.from(3)
+            )
+            expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
+                BigNumber.from(0)
+            )
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_DEAL)
+        })
+
+        it('Resign on truco spelling challenge (previous envido was refused)', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            await match.connect(player2).playCard(2) // 2 of Coins
+            await match.connect(player1).spellEnvido()
+            await match.connect(player2).refuseChallenge()
+
+            await match.connect(player1).playCard(1) // 1 of Coins
+
+            await match.connect(player2).spellTruco()
+            await match.connect(player1).resign()
+
+            let player1Idx: BigNumber = await match
+                .connect(player1)
+                .currentPlayerIdx()
+            let player2Idx: BigNumber = await match
+                .connect(player2)
+                .currentPlayerIdx()
+
+            let currentMatch = await match.currentMatch()
+            let matchState = await match.matchState()
+
+            expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
+                BigNumber.from(1)
+            )
+            expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
+                BigNumber.from(1)
+            )
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_DEAL)
+        })
+
+        it('Resign on vale4, no envido was spelled', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            await match.connect(player2).spellTruco()
+            await match.connect(player1).acceptChallengeForRaising()
+
+            await match.connect(player1).spellReTruco()
+            await match.connect(player2).acceptChallengeForRaising()
+
+            await match.connect(player2).spellValeCuatro()
+            await match.connect(player1).acceptChallenge()
+
+            await match.connect(player2).playCard(2) // 2 of Coins
+            await match.connect(player1).playCard(1) // 1 of Coins
+
+            await match.connect(player2).playCard(8) // 10 of Coins
+            await match.connect(player1).resign()
+
+            let player1Idx: BigNumber = await match
+                .connect(player1)
+                .currentPlayerIdx()
+            let player2Idx: BigNumber = await match
+                .connect(player2)
+                .currentPlayerIdx()
+
+            let currentMatch = await match.currentMatch()
+            let matchState = await match.matchState()
+
+            expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
+                BigNumber.from(0)
+            )
+            expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
+                BigNumber.from(4)
+            )
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_DEAL)
+        })
+
+        it('Resign after envido was played, no truco was spelled', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            await match.connect(player2).spellEnvido()
+            await match.connect(player1).acceptChallenge()
+
+            await match.connect(player2).spellEnvidoCount(22)
+            await match.connect(player1).spellEnvidoCount(0)
+
+            await match.connect(player2).playCard(2) // 2 of Coins
+            await match.connect(player1).playCard(1) // 1 of Coins
+
+            await match.connect(player2).playCard(8) // 10 of Coins
+            await match.connect(player1).resign()
+
+            let player1Idx: BigNumber = await match
+                .connect(player1)
+                .currentPlayerIdx()
+            let player2Idx: BigNumber = await match
+                .connect(player2)
+                .currentPlayerIdx()
+
+            let currentMatch = await match.currentMatch()
+            let matchState = await match.matchState()
+
+            expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
+                BigNumber.from(0)
+            )
+            expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
+                BigNumber.from(3)
+            )
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_DEAL)
+        })
+
+        it('Resign after envido accepting envido', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            await match.connect(player2).spellEnvido()
+            await match.connect(player1).acceptChallenge()
+
+            await match.connect(player2).spellEnvidoCount(22)
+            await match.connect(player1).resign()
+
+            let player1Idx: BigNumber = await match
+                .connect(player1)
+                .currentPlayerIdx()
+            let player2Idx: BigNumber = await match
+                .connect(player2)
+                .currentPlayerIdx()
+
+            let currentMatch = await match.currentMatch()
+            let matchState = await match.matchState()
+
+            expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
+                BigNumber.from(0)
+            )
+            expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
+                BigNumber.from(3)
+            )
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_DEAL)
+        })
+
+        it('Resign after envido accepting envido, no cards needs to be revealed', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            await match.connect(player2).spellEnvido()
+            await match.connect(player1).acceptChallenge()
+
+            await match.connect(player2).spellEnvidoCount(22)
+            await match.connect(player1).resign()
+
+            let player1Idx: BigNumber = await match
+                .connect(player1)
+                .currentPlayerIdx()
+            let player2Idx: BigNumber = await match
+                .connect(player2)
+                .currentPlayerIdx()
+
+            let currentMatch = await match.currentMatch()
+            let matchState = await match.matchState()
+
+            expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
+                BigNumber.from(0)
+            )
+            expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
+                BigNumber.from(3)
+            )
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_DEAL)
+        })
+
+        it('Resign after after paying envido, no envido cards were revealed', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            await match.connect(player2).spellEnvido()
+            await match.connect(player1).acceptChallenge()
+
+            await match.connect(player2).spellEnvidoCount(22)
+            await match.connect(player1).spellEnvidoCount(0)
+
+            await match.connect(player2).playCard(2) // 2 of Coins
+            await match.connect(player1).resign() // 1 of Coins
+
+            let player1Idx: BigNumber = await match
+                .connect(player1)
+                .currentPlayerIdx()
+            let player2Idx: BigNumber = await match
+                .connect(player2)
+                .currentPlayerIdx()
+
+            let currentMatch = await match.currentMatch()
+            let matchState = await match.matchState()
+
+            expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
+                BigNumber.from(0)
+            )
+            expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
+                BigNumber.from(3)
+            )
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_REVEAL)
+        })
+
+        it('Envido was spelled. Different player resigns at truco', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            await match.connect(player2).spellEnvido()
+            await match.connect(player1).acceptChallenge()
+
+            await match.connect(player2).spellEnvidoCount(22)
+            await match.connect(player1).spellEnvidoCount(0)
+
+            await match.connect(player2).playCard(2) // 2 of Coins
+
+            await match.connect(player1).spellTruco()
+            await match.connect(player2).acceptChallenge()
+
+            await match.connect(player1).playCard(3) // 3 of Coins
+
+            await match.connect(player1).playCard(8) // 10 of Coins
+            await match.connect(player2).resign()
+
+            let player1Idx: BigNumber = await match
+                .connect(player1)
+                .currentPlayerIdx()
+            let player2Idx: BigNumber = await match
+                .connect(player2)
+                .currentPlayerIdx()
+
+            let currentMatch = await match.currentMatch()
+            let matchState = await match.matchState()
+
+            expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
+                BigNumber.from(2)
+            )
+            expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
+                BigNumber.from(2)
+            )
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_REVEAL)
+        })
+    })
 })
