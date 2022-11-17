@@ -218,7 +218,11 @@ contract TrucoMatch {
         currentMatch.gameState = trucoEngine.transact(transaction);
     }
 
-    function playCard(uint8 _card, bytes memory signature) public virtual enforceTurnSwitching {
+    function playCard(uint8 _card, bytes memory signature)
+        public
+        virtual
+        enforceTurnSwitching
+    {
         validateSignature(
             abi.encodePacked(msg.sender, 'playCard', _card),
             signature
