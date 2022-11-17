@@ -77,7 +77,7 @@ contract EnvidoResolver is IChallengeResolver, OwnableUpgradeable {
                     false &&
                     validEnvido(
                         _gameState.envido.playerCount[
-                            reversePlayer(_gameState.playerTurn)
+                            _reversePlayer(_gameState.playerTurn)
                         ]
                     ) ==
                     false
@@ -142,7 +142,7 @@ contract EnvidoResolver is IChallengeResolver, OwnableUpgradeable {
                     .pointsAtStake;
 
                 // Reset current challenge
-                _gameState = resetChallenge(_gameState);
+                _gameState = _resetChallenge(_gameState);
 
                 return _gameState;
             }
@@ -158,7 +158,7 @@ contract EnvidoResolver is IChallengeResolver, OwnableUpgradeable {
                 _gameState.currentChallenge.challenge ==
                 IERC3333.Challenge.FaltaEnvido
             ) {
-                _gameState.currentChallenge.pointsAtStake = pointsPerChallenge(
+                _gameState.currentChallenge.pointsAtStake = _pointsPerChallenge(
                     _gameState.currentChallenge.challenge,
                     _gameState
                 );
@@ -167,7 +167,7 @@ contract EnvidoResolver is IChallengeResolver, OwnableUpgradeable {
             }
 
             // Previous challenge was accepted, so we should add the new challenge points to the current points at stake
-            _gameState.currentChallenge.pointsAtStake += pointsPerChallenge(
+            _gameState.currentChallenge.pointsAtStake += _pointsPerChallenge(
                 _gameState.currentChallenge.challenge,
                 _gameState
             );
@@ -199,7 +199,7 @@ contract EnvidoResolver is IChallengeResolver, OwnableUpgradeable {
                 require(
                     validEnvido(
                         _gameState.envido.playerCount[
-                            reversePlayer(_gameState.playerTurn)
+                            _reversePlayer(_gameState.playerTurn)
                         ]
                     )
                 );
@@ -217,14 +217,14 @@ contract EnvidoResolver is IChallengeResolver, OwnableUpgradeable {
             uint8 envidoCount = _move.parameters[0];
             _gameState.envido.playerCount[_gameState.playerTurn] = envidoCount;
 
-            if (isEnvidoCountFinished(_gameState)) {
+            if (_isEnvidoCountFinished(_gameState)) {
                 // If game is final, we should reward points to the winner
                 _gameState.envido.pointsRewarded = _gameState
                     .currentChallenge
                     .pointsAtStake;
 
                 // Reset current challenge
-                _gameState = resetChallenge(_gameState);
+                _gameState = _resetChallenge(_gameState);
             }
 
             return _gameState;
@@ -265,7 +265,7 @@ contract EnvidoResolver is IChallengeResolver, OwnableUpgradeable {
             return false;
         }
 
-        if (isEnvidoCountFinished(_gameState)) {
+        if (_isEnvidoCountFinished(_gameState)) {
             return true;
         }
 
@@ -297,28 +297,33 @@ contract EnvidoResolver is IChallengeResolver, OwnableUpgradeable {
         // If the same points for envido were spoken by all players, "mano" won (the opponent of the deck shuffler)
         if (
             _gameState.envido.playerCount[_gameState.playerTurn] ==
-            _gameState.envido.playerCount[reversePlayer(_gameState.playerTurn)]
+            _gameState.envido.playerCount[_reversePlayer(_gameState.playerTurn)]
         ) {
-            return reversePlayer(_gameState.playerWhoShuffled);
+            return _reversePlayer(_gameState.playerWhoShuffled);
         }
 
         // Last but not least: the player with the highest envido count wins
         if (
             _gameState.envido.playerCount[_gameState.playerTurn] >
-            _gameState.envido.playerCount[reversePlayer(_gameState.playerTurn)]
+            _gameState.envido.playerCount[_reversePlayer(_gameState.playerTurn)]
         ) {
             return _gameState.playerTurn;
         }
 
-        return reversePlayer(_gameState.playerTurn);
+        return _reversePlayer(_gameState.playerTurn);
     }
 
-    function reversePlayer(uint8 _player) internal pure returns (uint8) {
+    // Check if envido count is valid, if not it means that player didn't spell it's points
+    function validEnvido(uint8 _envidoCount) public pure returns (bool) {
+        return _envidoCount >= 0 && _envidoCount <= 33;
+    }
+
+    function _reversePlayer(uint8 _player) internal pure returns (uint8) {
         return _player ^ 1;
     }
 
     // Return points that should be at stake for a given challenge
-    function pointsPerChallenge(
+    function _pointsPerChallenge(
         IERC3333.Challenge challenge,
         IERC3333.GameState memory _gameState
     ) internal pure returns (uint8) {
@@ -344,7 +349,7 @@ contract EnvidoResolver is IChallengeResolver, OwnableUpgradeable {
         revert('Invalid challenge');
     }
 
-    function isEnvidoCountFinished(IERC3333.GameState memory _gameState)
+    function _isEnvidoCountFinished(IERC3333.GameState memory _gameState)
         internal
         pure
         returns (bool)
@@ -353,7 +358,7 @@ contract EnvidoResolver is IChallengeResolver, OwnableUpgradeable {
             validEnvido(_gameState.envido.playerCount[_gameState.playerTurn]) &&
             validEnvido(
                 _gameState.envido.playerCount[
-                    reversePlayer(_gameState.playerTurn)
+                    _reversePlayer(_gameState.playerTurn)
                 ]
             )
         ) {
@@ -363,12 +368,7 @@ contract EnvidoResolver is IChallengeResolver, OwnableUpgradeable {
         return false;
     }
 
-    // Check if envido count is valid, if not it means that player didn't spell it's points
-    function validEnvido(uint8 _envidoCount) public pure returns (bool) {
-        return _envidoCount >= 0 && _envidoCount <= 33;
-    }
-
-    function resetChallenge(IERC3333.GameState memory _gameState)
+    function _resetChallenge(IERC3333.GameState memory _gameState)
         internal
         pure
         returns (IERC3333.GameState memory)
