@@ -301,7 +301,6 @@ contract TrucoMatch {
 
     function _playCard(uint8 _card)
         internal
-        resetFinalEnvido
         enforceTurnSwitching
     {
         IERC3333.Transaction memory transaction = buildTransaction(
