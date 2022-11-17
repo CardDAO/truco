@@ -27,12 +27,7 @@ async function assignTokens() {
     // Assign game result
     await trucoChampionsToken
         .connect(match)
-        .assign(
-            winner.address,
-            winnerScore,
-            loser.address,
-            loserScore
-        )
+        .assign(winner.address, winnerScore, loser.address, loserScore)
 
     return {
         trucoChampionsToken,

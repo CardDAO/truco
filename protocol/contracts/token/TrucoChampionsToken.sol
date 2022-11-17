@@ -72,7 +72,7 @@ contract TrucoChampionsToken is Ownable {
         uint8 _winnerScore,
         address _loser,
         uint8 _loserScore
-    ) public onlyMatch() {
+    ) public onlyMatch {
         TrucoTrophy memory trophy = trophiesByMatchAddress[msg.sender];
         trophy.winner = _winner;
         trophy.winnerScore = _winnerScore;

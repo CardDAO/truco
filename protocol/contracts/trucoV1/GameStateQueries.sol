@@ -412,7 +412,7 @@ contract GameStateQueries is Initializable, OwnableUpgradeable {
         view
         returns (uint8)
     {
-        require(this.isGameEnded(gameState), "Game is not ended");
+        require(this.isGameEnded(gameState), 'Game is not ended');
         // Check if there's a winner
         if (gameState.teamPoints[0] >= gameState.pointsToWin) {
             return 0;

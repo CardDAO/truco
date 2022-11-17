@@ -5,8 +5,14 @@ export async function deployMatchContractReadyToPlay() {
     // Contracts are deployed using the first signer/account by default
     const [player1, player2] = await ethers.getSigners()
 
-    const { match, trucoin, trucoChampionsToken, engine, gameStateQueries, bet } =
-        await deployMatchContract()
+    const {
+        match,
+        trucoin,
+        trucoChampionsToken,
+        engine,
+        gameStateQueries,
+        bet,
+    } = await deployMatchContract()
 
     await engine.setWhiteListed(match.address, true)
 

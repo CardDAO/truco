@@ -511,7 +511,6 @@ contract TrucoMatch {
         return selector;
     }
 
-
     function finishMatchIfApply() internal {
         if (!gameStateQueries.isGameEnded(currentMatch.gameState)) {
             // Game is not finished, do not do anything
