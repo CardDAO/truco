@@ -60,7 +60,7 @@ contract TrucoMatch {
             );
         }
         _updateMatchState();
-        addPointsFromRoundIfApply();
+        _addPointsFromRoundIfApply();
     }
 
     constructor(
@@ -162,53 +162,6 @@ contract TrucoMatch {
         emit NewDeal(msg.sender);
     }
 
-    // Applies the points awarded from round if it's final
-    function addPointsFromRoundIfApply() internal {
-        if (matchState.state != MatchStateEnum.WAITING_FOR_DEAL) {
-            return;
-        }
-
-        // If invoked function is resign we should not assign points since it was resolved at resign function
-        if (_getCalledFunctionSelector() == bytes4(0x69652fcf)) {
-            // '69652fcf' is the hash of the function 'resign' (with no arguments)
-            // used https://abi.hashex.org/ to get the hash
-            return;
-        }
-
-        // Check for envido accepted challenge points
-        if (
-            currentMatch.gameState.envido.pointsRewarded > 0 &&
-            gameStateQueries.envidoPointsCountWereSpelled(
-                currentMatch.gameState
-            )
-        ) {
-            // Envido points to apply that were resolved from an Accepted envido challenge (refusal points are handled
-            // on refusal move processing at current match level
-            uint8 envidoWinner = gameStateQueries.getEnvidoWinner(
-                currentMatch.gameState
-            );
-            currentMatch.gameState.teamPoints[envidoWinner] += currentMatch
-                .gameState
-                .envido
-                .pointsRewarded;
-        }
-
-        // If game ended return
-        if (trucoEngine.isGameEnded(currentMatch.gameState)) {
-            _updateMatchState(); // update state to finished match
-            return;
-        }
-
-        // Check for truco points
-        uint8 trucoWinner = gameStateQueries.getTrucoWinner(
-            currentMatch.gameState
-        );
-        currentMatch.gameState.teamPoints[trucoWinner] += currentMatch
-            .gameState
-            .currentChallenge
-            .pointsAtStake;
-    }
-
     // Get players addresses
     function getPlayers() public view returns (address[2] memory) {
         return [currentMatch.players[0], currentMatch.players[1]];
@@ -230,38 +183,13 @@ contract TrucoMatch {
             return;
         }
 
-        // Check if an acceptedd envido was played (refusal points are handled on refusal move processing at current match level)
-        if (
-            gameStateQueries.isEnvidoEnded(currentMatch.gameState) &&
-            gameStateQueries.envidoPointsCountWereSpelled(
-                currentMatch.gameState
-            )
-        ) {
-            // We should update the match state manually because modifier enforceTurnSwitching won't kick in since it's a resign
-            if (
-                gameStateQueries.cardsShouldBeRevealedForEnvido(
-                    currentMatch.gameState
-                )
-            ) {
-                matchState.state = MatchStateEnum.WAITING_FOR_REVEAL;
-            }
+        // Check if an accepted envido was played (refusal points are handled on refusal move processing at current match level)
+        _addEnvidoPointsOnlyForAcceptedChallenge();
 
-            // Challenger gets points at stake
-            uint8 envidoWinner = gameStateQueries.getEnvidoWinner(
-                currentMatch.gameState
-            );
-            currentMatch.gameState.teamPoints[envidoWinner] += currentMatch
-                .gameState
-                .envido
-                .pointsRewarded;
-        }
+        // We should update the match state manually because modifier enforceTurnSwitching won't kick in since it's a resign
+        _changeMatchStateToWaitingForDealIfApplies();
 
-        // Assign points at stake to challenger
-        uint8 opponent = currentMatch.gameState.playerTurn ^ 1;
-        currentMatch.gameState.teamPoints[opponent] += currentMatch
-            .gameState
-            .currentChallenge
-            .pointsAtStake;
+        _addTrucoPoints(true);
     }
 
     function spellTruco() public enforceTurnSwitching {
@@ -378,7 +306,117 @@ contract TrucoMatch {
 
     // INTERNAL METHODS -------------------------------------------------------------------------
 
-    // Change turn
+    // Applies the points awarded from round if it's final
+    function _addPointsFromRoundIfApply() internal {
+        if (matchState.state != MatchStateEnum.WAITING_FOR_DEAL) {
+            return;
+        }
+
+        // If invoked function is resign we should not assign points since it was resolved at resign function
+        if (_getCalledFunctionSelector() == bytes4(0x69652fcf)) {
+            // '69652fcf' is the hash of the function 'resign' (with no arguments)
+            // used https://abi.hashex.org/ to get the hash
+            return;
+        }
+
+        // Envido points
+        _addEnvidoPointsOnlyForAcceptedChallenge();
+
+        // If game ended return
+        if (trucoEngine.isGameEnded(currentMatch.gameState)) {
+            _updateMatchState(); // update state to finished match
+            return;
+        }
+
+        // Truco points (false params since user it's not resiging, checked above)
+        _addTrucoPoints(false);
+    }
+
+    // Add envido points to match team points records
+    function _addEnvidoPointsOnlyForAcceptedChallenge()
+        internal
+        returns (bool)
+    {
+        // Check for envido accepted challenge points
+        if (
+            currentMatch.gameState.envido.pointsRewarded > 0 &&
+            gameStateQueries.envidoPointsCountWereSpelled(
+                currentMatch.gameState
+            )
+        ) {
+            // Envido points to apply that were resolved from an Accepted envido challenge (refusal points are handled
+            // on refusal move processing at current match level
+            uint8 envidoWinner = gameStateQueries.getEnvidoWinner(
+                currentMatch.gameState
+            );
+            currentMatch.gameState.teamPoints[envidoWinner] += currentMatch
+                .gameState
+                .envido
+                .pointsRewarded;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    // Add truco points to match team points records
+    function _addTrucoPoints(bool _playerResigned) internal {
+        // If player resigned we should assing points to opponent instead of truco winner
+        uint8 trucoWinner = _playerResigned
+            ? currentMatch.gameState.playerTurn ^ 1
+            : gameStateQueries.getTrucoWinner(currentMatch.gameState);
+
+        currentMatch.gameState.teamPoints[trucoWinner] += currentMatch
+            .gameState
+            .currentChallenge
+            .pointsAtStake;
+    }
+
+    // Updates match state status based on current game state
+    function _updateMatchState() internal {
+        if (trucoEngine.isGameEnded(currentMatch.gameState)) {
+            matchState.state = MatchStateEnum.FINISHED;
+            return;
+        }
+
+        if (matchState.state != MatchStateEnum.WAITING_FOR_PLAY) {
+            // New state is not updatable from other state/s
+            return;
+        }
+
+        // Check if current round is finished, signal that a new shuffle is needed to start playing again
+        if (gameStateQueries.isTrucoEnded(currentMatch.gameState)) {
+            if (_changeMatchStateToWaitingForDealIfApplies()) {
+                return;
+            }
+
+            matchState.state = MatchStateEnum.WAITING_FOR_DEAL;
+            return;
+        }
+
+        matchState.state = MatchStateEnum.WAITING_FOR_PLAY;
+    }
+
+    // Changes match state to waiting for deal if applies
+    function _changeMatchStateToWaitingForDealIfApplies()
+        internal
+        returns (bool)
+    {
+        // Check if an envido winner has to reveal cards
+        if (
+            gameStateQueries.cardsShouldBeRevealedForEnvido(
+                currentMatch.gameState
+            )
+        ) {
+            matchState.state = MatchStateEnum.WAITING_FOR_REVEAL;
+            return true;
+        }
+
+        return false;
+    }
+
+    // Change turn logic
     function _switchTurn() internal returns (bool) {
         if (trucoEngine.isGameEnded(currentMatch.gameState)) {
             // Game ended, do not switch turn
@@ -428,37 +466,6 @@ contract TrucoMatch {
         // We are at a truco challenge (or None), so return which player should play card
         currentMatch.gameState.playerTurn = playerWhoShouldPlayCard;
         return playerSwitched;
-    }
-
-    // Updates match state based on game state
-    function _updateMatchState() internal {
-        if (trucoEngine.isGameEnded(currentMatch.gameState)) {
-            matchState.state = MatchStateEnum.FINISHED;
-            return;
-        }
-
-        if (matchState.state != MatchStateEnum.WAITING_FOR_PLAY) {
-            // New state is not updatable from other state/s
-            return;
-        }
-
-        // Check if current round is finished, signal that a new shuffle is needed to start playing again
-        if (gameStateQueries.isTrucoEnded(currentMatch.gameState)) {
-            // Check if an envido winner has to reveal cards
-            if (
-                gameStateQueries.cardsShouldBeRevealedForEnvido(
-                    currentMatch.gameState
-                )
-            ) {
-                matchState.state = MatchStateEnum.WAITING_FOR_REVEAL;
-                return;
-            }
-
-            matchState.state = MatchStateEnum.WAITING_FOR_DEAL;
-            return;
-        }
-
-        matchState.state = MatchStateEnum.WAITING_FOR_PLAY;
     }
 
     function _buildTransaction(IERC3333.Action _action, uint8 _param)
