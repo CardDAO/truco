@@ -643,7 +643,8 @@ describe('Truco Match', function () {
                 deployMatchContractReadyToPlay
             )
 
-            const { trucoChampionsToken } = await deployTrucoChampionsTokenContract()
+            const { trucoChampionsToken } =
+                await deployTrucoChampionsTokenContract()
 
             // Since game will end we Prepare SBT NFT for winner in order to logic goes through
             await trucoChampionsToken.mint(match.address)
@@ -1231,7 +1232,8 @@ describe('Truco Match', function () {
                 deployMatchContractReadyToPlay
             )
 
-            const { trucoChampionsToken } = await deployTrucoChampionsTokenContract()
+            const { trucoChampionsToken } =
+                await deployTrucoChampionsTokenContract()
 
             // Since game will end we Prepare SBT NFT for winner in order to logic goes through
             await trucoChampionsToken.mint(match.address)
