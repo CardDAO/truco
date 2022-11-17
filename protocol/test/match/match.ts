@@ -1073,9 +1073,11 @@ describe('Truco Match', function () {
             const trophy = await trucoChampionsToken.getTrophyByMatch(
                 match.address
             )
-            
+
             expect(trophy.winner).to.equal(player2.address)
-            expect(trophy.winnerScore).to.equal(BigNumber.from(currentMatch.gameState.pointsToWin))
+            expect(trophy.winnerScore).to.equal(
+                BigNumber.from(currentMatch.gameState.pointsToWin)
+            )
             expect(trophy.loser).to.equal(player1.address)
             expect(trophy.loserScore).to.equal(BigNumber.from(0))
         })
@@ -1092,7 +1094,13 @@ describe('Truco Match', function () {
 
             await expect(match.connect(player1).playCard(4))
                 .to.emit(match, 'MatchFinished')
-                .withArgs(player2.address, currentMatch.gameState.pointsToWin ,player1.address, BigNumber.from(0), currentMatch.bet)
+                .withArgs(
+                    player2.address,
+                    currentMatch.gameState.pointsToWin,
+                    player1.address,
+                    BigNumber.from(0),
+                    currentMatch.bet
+                )
         })
     })
 
