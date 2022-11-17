@@ -186,8 +186,12 @@ describe('Truco Match', function () {
             await match.connect(player1).acceptChallenge()
 
             // Player 1 wins envido
-            await match.connect(player2).spellEnvidoCount(BigNumber.from(23), [])
-            await match.connect(player1).spellEnvidoCount(BigNumber.from(27), [])
+            await match
+                .connect(player2)
+                .spellEnvidoCount(BigNumber.from(23), [])
+            await match
+                .connect(player1)
+                .spellEnvidoCount(BigNumber.from(27), [])
 
             await match.connect(player2).playCard(BigNumber.from(1), [])
             await match.connect(player1).playCard(BigNumber.from(4), [])

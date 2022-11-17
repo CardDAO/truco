@@ -23,17 +23,17 @@ contract TrucoMatchTester is TrucoMatch {
         )
     {}
 
-    function playCard(uint8 _card, bytes memory /* signature */)
-        public
-        override
-    {
+    function playCard(
+        uint8 _card,
+        bytes memory /* signature */
+    ) public override {
         _playCard(_card);
     }
 
-    function spellEnvidoCount(uint8 _points, bytes memory /* signature */)
-        public
-        override
-    {
+    function spellEnvidoCount(
+        uint8 _points,
+        bytes memory /* signature */
+    ) public override {
         _spellEnvidoCount(_points);
     }
 

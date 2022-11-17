@@ -379,10 +379,14 @@ describe('Multi Transaction Test: Envido', function () {
             await match.connect(player2).acceptChallengeForRaising()
 
             // TRANSACTION: Player 2 spells envido count (its mano)
-            await match.connect(player2).spellEnvidoCount(BigNumber.from(20), [])
+            await match
+                .connect(player2)
+                .spellEnvidoCount(BigNumber.from(20), [])
 
             // TRANSACTION: Player 1 spells envido count and resolves envido
-            await match.connect(player1).spellEnvidoCount(BigNumber.from(33), [])
+            await match
+                .connect(player1)
+                .spellEnvidoCount(BigNumber.from(33), [])
 
             let envidoCount = await match.getEnvidoCountPerPlayer()
             let state = await match.currentMatch()
@@ -420,10 +424,14 @@ describe('Multi Transaction Test: Envido', function () {
             await match.connect(player1).acceptChallenge()
 
             // TRANSACTION: Player 2 spells envido count
-            await match.connect(player2).spellEnvidoCount(BigNumber.from(33), [])
+            await match
+                .connect(player2)
+                .spellEnvidoCount(BigNumber.from(33), [])
 
             // TRANSACTION: Player 1 spells envido count
-            await match.connect(player1).spellEnvidoCount(BigNumber.from(20), [])
+            await match
+                .connect(player1)
+                .spellEnvidoCount(BigNumber.from(20), [])
 
             let envidoCount = await match.getEnvidoCountPerPlayer()
             let state = await match.currentMatch()
@@ -454,7 +462,9 @@ describe('Multi Transaction Test: Envido', function () {
             await match.connect(player1).acceptChallenge()
 
             await match.connect(player2).spellEnvidoCount(BigNumber.from(0), [])
-            await match.connect(player1).spellEnvidoCount(BigNumber.from(33), [])
+            await match
+                .connect(player1)
+                .spellEnvidoCount(BigNumber.from(33), [])
 
             let envidoCount = await match.getEnvidoCountPerPlayer()
             let state = await match.currentMatch()
@@ -589,7 +599,9 @@ describe('Multi Transaction Test: Envido', function () {
             )
 
             // TRANSACTION: Player 2 spells envido count
-            await match.connect(player2).spellEnvidoCount(BigNumber.from(20), [])
+            await match
+                .connect(player2)
+                .spellEnvidoCount(BigNumber.from(20), [])
 
             let envidoCount = await match.getEnvidoCountPerPlayer()
 

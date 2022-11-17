@@ -290,10 +290,7 @@ contract TrucoMatch {
         currentMatch.gameState = trucoEngine.transact(transaction);
     }
 
-    function playCard(uint8 _card, bytes memory signature)
-        virtual
-        public
-    {
+    function playCard(uint8 _card, bytes memory signature) public virtual {
         validateSignature(
             abi.encodePacked(msg.sender, 'playCard', _card),
             signature
@@ -347,8 +344,8 @@ contract TrucoMatch {
     }
 
     function spellEnvidoCount(uint8 _points, bytes memory signature)
-        virtual
         public
+        virtual
     {
         validateSignature(
             abi.encodePacked(msg.sender, 'spellEnvidoCount', _points),
@@ -533,13 +530,13 @@ contract TrucoMatch {
         return selector;
     }
 
-    function validateSignature(bytes memory encodedMessage, bytes memory signature)
-        internal
-        view
-    {
+    function validateSignature(
+        bytes memory encodedMessage,
+        bytes memory signature
+    ) internal view {
         bytes32 hash = keccak256(encodedMessage);
         address[2] memory players = getPlayers();
-        address signer = hash.getSigner(signature) ;
+        address signer = hash.getSigner(signature);
         require(
             players[0] == signer || players[1] == signer,
             'Invalid signature'
