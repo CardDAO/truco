@@ -192,6 +192,21 @@ contract TrucoMatch {
         _addTrucoPoints(true);
     }
 
+    function revealCards(uint8[] memory _cards) public  {
+        require (matchState.state == MatchStateEnum.WAITING_FOR_REVEAL, 'State is not WAITING_FOR_REVEAL');
+        require (_cards.length >=1 &&_cards.length <= 3, 'You can only reveal 3 cards at most');
+
+        uint8 envidoWinner = gameStateQueries.getEnvidoWinner(currentMatch.gameState);
+
+        require (_getPlayerIdx() == envidoWinner, 'Not envido winner');
+
+        uint8 envidoCountFromPlayerCards = gameStateQueries.getEnvidoPointsForCards(_cards);
+
+        require (envidoCountFromPlayerCards == currentMatch.gameState.envido.playerCount[envidoWinner], 'Envido count from cards does not match');
+
+        matchState.state = MatchStateEnum.WAITING_FOR_DEAL;
+    }
+
     function spellTruco() public enforceTurnSwitching {
         IERC3333.Transaction memory transaction = _buildTransaction(
             IERC3333.Action.Challenge,
