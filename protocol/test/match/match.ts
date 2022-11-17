@@ -994,9 +994,13 @@ describe('Truco Match', function () {
             expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_REVEAL)
         })
     })
-    
+
     describe('Game finished', function () {
-        async function reachPointstoWin(_match: TrucoMatch, _winner: SignerWithAddress, _loser: SignerWithAddress) {
+        async function reachPointstoWin(
+            _match: TrucoMatch,
+            _winner: SignerWithAddress,
+            _loser: SignerWithAddress
+        ) {
             await _match.connect(_winner).spellFaltaEnvido()
             await _match.connect(_loser).acceptChallenge()
 
@@ -1011,8 +1015,9 @@ describe('Truco Match', function () {
 
         // Transfer trucoins to winner
         it('Transfer trucoins to winner', async function () {
-            const { match, player1, player2, trucoin } =
-                await loadFixture(deployMatchFromFactory)
+            const { match, player1, player2, trucoin } = await loadFixture(
+                deployMatchFromFactory
+            )
 
             const matchBalanceBefore = await trucoin.balanceOf(match.address)
 
@@ -1070,7 +1075,6 @@ describe('Truco Match', function () {
 
         // Emit Event
     })
-   
 
     describe('Cards Reveal', function () {
         it('Reveal incorrect number of cards', async function () {
