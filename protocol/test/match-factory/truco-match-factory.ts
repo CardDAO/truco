@@ -12,7 +12,7 @@ describe('Truco Match Factory', function () {
                 deployFactoryContract
             )
 
-            const [player1] = await ethers.getSigners()
+            const [player1, player2] = await ethers.getSigners()
 
             // Mint trucoins to player1
             trucoin.mint(player1.address, min_bet)
@@ -21,7 +21,12 @@ describe('Truco Match Factory', function () {
             await trucoin.connect(player1).approve(factory.address, min_bet)
 
             // Create a new match
-            expect(await factory.connect(player1).newMatch(min_bet)).to.emit(
+            expect(
+                await factory.connect(player1).newMatch(
+                    min_bet,
+                    [player1.address, player2.address]
+                )
+            ).to.emit(
                 factory,
                 'TrucoMatchCreated'
             )
@@ -31,7 +36,7 @@ describe('Truco Match Factory', function () {
             const { factory, trucoin, min_bet } = await loadFixture(
                 deployFactoryContract
             )
-            const [player1] = await ethers.getSigners()
+            const [player1, player2] = await ethers.getSigners()
 
             // Mint trucoins to player1
             trucoin.mint(player1.address, min_bet)
@@ -40,7 +45,11 @@ describe('Truco Match Factory', function () {
             await trucoin.connect(player1).approve(factory.address, min_bet)
 
             // Create a new match and get the address
-            const tx = await factory.connect(player1).newMatch(min_bet)
+            const tx = await factory.connect(player1)
+                                    .newMatch(
+                                        min_bet,
+                                        [player1.address, player2.address]
+                                    )
 
             const { events } = await tx.wait()
             const event = events.find(
