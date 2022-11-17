@@ -1,22 +1,29 @@
 import '@nomiclabs/hardhat-ethers'
 
-export const deployNewMatch = async (_, { ethers }) => {
+export const newMatchDeployTask = async (_, { ethers }) => {
     const MatchFactory = await ethers.getContractFactory('TrucoMatchFactory')
     const matchFactory = await MatchFactory.attach(_.factory)
-    // TODO use param
-    const [player1, player2, player3] = await ethers.getSigners()
 
     const Trucoin = await ethers.getContractFactory('Trucoin')
     const trucoin = await Trucoin.attach(_.trucoin)
     const amount = _.amount
 
+    const [owner] = await ethers.getSigners()
+
+    let balance = await trucoin.balanceOf(owner.address)
+    if (balance < amount) {
+        throw Error("Insufficient Trucoin's")
+    }
+
     console.log(
-        `Approve Trucoin amount ${amount} from ${player3.address} to TrucoMatchFactory...`
+        `Approve Trucoin amount ${amount} from ${owner.address} to TrucoMatchFactory...`
     )
-    await trucoin.connect(player3).approve(_.factory, amount)
+    const txApprove = await trucoin.connect(owner).approve(_.factory, amount)
 
     console.log(`Deploy match...`)
-    const tx = await matchFactory.connect(player3).newMatch(amount)
+    const tx = await matchFactory
+        .connect(owner)
+        .newMatch(amount, { gasLimit: 3000000 })
     const { events } = await tx.wait()
     const event = events.find(
         (e: { event: string }) => e.event === 'TrucoMatchCreated'
