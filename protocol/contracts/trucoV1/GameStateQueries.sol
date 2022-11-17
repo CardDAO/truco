@@ -166,17 +166,6 @@ contract GameStateQueries is Initializable, OwnableUpgradeable {
             envidoResolver.validEnvido(_gameState.envido.playerCount[_player]);
     }
 
-    // Check if envido can be spelled at this game
-    function canEnvidoBeSpelled(IERC3333.GameState memory gameState)
-        internal
-        view
-        returns (bool)
-    {
-        return
-            !envidoResolver.isFinal(gameState) &&
-            !trucoResolver.roundComplete(gameState, 0);
-    }
-
     // Get envido points of a given set of cards
     function getEnvidoPointsForCards(uint8[] memory _cards)
         public
@@ -209,7 +198,7 @@ contract GameStateQueries is Initializable, OwnableUpgradeable {
         uint8 envidoValue;
 
         // Check first and second card
-        envidoValue = getEnvidoPointsForCardPair(validCards[0], validCards[1]);
+        envidoValue = _getEnvidoPointsForCardPair(validCards[0], validCards[1]);
 
         if (envidoValue > _envido) {
             _envido = envidoValue;
@@ -223,74 +212,20 @@ contract GameStateQueries is Initializable, OwnableUpgradeable {
         // Check pending combinations with 3rd card
 
         // Check first and third card
-        envidoValue = getEnvidoPointsForCardPair(validCards[0], validCards[2]);
+        envidoValue = _getEnvidoPointsForCardPair(validCards[0], validCards[2]);
 
         if (envidoValue > _envido) {
             _envido = envidoValue;
         }
 
         // Check second and third card
-        envidoValue = getEnvidoPointsForCardPair(validCards[1], validCards[2]);
+        envidoValue = _getEnvidoPointsForCardPair(validCards[1], validCards[2]);
 
         if (envidoValue > _envido) {
             _envido = envidoValue;
         }
 
         return _envido;
-    }
-
-    function getEnvidoPointsForCardPair(
-        ICardsDeck.Card memory card1,
-        ICardsDeck.Card memory card2
-    ) internal pure returns (uint8) {
-        // Check if cards are of the same suit, in that case return the number that's bigger
-        if (card1.suit != card2.suit) {
-            // Both figures
-            if (card1.value >= 10 && card2.value >= 10) {
-                return 0;
-            }
-
-            // Figure and number: return number
-            if (card1.value >= 10 && card2.value < 10) {
-                return card2.value;
-            }
-            if (card1.value < 10 && card2.value >= 10) {
-                return card1.value;
-            }
-
-            // Both numbers, return greater
-            if (card1.value > card2.value) {
-                return card1.value;
-            }
-
-            return card2.value;
-        }
-
-        // Same suit
-
-        // Check for both being figures
-        if (card1.value >= 10 && card2.value >= 10) {
-            return 20;
-        }
-
-        // Check if both are no figures
-        if (card1.value < 10 && card2.value < 10) {
-            return card1.value + card2.value + 20;
-        }
-
-        // Mixed case
-        uint8 envidoValue = 20;
-
-        // Check wich card is not
-        if (card1.value < 10) {
-            envidoValue += card1.value;
-        }
-
-        if (card2.value < 10) {
-            envidoValue += card2.value;
-        }
-
-        return envidoValue;
     }
 
     // Check if envido can be spelled at this game
@@ -373,7 +308,7 @@ contract GameStateQueries is Initializable, OwnableUpgradeable {
         ) {
             // Current player is not challenger, check if there's a response to enforce
             if (gameState.currentChallenge.waitingChallengeResponse) {
-                if (canEnvidoBeSpelled(gameState)) {
+                if (_canEnvidoBeSpelled(gameState)) {
                     // Check if envido can be spelled
                 }
                 return
@@ -405,5 +340,70 @@ contract GameStateQueries is Initializable, OwnableUpgradeable {
         }
 
         return false;
+    }
+
+    // Check if envido can be spelled at this game
+    function _canEnvidoBeSpelled(IERC3333.GameState memory gameState)
+    internal
+    view
+    returns (bool)
+    {
+        return
+        !envidoResolver.isFinal(gameState) &&
+        !trucoResolver.roundComplete(gameState, 0);
+    }
+
+    function _getEnvidoPointsForCardPair(
+        ICardsDeck.Card memory card1,
+        ICardsDeck.Card memory card2
+    ) internal pure returns (uint8) {
+        // Check if cards are of the same suit, in that case return the number that's bigger
+        if (card1.suit != card2.suit) {
+            // Both figures
+            if (card1.value >= 10 && card2.value >= 10) {
+                return 0;
+            }
+
+            // Figure and number: return number
+            if (card1.value >= 10 && card2.value < 10) {
+                return card2.value;
+            }
+            if (card1.value < 10 && card2.value >= 10) {
+                return card1.value;
+            }
+
+            // Both numbers, return greater
+            if (card1.value > card2.value) {
+                return card1.value;
+            }
+
+            return card2.value;
+        }
+
+        // Same suit
+
+        // Check for both being figures
+        if (card1.value >= 10 && card2.value >= 10) {
+            return 20;
+        }
+
+        // Check if both are no figures
+        if (card1.value < 10 && card2.value < 10) {
+            return card1.value + card2.value + 20;
+        }
+
+        // Mixed case
+        uint8 envidoValue = 20;
+
+        // Check wich card is not
+        if (card1.value < 10) {
+            envidoValue += card1.value;
+        }
+
+        if (card2.value < 10) {
+            envidoValue += card2.value;
+        }
+
+        return envidoValue;
     }
 }

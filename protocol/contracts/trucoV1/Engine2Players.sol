@@ -69,7 +69,7 @@ contract Engine2Players is IERC3333, Initializable, OwnableUpgradeable {
         uint256 collectedFees;
 
         if (clientMatches[msg.sender].whiteListed == false) {
-            collectedFees = collectFees();
+            collectedFees = _collectFees();
         }
 
         emit MatchStarted(msg.sender, collectedFees);
@@ -124,14 +124,14 @@ contract Engine2Players is IERC3333, Initializable, OwnableUpgradeable {
 
         // Loops betweeen moves
         for (uint256 i = 0; i < transaction.moves.length; i++) {
-            gameState = resolveMove(gameState, transaction.moves[i]);
+            gameState = _resolveMove(gameState, transaction.moves[i]);
         }
 
         return gameState;
     }
 
     // Collects fees and returns amount collected
-    function collectFees() internal returns (uint256) {
+    function _collectFees() internal returns (uint256) {
         // Check that consumer contract has not already payed for game
         require(
             clientMatches[msg.sender].matchStarted == false,
@@ -158,7 +158,7 @@ contract Engine2Players is IERC3333, Initializable, OwnableUpgradeable {
                 : MINIMUM_FEE;
     }
 
-    function resolveMove(
+    function _resolveMove(
         IERC3333.GameState memory _gameState,
         IERC3333.Move memory _move
     ) internal view returns (IERC3333.GameState memory) {
