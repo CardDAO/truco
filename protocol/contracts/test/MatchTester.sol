@@ -23,6 +23,20 @@ contract TrucoMatchTester is TrucoMatch {
         )
     {}
 
+    function playCard(uint8 _card, bytes memory /* signature */)
+        public
+        override
+    {
+        _playCard(_card);
+    }
+
+    function spellEnvidoCount(uint8 _points, bytes memory /* signature */)
+        public
+        override
+    {
+        _spellEnvidoCount(_points);
+    }
+
     function getEnvidoCountPerPlayer() public view returns (uint8[] memory) {
         return currentMatch.gameState.envido.playerCount;
     }

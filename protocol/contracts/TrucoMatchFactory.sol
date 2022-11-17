@@ -8,6 +8,7 @@ import './trucoV1/interfaces/IERC3333.sol';
 import './trucoV1/GameStateQueries.sol';
 import './TrucoMatch.sol';
 import './token/TrucoChampionsToken.sol';
+import './IV/SignatureValidation.sol';
 
 contract TrucoMatchFactory is Initializable, OwnableUpgradeable {
     TrucoMatch[] public matches;

@@ -220,9 +220,13 @@ contract TrucoMatch {
     }
 
     function playCard(uint8 _card, bytes memory signature)
+        virtual
         public
     {
-        validateSignature(abi.encodePacked(msg.sender, 'playCard', _card));
+        validateSignature(
+            abi.encodePacked(msg.sender, 'playCard', _card),
+            signature
+        );
 
         _playCard(_card);
     }
@@ -232,8 +236,6 @@ contract TrucoMatch {
         resetFinalEnvido
         enforceTurnSwitching
     {
-        validateSignature(abi.encodePacked(msg.sender, 'playCard', _card));
-
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.PlayCard,
             _card
@@ -273,11 +275,19 @@ contract TrucoMatch {
         currentMatch.gameState = trucoEngine.transact(transaction);
     }
 
-    function spellEnvidoCount(uint8 _points) public enforceTurnSwitching {
+    function spellEnvidoCount(uint8 _points, bytes memory signature)
+        virtual
+        public
+    {
         validateSignature(
-            abi.encodePacked(msg.sender, 'spellEnvidoCount', _points)
+            abi.encodePacked(msg.sender, 'spellEnvidoCount', _points),
+            signature
         );
 
+        _spellEnvidoCount(_points);
+    }
+
+    function _spellEnvidoCount(uint8 _points) internal enforceTurnSwitching {
         IERC3333.Transaction memory transaction = buildTransaction(
             IERC3333.Action.EnvidoCount,
             _points
@@ -433,7 +443,10 @@ contract TrucoMatch {
         return currentMatch.gameState;
     }
 
-    function validateSignature(bytes memory encodedMessage) internal view {
+    function validateSignature(bytes memory encodedMessage, bytes memory signature)
+        internal
+        pure
+    {
         bytes32 hash = keccak256(encodedMessage);
         require(hash.isValidSignature(signature), 'Invalid signature');
     }
