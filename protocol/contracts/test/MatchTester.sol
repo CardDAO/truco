@@ -11,7 +11,7 @@ contract TrucoMatchTester is TrucoMatch {
         TrucoChampionsToken _TCT,
         GameStateQueries _gameStateQueries,
         address _player1,
-        IERC3333.ImpartialVerifier[2] memory _ivs,
+        address[2] memory _ivs,
         uint256 _tokensAtStake
     )
         TrucoMatch(

@@ -9,7 +9,7 @@ library SignatureValidation {
     function getSigner(bytes32 hash, bytes memory signature)
         internal
         pure
-        returns (bool)
+        returns (address)
     {
         return hash.toEthSignedMessageHash().recover(signature);
     }

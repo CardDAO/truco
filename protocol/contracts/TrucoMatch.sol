@@ -35,7 +35,7 @@ contract TrucoMatch {
     MatchState public matchState;
     using SignatureValidation for bytes32;
 
-    mapping(IERC3333.ImpartialVerifier => bool) public impartialVerifiers;
+    mapping(address => bool) public impartialVerifiers;
 
     // Events
     event MatchCreated(address indexed match_address, uint256 bet);
@@ -100,7 +100,7 @@ contract TrucoMatch {
         GameStateQueries _gameStateQueries,
         address player1,
         // TODO: use array? limit array?
-        IERC3333.ImpartialVerifier[2] memory _ivs,
+        address[2] memory _ivs,
         uint256 _bet
     ) {
         trucoEngine = _trucoEngine;
@@ -452,7 +452,7 @@ contract TrucoMatch {
 
     function validateSignature(bytes memory encodedMessage, bytes memory signature)
         internal
-        pure
+        view
     {
         bytes32 hash = keccak256(encodedMessage);
         require(

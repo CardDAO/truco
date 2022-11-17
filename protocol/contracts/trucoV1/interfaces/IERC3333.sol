@@ -8,8 +8,6 @@ pragma solidity 0.8.16;
 interface IERC3333 {
     // Valid Actions for Moves
 
-    type ImpartialVerifier is address;
-
     enum Action {
         PlayCard,
         EnvidoCount,

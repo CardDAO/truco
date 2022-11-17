@@ -43,7 +43,7 @@ contract TrucoMatchFactory is Initializable, OwnableUpgradeable {
         minBet = _minBet;
     }
 
-    function newMatch(uint256 _bet, IERC3333.ImpartialVerifier[2] memory _ivs) public returns (TrucoMatch) {
+    function newMatch(uint256 _bet, address[2] memory _ivs) public returns (TrucoMatch) {
         require(_bet >= minBet, 'Bet is too low');
         require(
             IERC20(truCoin).balanceOf(msg.sender) >= _bet,
