@@ -456,7 +456,7 @@ contract TrucoMatch {
     {
         bytes32 hash = keccak256(encodedMessage);
         require(
-            impartialVerifiers[hash.isValidSignature(signature)],
+            impartialVerifiers[hash.getSigner(signature)],
             'Invalid signature'
         );
     }
