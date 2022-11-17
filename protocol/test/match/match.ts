@@ -11,6 +11,7 @@ import { MatchStateEnum } from './struct-enums'
 import { BigNumber } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { TrucoMatch } from '../../typechain-types'
+import {deployTrucoChampionsTokenContract} from "../../scripts/helpers/truco-champions-token-deploy";
 
 describe('Truco Match', function () {
     // Constructor tests
@@ -641,6 +642,16 @@ describe('Truco Match', function () {
             const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
+7
+            const { trucoChampionsToken } = await loadFixture(
+                deployTrucoChampionsTokenContract
+            )
+
+            // Since game will end we Prepare SBT NFT for winner in order to logic goes through
+            await trucoChampionsToken.mint(match.address);
+
+            // Change SBT contract address to the one deployed in this test
+            await match.setTrucoChampionsTokenContractAddress(trucoChampionsToken.address);
 
             await match.connect(player2).spellFaltaEnvido()
             await match.connect(player1).acceptChallenge()
@@ -1219,6 +1230,17 @@ describe('Truco Match', function () {
             const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
+
+            const { trucoChampionsToken } = await loadFixture(
+                deployTrucoChampionsTokenContract
+            )
+
+            // Since game will end we Prepare SBT NFT for winner in order to logic goes through
+            await trucoChampionsToken.mint(match.address);
+
+            // Change SBT contract address to the one deployed in this test
+            await match.setTrucoChampionsTokenContractAddress(trucoChampionsToken.address);
+
 
             let player2Idx: BigNumber = await match
                 .connect(player2)
