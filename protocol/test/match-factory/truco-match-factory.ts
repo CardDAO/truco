@@ -21,15 +21,11 @@ describe('Truco Match Factory', function () {
             await trucoin.connect(player1).approve(factory.address, min_bet)
 
             // Create a new match
-            expect(
-                await factory.connect(player1).newMatch(
-                    min_bet,
-                    [player1.address, player2.address]
+            expect(await factory.connect(player1).newMatch(min_bet))
+                .to.emit(
+                    factory,
+                    'TrucoMatchCreated'
                 )
-            ).to.emit(
-                factory,
-                'TrucoMatchCreated'
-            )
         })
 
         it('Should transfer the bet to the match contract', async function () {
@@ -45,11 +41,7 @@ describe('Truco Match Factory', function () {
             await trucoin.connect(player1).approve(factory.address, min_bet)
 
             // Create a new match and get the address
-            const tx = await factory.connect(player1)
-                                    .newMatch(
-                                        min_bet,
-                                        [player1.address, player2.address]
-                                    )
+            const tx = await factory.connect(player1).newMatch(min_bet)
 
             const { events } = await tx.wait()
             const event = events.find(

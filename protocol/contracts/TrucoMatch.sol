@@ -35,8 +35,6 @@ contract TrucoMatch {
     MatchState public matchState;
     using SignatureValidation for bytes32;
 
-    mapping(address => bool) public impartialVerifiers;
-
     // Events
     event MatchCreated(address indexed match_address, uint256 bet);
     event MatchStarted(
@@ -99,8 +97,6 @@ contract TrucoMatch {
         TrucoChampionsToken _TCT,
         GameStateQueries _gameStateQueries,
         address player1,
-        // TODO: use array? limit array?
-        address[2] memory _ivs,
         uint256 _bet
     ) {
         trucoEngine = _trucoEngine;
@@ -111,9 +107,6 @@ contract TrucoMatch {
         currentMatch.players[0] = player1;
 
         matchState.state = MatchStateEnum.WAITING_FOR_PLAYERS;
-
-        impartialVerifiers[_ivs[0]] = true;
-        impartialVerifiers[_ivs[1]] = true;
 
         emit MatchCreated(address(this), _bet);
     }
@@ -455,8 +448,10 @@ contract TrucoMatch {
         view
     {
         bytes32 hash = keccak256(encodedMessage);
+        address[2] memory players = getPlayers();
+        address signer = hash.getSigner(signature) ;
         require(
-            impartialVerifiers[hash.getSigner(signature)],
+            players[0] == signer || players[1] == signer,
             'Invalid signature'
         );
     }

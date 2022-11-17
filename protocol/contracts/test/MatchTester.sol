@@ -11,7 +11,6 @@ contract TrucoMatchTester is TrucoMatch {
         TrucoChampionsToken _TCT,
         GameStateQueries _gameStateQueries,
         address _player1,
-        address[2] memory _ivs,
         uint256 _tokensAtStake
     )
         TrucoMatch(
@@ -20,7 +19,6 @@ contract TrucoMatchTester is TrucoMatch {
             _TCT,
             _gameStateQueries,
             _player1,
-            _ivs,
             _tokensAtStake
         )
     {}

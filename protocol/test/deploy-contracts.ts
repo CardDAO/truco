@@ -62,7 +62,6 @@ export async function deployMatchContract() {
         trucoChampionsToken.address,
         gameStateQueries.address,
         player1.address,
-        [player1.address, player2.address],
         bet
     )
 
