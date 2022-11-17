@@ -11,7 +11,7 @@ describe('Truco Match', function () {
     // Constructor tests
     describe('Constructor', function () {
         it('The player1 must be player 1. Player 2 must be address(0)', async function () {
-            const {match, player1} = await loadFixture(deployMatchContract)
+            const { match, player1 } = await loadFixture(deployMatchContract)
 
             await match.getPlayers().then((players) => {
                 expect(players[0]).to.equal(player1.address)
@@ -23,7 +23,7 @@ describe('Truco Match', function () {
     // Join tests
     describe('Join', function () {
         it('Player 2 must be able to join the match', async function () {
-            const {match, trucoin, player1, player2, bet} = await loadFixture(
+            const { match, trucoin, player1, player2, bet } = await loadFixture(
                 deployMatchContract
             )
 
@@ -39,7 +39,7 @@ describe('Truco Match', function () {
         })
 
         it('Must not be able to join the match if it is already full', async function () {
-            const {match, trucoin, player1, player2, invalid_player, bet} =
+            const { match, trucoin, player1, player2, invalid_player, bet } =
                 await loadFixture(deployMatchContract)
 
             // Allow trucoin transfer
@@ -59,7 +59,7 @@ describe('Truco Match', function () {
 
         // Must revert if not enough tokens are approved
         it('Must revert if not enough tokens are approved', async function () {
-            const {match, trucoin, player2, bet} = await loadFixture(
+            const { match, trucoin, player2, bet } = await loadFixture(
                 deployMatchContract
             )
 
@@ -73,7 +73,7 @@ describe('Truco Match', function () {
 
         // Owner must not be able to join the match
         it('Owner must not be able to join the match', async function () {
-            const {match, trucoin, player1, bet} = await loadFixture(
+            const { match, trucoin, player1, bet } = await loadFixture(
                 deployMatchContract
             )
 
@@ -87,7 +87,7 @@ describe('Truco Match', function () {
 
         // Must start the match if both players are joined & tokens are transfered
         it('Must start the match if both players are joined & tokens are transfered', async function () {
-            const {match, trucoin, player1, player2, bet} = await loadFixture(
+            const { match, trucoin, player1, player2, bet } = await loadFixture(
                 deployMatchContract
             )
 
@@ -110,7 +110,7 @@ describe('Truco Match', function () {
 
     describe('State Switching', function () {
         it('Match created but no player has joined', async function () {
-            const {match, trucoin, player1, player2, bet} = await loadFixture(
+            const { match, trucoin, player1, player2, bet } = await loadFixture(
                 deployMatchContract
             )
 
@@ -123,7 +123,7 @@ describe('Truco Match', function () {
         })
 
         it('Player joined', async function () {
-            const {match, trucoin, player1, player2, bet} = await loadFixture(
+            const { match, trucoin, player1, player2, bet } = await loadFixture(
                 deployMatchContract
             )
 
@@ -139,7 +139,7 @@ describe('Truco Match', function () {
         })
 
         it('Player joined, first shuffling', async function () {
-            const {match} = await loadFixture(deployMatchContractReadyToPlay)
+            const { match } = await loadFixture(deployMatchContractReadyToPlay)
 
             let matchState = await match.matchState()
 
@@ -148,7 +148,7 @@ describe('Truco Match', function () {
         })
 
         it('Game ongoing, no final state reached', async function () {
-            const {match, player2} = await loadFixture(
+            const { match, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -161,7 +161,7 @@ describe('Truco Match', function () {
         })
 
         it('Game reached final state, new shuffling is needed', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -178,7 +178,7 @@ describe('Truco Match', function () {
         })
 
         it('Game reached a state were envido reveal is needed', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -202,7 +202,7 @@ describe('Truco Match', function () {
         })
 
         it('Game reached final state', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -224,7 +224,7 @@ describe('Truco Match', function () {
 
     describe('Card Deal', function () {
         it('Game is waiting for play, not shuffling', async function () {
-            const {match, player1} = await loadFixture(
+            const { match, player1 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -234,7 +234,7 @@ describe('Truco Match', function () {
 
     describe('Points Assigment', function () {
         it("No points should be assigned since round it's not over", async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -258,7 +258,7 @@ describe('Truco Match', function () {
         })
 
         it('Assign points for refused truco, no envido', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -283,7 +283,7 @@ describe('Truco Match', function () {
         })
 
         it('Assign points for refused truco and refused envido', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -311,7 +311,7 @@ describe('Truco Match', function () {
         })
 
         it('Assign points for refused truco and refused envido different winners', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -342,7 +342,7 @@ describe('Truco Match', function () {
         })
 
         it('Assign points for envido accepted and  no truco spelled (envido cards reveled at play)', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -376,7 +376,7 @@ describe('Truco Match', function () {
         })
 
         it('Assign points for envido accepted and no truco spelled (envido cards reveled at play) - different winners', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -410,7 +410,7 @@ describe('Truco Match', function () {
         })
 
         it('Assign points for envido and truco accepted  (envido cards reveled at play)', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -447,7 +447,7 @@ describe('Truco Match', function () {
         })
 
         it('Assign points for envido and truco accepted, different winners (envido cards reveled at play)', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -484,7 +484,7 @@ describe('Truco Match', function () {
         })
 
         it('Assign points for real envido and truco accepted  (envido cards reveled at play)', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -525,7 +525,7 @@ describe('Truco Match', function () {
         })
 
         it('Assign points for re truco accepted  (no envido spelled)', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -558,7 +558,7 @@ describe('Truco Match', function () {
         })
 
         it('Assign points for re truco rejected  (no envido spelled)', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -585,7 +585,7 @@ describe('Truco Match', function () {
         })
 
         it('Assign points for vale4 rejected  (no envido spelled)', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -616,7 +616,7 @@ describe('Truco Match', function () {
         })
 
         it('Assign points for vale4 accepted (no envido spelled)', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -653,7 +653,7 @@ describe('Truco Match', function () {
         })
 
         it('Assign points for falta envido accepted (cards revealed at play)', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -691,7 +691,7 @@ describe('Truco Match', function () {
 
     describe('Resign', function () {
         it('Resign on none challenge', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -717,7 +717,7 @@ describe('Truco Match', function () {
         })
 
         it('Resign on envido challenge', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -745,7 +745,7 @@ describe('Truco Match', function () {
         })
 
         it('Resign on envido raising challenge', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -776,7 +776,7 @@ describe('Truco Match', function () {
         })
 
         it('Resign on truco spelling challenge (previous envido was refused)', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -809,7 +809,7 @@ describe('Truco Match', function () {
         })
 
         it('Resign on vale4, no envido was spelled', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -848,7 +848,7 @@ describe('Truco Match', function () {
         })
 
         it('Resign after envido was played, no truco was spelled', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -884,7 +884,7 @@ describe('Truco Match', function () {
         })
 
         it('Resign after envido accepting envido', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -914,7 +914,7 @@ describe('Truco Match', function () {
         })
 
         it('Resign after envido accepting envido, no cards needs to be revealed', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -944,7 +944,7 @@ describe('Truco Match', function () {
         })
 
         it('Resign after after paying envido, no envido cards were revealed', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -977,7 +977,7 @@ describe('Truco Match', function () {
         })
 
         it('Envido was spelled. Different player resigns at truco', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -1019,7 +1019,7 @@ describe('Truco Match', function () {
 
     describe('Cards Reveal', function () {
         it('Reveal incorrect number of cards', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -1032,19 +1032,25 @@ describe('Truco Match', function () {
             await match.connect(player2).spellEnvidoCount(22)
             await match.connect(player1).spellEnvidoCount(0)
 
-
             await match.connect(player2).playCard(2) // 2 of Coins
             await match.connect(player1).resign()
 
             let matchState = await match.matchState()
             expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_REVEAL)
 
-            let tooMuchCardsToReveal = [BigNumber.from(1), BigNumber.from(2), BigNumber.from(3), BigNumber.from(4)]
-            await expect(match.connect(player2).revealCards(tooMuchCardsToReveal)).to.be.reverted
+            let tooMuchCardsToReveal = [
+                BigNumber.from(1),
+                BigNumber.from(2),
+                BigNumber.from(3),
+                BigNumber.from(4),
+            ]
+            await expect(
+                match.connect(player2).revealCards(tooMuchCardsToReveal)
+            ).to.be.reverted
         })
 
         it('Reveal incorrect envido sum cards', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -1063,12 +1069,19 @@ describe('Truco Match', function () {
             let matchState = await match.matchState()
             expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_REVEAL)
 
-            let cardsThatDoesNotSumEnvidoCountSpelledInMatch = [BigNumber.from(1), BigNumber.from(2)]
-            await expect(match.connect(player2).revealCards(cardsThatDoesNotSumEnvidoCountSpelledInMatch)).to.be.revertedWith('Envido count from cards does not match')
+            let cardsThatDoesNotSumEnvidoCountSpelledInMatch = [
+                BigNumber.from(1),
+                BigNumber.from(2),
+            ]
+            await expect(
+                match
+                    .connect(player2)
+                    .revealCards(cardsThatDoesNotSumEnvidoCountSpelledInMatch)
+            ).to.be.revertedWith('Envido count from cards does not match')
         })
 
         it('Reveal ok - Match not ended after reveal', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -1088,15 +1101,20 @@ describe('Truco Match', function () {
             expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_REVEAL)
 
             // 2 of Coins and 10 of Coins should sum 22
-            let cardsThatSumEnvidoSpelledOk = [BigNumber.from(2), BigNumber.from(8)]
-            await match.connect(player2).revealCards(cardsThatSumEnvidoSpelledOk)
+            let cardsThatSumEnvidoSpelledOk = [
+                BigNumber.from(2),
+                BigNumber.from(8),
+            ]
+            await match
+                .connect(player2)
+                .revealCards(cardsThatSumEnvidoSpelledOk)
 
             matchState = await match.matchState()
             expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_DEAL)
         })
 
         it('Reveal ok - Match ended after reveal', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -1105,7 +1123,10 @@ describe('Truco Match', function () {
                 .currentPlayerIdx()
 
             let currentMatch = await match.currentMatch()
-            await match.setTeamPoints(player2Idx, currentMatch.gameState.pointsToWin - 2)
+            await match.setTeamPoints(
+                player2Idx,
+                currentMatch.gameState.pointsToWin - 2
+            )
 
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
@@ -1123,15 +1144,20 @@ describe('Truco Match', function () {
             expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_REVEAL)
 
             // 2 of Coins and 10 of Coins should sum 22
-            let cardsThatSumEnvidoSpelledOk = [BigNumber.from(2), BigNumber.from(8)]
-            await match.connect(player2).revealCards(cardsThatSumEnvidoSpelledOk)
+            let cardsThatSumEnvidoSpelledOk = [
+                BigNumber.from(2),
+                BigNumber.from(8),
+            ]
+            await match
+                .connect(player2)
+                .revealCards(cardsThatSumEnvidoSpelledOk)
 
             matchState = await match.matchState()
             expect(matchState.state).to.equal(MatchStateEnum.FINISHED)
         })
 
         it('Reveal ok - Match ended after with a resignation after reveal', async function () {
-            const {match, player1, player2} = await loadFixture(
+            const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
@@ -1140,7 +1166,10 @@ describe('Truco Match', function () {
                 .currentPlayerIdx()
 
             let currentMatch = await match.currentMatch()
-            await match.setTeamPoints(player2Idx, currentMatch.gameState.pointsToWin - 2)
+            await match.setTeamPoints(
+                player2Idx,
+                currentMatch.gameState.pointsToWin - 2
+            )
 
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
@@ -1155,13 +1184,16 @@ describe('Truco Match', function () {
             expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_REVEAL)
 
             // 2 of Coins and 10 of Coins should sum 22
-            let cardsThatSumEnvidoSpelledOk = [BigNumber.from(2), BigNumber.from(8)]
-            await match.connect(player2).revealCards(cardsThatSumEnvidoSpelledOk)
+            let cardsThatSumEnvidoSpelledOk = [
+                BigNumber.from(2),
+                BigNumber.from(8),
+            ]
+            await match
+                .connect(player2)
+                .revealCards(cardsThatSumEnvidoSpelledOk)
 
             matchState = await match.matchState()
             expect(matchState.state).to.equal(MatchStateEnum.FINISHED)
         })
-
     })
-
 })

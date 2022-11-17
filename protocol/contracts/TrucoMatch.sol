@@ -194,16 +194,29 @@ contract TrucoMatch {
 
     // This method should be called only from envido winner and if it's waiting for cards to be revealed
     function revealCards(uint8[] memory _cards) public {
-        require (matchState.state == MatchStateEnum.WAITING_FOR_REVEAL, 'State is not WAITING_FOR_REVEAL');
-        require (_cards.length >=1 &&_cards.length <= 3, 'You can only reveal 3 cards at most');
+        require(
+            matchState.state == MatchStateEnum.WAITING_FOR_REVEAL,
+            'State is not WAITING_FOR_REVEAL'
+        );
+        require(
+            _cards.length >= 1 && _cards.length <= 3,
+            'You can only reveal 3 cards at most'
+        );
 
-        uint8 envidoWinner = gameStateQueries.getEnvidoWinner(currentMatch.gameState);
+        uint8 envidoWinner = gameStateQueries.getEnvidoWinner(
+            currentMatch.gameState
+        );
 
-        require (_getPlayerIdx() == envidoWinner, 'Not envido winner');
+        require(_getPlayerIdx() == envidoWinner, 'Not envido winner');
 
-        uint8 envidoCountFromPlayerCards = gameStateQueries.getEnvidoPointsForCards(_cards);
+        uint8 envidoCountFromPlayerCards = gameStateQueries
+            .getEnvidoPointsForCards(_cards);
 
-        require (envidoCountFromPlayerCards == currentMatch.gameState.envido.playerCount[envidoWinner], 'Envido count from cards does not match');
+        require(
+            envidoCountFromPlayerCards ==
+                currentMatch.gameState.envido.playerCount[envidoWinner],
+            'Envido count from cards does not match'
+        );
 
         // At this points cards were reveled ok, match state shouuld be reset
         matchState.state = MatchStateEnum.WAITING_FOR_DEAL;
@@ -404,7 +417,10 @@ contract TrucoMatch {
     // Updates match state status based on current game state
     function _updateMatchState() internal {
         // Check for game ending, but be careful about waiting for an envido
-        if (trucoEngine.isGameEnded(currentMatch.gameState) && matchState.state != MatchStateEnum.WAITING_FOR_REVEAL) {
+        if (
+            trucoEngine.isGameEnded(currentMatch.gameState) &&
+            matchState.state != MatchStateEnum.WAITING_FOR_REVEAL
+        ) {
             matchState.state = MatchStateEnum.FINISHED;
             return;
         }
