@@ -343,9 +343,9 @@ contract GameStateQueries is Initializable, OwnableUpgradeable {
     }
 
     function getGameWinner(IERC3333.GameState memory gameState)
-    public
-    view
-    returns (uint8)
+        public
+        view
+        returns (uint8)
     {
         require(this.isGameEnded(gameState), 'Game is not ended');
         // Check if there's a winner
@@ -358,13 +358,13 @@ contract GameStateQueries is Initializable, OwnableUpgradeable {
 
     // Check if envido can be spelled at this game
     function _canEnvidoBeSpelled(IERC3333.GameState memory gameState)
-    internal
-    view
-    returns (bool)
+        internal
+        view
+        returns (bool)
     {
         return
-        !envidoResolver.isFinal(gameState) &&
-        !trucoResolver.roundComplete(gameState, 0);
+            !envidoResolver.isFinal(gameState) &&
+            !trucoResolver.roundComplete(gameState, 0);
     }
 
     function _getEnvidoPointsForCardPair(
