@@ -1070,22 +1070,30 @@ describe('Truco Match', function () {
 
             await match.connect(player1).playCard(BigNumber.from(4))
 
-            let matchState = await match.matchState()
-
             const trophy = await trucoChampionsToken.getTrophyByMatch(
                 match.address
             )
-            console.log('winner', trophy.winner)
-            console.log('player2', player2.address)
-            console.log('loser', trophy.loser)
-            console.log('player1', player1.address)
+            
             expect(trophy.winner).to.equal(player2.address)
-            //expect(trophy.winnerScore).to.equal(BigNumber.from(currentMatch.gameState.pointsToWin))
+            expect(trophy.winnerScore).to.equal(BigNumber.from(currentMatch.gameState.pointsToWin))
             expect(trophy.loser).to.equal(player1.address)
-            //expect(trophy.loserScore).to.equal(BigNumber.from(0))
+            expect(trophy.loserScore).to.equal(BigNumber.from(0))
         })
 
         // Emit Event
+        it('Emit event', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchFromFactory
+            )
+
+            await reachPointstoWin(match, player2, player1)
+
+            let currentMatch = await match.currentMatch()
+
+            await expect(match.connect(player1).playCard(4))
+                .to.emit(match, 'MatchFinished')
+                .withArgs(player2.address, currentMatch.gameState.pointsToWin ,player1.address, BigNumber.from(0), currentMatch.bet)
+        })
     })
 
     describe('Cards Reveal', function () {
