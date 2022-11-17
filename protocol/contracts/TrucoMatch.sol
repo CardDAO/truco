@@ -45,7 +45,7 @@ contract TrucoMatch {
 
     modifier enforceTurnSwitching() {
         require(
-            getPlayerIdx() == currentMatch.gameState.playerTurn,
+            _getPlayerIdx() == currentMatch.gameState.playerTurn,
             'Not your turn'
         );
         require(
@@ -53,13 +53,13 @@ contract TrucoMatch {
             'State is not WAITING_FOR_PLAY'
         );
         _;
-        if (switchTurn()) {
+        if (_switchTurn()) {
             // Turn switched
             emit TurnSwitch(
                 currentMatch.players[currentMatch.gameState.playerTurn]
             );
         }
-        updateMatchState();
+        _updateMatchState();
         addPointsFromRoundIfApply();
     }
 
@@ -148,7 +148,7 @@ contract TrucoMatch {
         currentMatch.gameState.teamPoints = current_points;
 
         // Assign new shuffler
-        currentMatch.gameState.playerWhoShuffled = getPlayerIdx();
+        currentMatch.gameState.playerWhoShuffled = _getPlayerIdx();
 
         // Assign turn to player not shuffling
         currentMatch.gameState.playerTurn =
@@ -169,7 +169,7 @@ contract TrucoMatch {
         }
 
         // If invoked function is resign we should not assign points since it was resolved at resign function
-        if (getCalledFunctionSelector() == bytes4(0x69652fcf)) {
+        if (_getCalledFunctionSelector() == bytes4(0x69652fcf)) {
             // '69652fcf' is the hash of the function 'resign' (with no arguments)
             // used https://abi.hashex.org/ to get the hash
             return;
@@ -195,7 +195,7 @@ contract TrucoMatch {
 
         // If game ended return
         if (trucoEngine.isGameEnded(currentMatch.gameState)) {
-            updateMatchState(); // update state to finished match
+            _updateMatchState(); // update state to finished match
             return;
         }
 
@@ -265,7 +265,7 @@ contract TrucoMatch {
     }
 
     function spellTruco() public enforceTurnSwitching {
-        IERC3333.Transaction memory transaction = buildTransaction(
+        IERC3333.Transaction memory transaction = _buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.Truco)
         );
@@ -273,7 +273,7 @@ contract TrucoMatch {
     }
 
     function spellReTruco() public enforceTurnSwitching {
-        IERC3333.Transaction memory transaction = buildTransaction(
+        IERC3333.Transaction memory transaction = _buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.ReTruco)
         );
@@ -281,7 +281,7 @@ contract TrucoMatch {
     }
 
     function spellValeCuatro() public enforceTurnSwitching {
-        IERC3333.Transaction memory transaction = buildTransaction(
+        IERC3333.Transaction memory transaction = _buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.ValeCuatro)
         );
@@ -289,7 +289,7 @@ contract TrucoMatch {
     }
 
     function playCard(uint8 _card) public enforceTurnSwitching {
-        IERC3333.Transaction memory transaction = buildTransaction(
+        IERC3333.Transaction memory transaction = _buildTransaction(
             IERC3333.Action.PlayCard,
             _card
         );
@@ -297,7 +297,7 @@ contract TrucoMatch {
     }
 
     function spellEnvido() public enforceTurnSwitching {
-        IERC3333.Transaction memory transaction = buildTransaction(
+        IERC3333.Transaction memory transaction = _buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.Envido)
         );
@@ -305,7 +305,7 @@ contract TrucoMatch {
     }
 
     function spellEnvidoEnvido() public enforceTurnSwitching {
-        IERC3333.Transaction memory transaction = buildTransaction(
+        IERC3333.Transaction memory transaction = _buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.EnvidoEnvido)
         );
@@ -313,7 +313,7 @@ contract TrucoMatch {
     }
 
     function spellRealEnvido() public enforceTurnSwitching {
-        IERC3333.Transaction memory transaction = buildTransaction(
+        IERC3333.Transaction memory transaction = _buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.RealEnvido)
         );
@@ -321,7 +321,7 @@ contract TrucoMatch {
     }
 
     function spellFaltaEnvido() public enforceTurnSwitching {
-        IERC3333.Transaction memory transaction = buildTransaction(
+        IERC3333.Transaction memory transaction = _buildTransaction(
             IERC3333.Action.Challenge,
             uint8(IERC3333.Challenge.FaltaEnvido)
         );
@@ -329,7 +329,7 @@ contract TrucoMatch {
     }
 
     function spellEnvidoCount(uint8 _points) public enforceTurnSwitching {
-        IERC3333.Transaction memory transaction = buildTransaction(
+        IERC3333.Transaction memory transaction = _buildTransaction(
             IERC3333.Action.EnvidoCount,
             _points
         );
@@ -343,9 +343,9 @@ contract TrucoMatch {
 
     // Accept for raising, do not switch turn
     function acceptChallengeForRaising() public {
-        require(getPlayerIdx() == currentMatch.gameState.playerTurn);
+        require(_getPlayerIdx() == currentMatch.gameState.playerTurn);
 
-        IERC3333.Transaction memory transaction = buildTransaction(
+        IERC3333.Transaction memory transaction = _buildTransaction(
             IERC3333.Action.Response,
             uint8(IERC3333.Response.Accept)
         );
@@ -357,7 +357,7 @@ contract TrucoMatch {
             currentMatch.gameState.currentChallenge.challenge
         );
 
-        IERC3333.Transaction memory transaction = buildTransaction(
+        IERC3333.Transaction memory transaction = _buildTransaction(
             IERC3333.Action.Response,
             uint8(IERC3333.Response.Refuse)
         );
@@ -379,7 +379,7 @@ contract TrucoMatch {
     // INTERNAL METHODS -------------------------------------------------------------------------
 
     // Change turn
-    function switchTurn() internal returns (bool) {
+    function _switchTurn() internal returns (bool) {
         if (trucoEngine.isGameEnded(currentMatch.gameState)) {
             // Game ended, do not switch turn
             return false;
@@ -431,7 +431,7 @@ contract TrucoMatch {
     }
 
     // Updates match state based on game state
-    function updateMatchState() internal {
+    function _updateMatchState() internal {
         if (trucoEngine.isGameEnded(currentMatch.gameState)) {
             matchState.state = MatchStateEnum.FINISHED;
             return;
@@ -461,7 +461,7 @@ contract TrucoMatch {
         matchState.state = MatchStateEnum.WAITING_FOR_PLAY;
     }
 
-    function buildTransaction(IERC3333.Action _action, uint8 _param)
+    function _buildTransaction(IERC3333.Action _action, uint8 _param)
         internal
         view
         returns (IERC3333.Transaction memory)
@@ -477,14 +477,14 @@ contract TrucoMatch {
         moves[0] = move;
 
         IERC3333.Transaction memory transaction;
-        transaction.playerIdx = getPlayerIdx();
+        transaction.playerIdx = _getPlayerIdx();
         transaction.state = currentMatch.gameState;
         transaction.moves = moves;
 
         return transaction;
     }
 
-    function getPlayerIdx() internal view returns (uint8) {
+    function _getPlayerIdx() internal view returns (uint8) {
         if (msg.sender == currentMatch.players[0]) {
             return 0;
         } else if (msg.sender == currentMatch.players[1]) {
@@ -495,7 +495,7 @@ contract TrucoMatch {
     }
 
     // Return current function selector
-    function getCalledFunctionSelector() internal view returns (bytes4) {
+    function _getCalledFunctionSelector() internal pure returns (bytes4) {
         bytes4 selector;
         assembly {
             selector := calldataload(0)

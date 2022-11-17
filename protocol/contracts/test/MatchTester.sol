@@ -32,7 +32,7 @@ contract TrucoMatchTester is TrucoMatch {
     }
 
     function currentPlayerIdx() public view returns (uint8) {
-        return getPlayerIdx();
+        return _getPlayerIdx();
     }
 
     function setPlayerTurn(uint8 _playerTurnIdx) public {
