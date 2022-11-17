@@ -637,7 +637,7 @@ describe('Truco Match', function () {
 
         it('Assign points for falta envido accepted (cards revealed at play)', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployMatchContractReadyToPlay
+                deployMatchFromFactory
             )
 
             await match.connect(player2).spellFaltaEnvido()
@@ -655,17 +655,10 @@ describe('Truco Match', function () {
             let currentMatch = await match.currentMatch()
             let matchState = await match.matchState()
 
-            let player1Idx: BigNumber = await match
-                .connect(player1)
-                .currentPlayerIdx()
-            let player2Idx: BigNumber = await match
-                .connect(player2)
-                .currentPlayerIdx()
-
-            expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
+            expect(currentMatch.gameState.teamPoints[0]).to.equal(
                 BigNumber.from(0)
             )
-            expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
+            expect(currentMatch.gameState.teamPoints[1]).to.equal(
                 BigNumber.from(currentMatch.gameState.pointsToWin)
             )
             expect(matchState.state).to.equal(MatchStateEnum.FINISHED)
