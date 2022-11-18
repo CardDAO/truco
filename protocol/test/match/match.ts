@@ -1412,7 +1412,7 @@ describe('Truco Match', function () {
         })
 
         it('Play a card', async function () {
-            const { match, player1 } = await loadFixture(deployMatchContract)
+            const { match, player1 } = await deployMatchContract()
 
             const cards = [BigNumber.from(1), BigNumber.from(2)]
 
