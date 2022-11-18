@@ -1412,5 +1412,19 @@ describe('Truco Match', function () {
                     .getCardProofToForSigning(player1.address, cards)
             ).to.equal(hash)
         })
+
+        it('Play a card', async function () {
+            const { match, player1 } = await loadFixture(deployMatchContract)
+
+            const cards = [BigNumber.from(1), BigNumber.from(2)]
+
+            const packedCardsWithTemplate = await getCardsEncodedForSig(player1, match, cards)
+
+            let hash = ethers.utils.keccak256(packedCardsWithTemplate)
+
+            expect(await match.connect(player1).getCardProofToForSigning(player1.address, cards)).to.equal(
+                hash
+            )
+        })
     })
 })
