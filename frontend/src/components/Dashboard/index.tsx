@@ -29,8 +29,7 @@ import { SpellReTruco } from "../Actions/SpellReTruco"
 import { SpellEnvidoEnvido } from "../Actions/SpellEnvidoEnvido"
 import { SpellRealEnvido } from "../Actions/SpellRealEnvido"
 import { SpellValeCuatro } from "../Actions/SpellValeCuatro"
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { GameState } from "../GameState"
 
 
 export const GAS_LIMIT_WRITE = process.env.GAS_LIMIT_WRITE
@@ -62,18 +61,6 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
             //setState(gameState, setGameState, messageSourceSigned.message.topic, messageSourceSigned.message.data)
         }
     })
-    useContractEvent({
-        enabled: joined,
-        addressOrName: matchAddress, // match factory
-        contractInterface: new Interface([
-            'event TurnSwitch(address indexed playerTurn)'
-        ]),
-        eventName: 'TurnSwitch',
-        listener: (event) => {
-            console.log('turn switched')
-        },
-    })
-    
     useContractRead({
        addressOrName: matchAddress,
        contractInterface: new Interface(["function getPlayers() public view returns (address[2])"]),
@@ -228,6 +215,7 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                 <p>Deck: {deck}</p>
                 <p>cardcodewords: {cardCodewords}</p>
                 <p>status: {state}</p>
+                <GameState matchAddress={matchAddress} joined={joined} />
             </div>
             <div className="Game-View">
                 <div className="h-full m-2 grid grid-cols-1 grid-rows-7 text-gray-200 gap-3 justify-center h-min-50">
@@ -256,25 +244,25 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                             <Actions>
                             {
                                 matchAddress ?
-                                        <>
-                                            <SpellTruco match={matchAddress}  setProcessingAction={setProcessingAction} processingAction={processingAction} />
-                                            <SpellReTruco match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
-                                            <SpellValeCuatro match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
-                                            <SpellEnvido match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
-                                            <SpellEnvidoCount match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} count={currentEnvido}/>
-                                            <RecalculateEnvido cards={cleanCards} setCurrentEnvido={setCurrentEnvido} />
-                                            <SpellFaltaEnvido match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
-                                            <SpellEnvidoEnvido match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
-                                            <SpellRealEnvido match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
-                                            <AcceptChallenge match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
-                                            <AcceptChallengeForRaising match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
-                                            </>
-                                            :
-                                            <>
-                                            <InitCommunication signMessage={signMessage} latestNonce={latestNonce} state={state} self={selfPlayer} setState={setState} />
-                                            </>
-                                }
-                                            </Actions>
+                                    <>
+                                        <SpellTruco match={matchAddress}  setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                        <SpellReTruco match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                        <SpellValeCuatro match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                        <SpellEnvido match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                        <SpellEnvidoCount match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} count={currentEnvido}/>
+                                        <RecalculateEnvido cards={cleanCards} setCurrentEnvido={setCurrentEnvido} />
+                                        <SpellFaltaEnvido match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                        <SpellEnvidoEnvido match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                        <SpellRealEnvido match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                        <AcceptChallenge match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                        <AcceptChallengeForRaising match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                    </>
+                                    :
+                                    <>
+                                        <InitCommunication signMessage={signMessage} latestNonce={latestNonce} state={state} self={selfPlayer} setState={setState} />
+                                    </>
+                            }
+                            </Actions>
                         </div>
                     </div>
                 </div>
@@ -295,7 +283,6 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
             </div>
             : ""
         }
-        <ToastContainer />
         </>
     )
 }

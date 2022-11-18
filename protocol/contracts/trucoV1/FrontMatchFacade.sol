@@ -108,6 +108,11 @@ contract FrontMatchFacade {
         revert('You are not a player in this match');
     }
 
+    function getCurrentBet(TrucoMatch _contractMatch) public view returns (uint256) {
+        (,uint256 bet) = _contractMatch.currentMatch();
+        return bet;
+    }
+
     function prepareMove(IERC3333.Action _action, IERC3333.Challenge _param)
         internal
         pure

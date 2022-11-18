@@ -4,6 +4,8 @@ import { useGetPlayers } from "../../hooks/match/GetPlayers"
 import {  useAccountInformation, AccountType } from '../../hooks/providers/Wagmi'
 import { Dashboard } from "../Dashboard"
 import { DeployMatch } from "../DeployMatch"
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const BUTTON_STYLE = "text-white focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
 
@@ -88,6 +90,7 @@ export const Game = () => {
                     />
             }
 
+            <ToastContainer />
         </>
     )
 }

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { BigNumber, ethers } from "ethers"
 import { Interface } from "ethers/lib/utils"
-import { useContractRead, useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi"
+import { useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi"
 import { ActionButton } from "../Button"
 import { GAS_LIMIT_WRITE } from "../../Dashboard"
 import { ToastContainer, toast } from 'react-toastify';
