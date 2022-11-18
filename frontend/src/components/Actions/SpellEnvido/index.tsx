@@ -2,16 +2,20 @@ import { Interface } from "ethers/lib/utils"
 import { CommonActionWrite } from "../CommonActionWrite"
 
 export const SpellEnvido = ({match, processingAction, setProcessingAction}: any) => {
-
     return (
         <CommonActionWrite
             match={match}
-            contractInterface={new Interface(["function spellEnvido() public"])}
-            functionName={"spellEnvido"}
-            args={[]}
+            writeSelectorInterface={new Interface(["function spellEnvido() public"])}
+            writeFunctionName={"spellEnvido"}
+            writeArgs={[]}
+            buttonText="Spell Envido!"
+            checkExecute={true}
+            canSelectorInterface={new Interface(["function canSpellEnvido(address) external view returns(bool)"])}
+            canFunctionName="canSpellEnvido"
+            canFunctionArgs={[match]}
+            canContractAddress={process.env.FRONT_MATCH_FACADE_ADDRESS}
             processingAction={processingAction}
             setProcessingAction={setProcessingAction}
-            buttonText="Spell Envido!"
         />
     )
 }

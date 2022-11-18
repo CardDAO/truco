@@ -66,7 +66,6 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
        contractInterface: new Interface(["function getPlayers() public view returns (address[2])"]),
        functionName: 'getPlayers',
        onSuccess: (data) => {
-           console.log('es parte del juego',  data)
            if (data?.indexOf(address) >= 0) {
                setJoined(true)
            }

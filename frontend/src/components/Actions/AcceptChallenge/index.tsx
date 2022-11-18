@@ -8,9 +8,9 @@ export const AcceptChallenge = ({match, processingAction, setProcessingAction}: 
     return (
         <CommonActionWrite
             match={match}
-            contractInterface={new Interface(["function acceptChallenge() public"])}
-            functionName={"acceptChallenge"}
-            args={[]}
+            writeSelectorInterface={new Interface(["function acceptChallenge() public"])}
+            writeFunctionName={"acceptChallenge"}
+            writeArgs={[]}
             processingAction={processingAction}
             setProcessingAction={setProcessingAction}
             buttonText="AcceptChallenge!"
