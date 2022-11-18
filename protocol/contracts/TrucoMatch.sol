@@ -207,7 +207,10 @@ contract TrucoMatch {
         public
         virtual
     {
-        _validateSignature(getCardProofToForSigning(msg.sender, _cards), signature);
+        _validateSignature(
+            getCardProofToForSigning(msg.sender, _cards),
+            signature
+        );
         _revealCards(_cards);
     }
 
@@ -244,7 +247,10 @@ contract TrucoMatch {
         uint8[] memory cards = new uint8[](1);
         cards[0] = _card;
 
-        _validateSignature(getCardProofToForSigning(msg.sender, cards), signature);
+        _validateSignature(
+            getCardProofToForSigning(msg.sender, cards),
+            signature
+        );
         _playCard(_card);
     }
 
@@ -328,18 +334,21 @@ contract TrucoMatch {
         }
     }
 
-    function getCardProofToForSigning(address _playerAddress, uint8[] memory _cards)
-        public
-        view
-        returns (bytes32)
-    {
+    function getCardProofToForSigning(
+        address _playerAddress,
+        uint8[] memory _cards
+    ) public view returns (bytes32) {
         require(
             _cards.length > 0 && _cards.length <= 3,
             'You can only sign 3 cards maximum'
         );
-        require ( _playerAddress == currentMatch.players[0] || _playerAddress == currentMatch.players[1], "Player address is not valid");
+        require(
+            _playerAddress == currentMatch.players[0] ||
+                _playerAddress == currentMatch.players[1],
+            'Player address is not valid'
+        );
 
-    return keccak256(_getCardsString(_playerAddress, _cards));
+        return keccak256(_getCardsString(_playerAddress, _cards));
     }
 
     // INTERNAL METHODS -------------------------------------------------------------------------
