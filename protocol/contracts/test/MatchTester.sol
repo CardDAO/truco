@@ -68,6 +68,6 @@ contract TrucoMatchTester is TrucoMatch {
         view
         returns (bytes memory)
     {
-        return _getCardsString(_cards);
+        return _getCardsString(_playerAddress, _cards);
     }
 }

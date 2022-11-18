@@ -244,7 +244,7 @@ contract TrucoMatch {
         uint8[] memory cards = new uint8[](1);
         cards[0] = _card;
 
-        _validateSignature(getCardProofToForSigning(cards), signature);
+        _validateSignature(getCardProofToForSigning(msg.sender, cards), signature);
         _playCard(_card);
     }
 
@@ -328,7 +328,7 @@ contract TrucoMatch {
         }
     }
 
-    function getCardProofToForSigning(uint8[] memory _cards)
+    function getCardProofToForSigning(address _playerAddress, uint8[] memory _cards)
         public
         view
         returns (bytes32)
@@ -337,8 +337,9 @@ contract TrucoMatch {
             _cards.length > 0 && _cards.length <= 3,
             'You can only sign 3 cards maximum'
         );
+        require ( _playerAddress == currentMatch.players[0] || _playerAddress == currentMatch.players[1], "Player address is not valid");
 
-        return keccak256(_getCardsString(_cards));
+    return keccak256(_getCardsString(_playerAddress, _cards));
     }
 
     // INTERNAL METHODS -------------------------------------------------------------------------
@@ -346,7 +347,7 @@ contract TrucoMatch {
     // Get cards abi encoded representation for cards to sign
     // IV template:
     // revealedCards:<player_address>:<match_address>:<shuffling_nonce>:<card1>:<card2>:... etc
-    function _getCardsString(uint8[] memory _cards)
+    function _getCardsString(address _playerAddress, uint8[] memory _cards)
         internal
         view
         returns (bytes memory)
@@ -359,7 +360,7 @@ contract TrucoMatch {
 
         bytes memory sigToHash = abi.encodePacked(
             'revealedCards:',
-            msg.sender,
+            _playerAddress,
             ':',
             address(this),
             ':',
