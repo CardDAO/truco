@@ -11,7 +11,6 @@ import { TrucoMatchTester } from '../../typechain-types'
 import { deployTrucoChampionsTokenContract } from '../../scripts/helpers/truco-champions-token-deploy'
 
 describe('Truco Match', function () {
-
     // Constructor tests
     describe('Constructor', function () {
         it('The player1 must be player 1. Player 2 must be address(0)', async function () {
@@ -999,8 +998,11 @@ describe('Truco Match', function () {
     })
 
     describe('Match finished', function () {
-
-        async function reachPointsToWin(_match: TrucoMatchTester, _winner: SignerWithAddress, _loser: SignerWithAddress) {
+        async function reachPointsToWin(
+            _match: TrucoMatchTester,
+            _winner: SignerWithAddress,
+            _loser: SignerWithAddress
+        ) {
             let loserIdx: BigNumber = await _match
                 .connect(_loser)
                 .currentPlayerIdx()
@@ -1011,7 +1013,10 @@ describe('Truco Match', function () {
             let currentMatch = await _match.currentMatch()
 
             // End game
-            await _match.setTeamPoints(winnerIdx, currentMatch.gameState.pointsToWin)
+            await _match.setTeamPoints(
+                winnerIdx,
+                currentMatch.gameState.pointsToWin
+            )
             await _match.setTeamPoints(loserIdx, BigNumber.from(0))
         }
 
@@ -1050,7 +1055,7 @@ describe('Truco Match', function () {
             expect(matchState.dealNonce).to.equal(BigNumber.from(1))
         })
 
-        // Assign Truco Champions Token 
+        // Assign Truco Champions Token
         it('Assign Truco Champions Token', async function () {
             const { match, player1, player2, trucoChampionsToken } =
                 await loadFixture(deployMatchContractReadyToPlay)
@@ -1062,7 +1067,7 @@ describe('Truco Match', function () {
             const trophy = await trucoChampionsToken.getTrophyByMatch(
                 match.address
             )
-            
+
             let currentMatch = await match.currentMatch()
 
             expect(trophy.winner).to.equal(player2.address)
@@ -1078,7 +1083,7 @@ describe('Truco Match', function () {
             const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
-            
+
             await reachPointsToWin(match, player2, player1)
 
             let currentMatch = await match.currentMatch()

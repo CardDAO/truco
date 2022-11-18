@@ -3,8 +3,7 @@ import { deployTrucoChampionsTokenContract } from '../../scripts/helpers/truco-c
 import { deployMatchContract } from '../deploy-contracts'
 
 async function setTrucoChampionsToken(_match: TrucoMatchTester) {
-    const { trucoChampionsToken } =
-        await deployTrucoChampionsTokenContract()
+    const { trucoChampionsToken } = await deployTrucoChampionsTokenContract()
 
     // Since game will end we Prepare SBT NFT for winner in order to logic goes through
     await trucoChampionsToken.mint(_match.address)
@@ -20,13 +19,8 @@ export async function deployMatchContractReadyToPlay() {
     // Contracts are deployed using the first signer/account by default
     const [player1, player2] = await ethers.getSigners()
 
-    const {
-        match,
-        trucoin,
-        engine,
-        gameStateQueries,
-        bet,
-    } = await deployMatchContract()
+    const { match, trucoin, engine, gameStateQueries, bet } =
+        await deployMatchContract()
 
     await engine.setWhiteListed(match.address, true)
 
