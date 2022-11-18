@@ -197,7 +197,7 @@ contract TrucoMatch {
         _addEnvidoPointsOnlyForAcceptedChallenge();
 
         // We should update the match state manually because modifier enforceTurnSwitching won't kick in since it's a resign
-        _changeMatchStateToWaitingForDealIfApplies();
+        _changeMatchStateToWaitingForRevealIfApplies();
 
         _addTrucoPoints(true);
     }
@@ -514,7 +514,7 @@ contract TrucoMatch {
 
         // Check if current round is finished, signal that a new shuffle is needed to start playing again
         if (gameStateQueries.isTrucoEnded(currentMatch.gameState)) {
-            if (_changeMatchStateToWaitingForDealIfApplies()) {
+            if (_changeMatchStateToWaitingForRevealIfApplies()) {
                 return;
             }
 
@@ -526,7 +526,7 @@ contract TrucoMatch {
     }
 
     // Changes match state to waiting for deal if applies
-    function _changeMatchStateToWaitingForDealIfApplies()
+    function _changeMatchStateToWaitingForRevealIfApplies()
         internal
         returns (bool)
     {
