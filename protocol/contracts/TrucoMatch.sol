@@ -202,40 +202,12 @@ contract TrucoMatch {
         _addTrucoPoints(true);
     }
 
-    // This method should be called only from envido winner and if it's waiting for cards to be revealed
-    function revealCards(uint8[] memory _cards) public {
-        require(
-            matchState.state == MatchStateEnum.WAITING_FOR_REVEAL,
-            'State is not WAITING_FOR_REVEAL'
-        );
-        require(
-            _cards.length >= 1 && _cards.length <= 3,
-            'You can only reveal 3 cards at most'
-        );
-
-        uint8 envidoWinner = gameStateQueries.getEnvidoWinner(
-            currentMatch.gameState
-        );
-
-        require(_getPlayerIdx() == envidoWinner, 'Not envido winner');
-
-        uint8 envidoCountFromPlayerCards = gameStateQueries
-            .getEnvidoPointsForCards(_cards);
-
-        require(
-            envidoCountFromPlayerCards ==
-                currentMatch.gameState.envido.playerCount[envidoWinner],
-            'Envido count from cards does not match'
-        );
-
-        // At this points cards were reveled ok, match state shouuld be reset
-        matchState.state = MatchStateEnum.WAITING_FOR_DEAL;
-
-        // Since modifier cannot be used in this function we need to manually trigger envido points settlement
-        _addEnvidoPointsOnlyForAcceptedChallenge();
-
-        // Needed to check for game finality after reveal, crucial that state is switched away from WAITING_FOR_REVEAL to work
-        _updateMatchState();
+    // IV signature proof method
+    function revealCards(uint8[] memory _cards, bytes memory signature)
+    public
+    virtual {
+        _validateSignature(getCardProofToForSigning(_cards), signature);
+        _revealCards(_cards);
     }
 
     function spellTruco() public enforceTurnSwitching {
@@ -262,16 +234,16 @@ contract TrucoMatch {
         currentMatch.gameState = trucoEngine.transact(transaction);
     }
 
+    // IV signature proof method
     function playCard(uint8 _card, bytes memory signature)
         public
         virtual
         enforceTurnSwitching
     {
-        validateSignature(
-            abi.encodePacked(msg.sender, 'playCard', _card),
-            signature
-        );
+        uint8[] memory cards = new uint8[](1);
+        cards[0] = _card;
 
+        _validateSignature(getCardProofToForSigning(cards), signature);
         _playCard(_card);
     }
 
@@ -307,17 +279,12 @@ contract TrucoMatch {
         currentMatch.gameState = trucoEngine.transact(transaction);
     }
 
-    function spellEnvidoCount(uint8 _points, bytes memory signature)
-        public
-        virtual
-        enforceTurnSwitching
-    {
-        validateSignature(
-            abi.encodePacked(msg.sender, 'spellEnvidoCount', _points),
-            signature
+    function spellEnvidoCount(uint8 _points) public enforceTurnSwitching {
+        IERC3333.Transaction memory transaction = _buildTransaction(
+            IERC3333.Action.EnvidoCount,
+            _points
         );
-
-        _spellEnvidoCount(_points);
+        currentMatch.gameState = trucoEngine.transact(transaction);
     }
 
     // Accepts challenge and switches turn
@@ -360,6 +327,29 @@ contract TrucoMatch {
         }
     }
 
+    function getCardProofToForSigning(uint8[] memory _cards) public view returns (bytes32) {
+
+        require (_cards.length > 0 && _cards.length == 3, "You can only sign 3 cards maximum");
+
+        bytes memory encodedCards;
+
+        for (uint8 i = 0; i < _cards.length; i++) {
+            encodedCards = abi.encodePacked(encodedCards, ':', _cards[i] );
+        }
+
+        // IV template:
+        // revealedCards:<player_address>:<match_address>:<shuffling_nonce>:<card1>:<card2>:... etc
+        bytes memory sigToHash = abi.encodePacked(
+            'revealedCards:',
+            msg.sender,':',
+            address(this),':'
+        ,matchState.dealNonce, ':',
+            encodedCards
+        );
+
+        return keccak256(sigToHash);
+    }
+
     // INTERNAL METHODS -------------------------------------------------------------------------
     function _playCard(uint8 _card) internal enforceTurnSwitching {
         IERC3333.Transaction memory transaction = _buildTransaction(
@@ -369,12 +359,40 @@ contract TrucoMatch {
         currentMatch.gameState = trucoEngine.transact(transaction);
     }
 
-    function _spellEnvidoCount(uint8 _points) internal enforceTurnSwitching {
-        IERC3333.Transaction memory transaction = _buildTransaction(
-            IERC3333.Action.EnvidoCount,
-            _points
+    // This method should be called only from envido winner and if it's waiting for cards to be revealed
+    function _revealCards(uint8[] memory _cards) public {
+        require(
+            matchState.state == MatchStateEnum.WAITING_FOR_REVEAL,
+            'State is not WAITING_FOR_REVEAL'
         );
-        currentMatch.gameState = trucoEngine.transact(transaction);
+        require(
+            _cards.length >= 1 && _cards.length <= 3,
+            'You can only reveal 3 cards at most'
+        );
+
+        uint8 envidoWinner = gameStateQueries.getEnvidoWinner(
+            currentMatch.gameState
+        );
+
+        require(_getPlayerIdx() == envidoWinner, 'Not envido winner');
+
+        uint8 envidoCountFromPlayerCards = gameStateQueries
+        .getEnvidoPointsForCards(_cards);
+
+        require(
+            envidoCountFromPlayerCards ==
+            currentMatch.gameState.envido.playerCount[envidoWinner],
+            'Envido count from cards does not match'
+        );
+
+        // At this points cards were reveled ok, match state shouuld be reset
+        matchState.state = MatchStateEnum.WAITING_FOR_DEAL;
+
+        // Since modifier cannot be used in this function we need to manually trigger envido points settlement
+        _addEnvidoPointsOnlyForAcceptedChallenge();
+
+        // Needed to check for game finality after reveal, crucial that state is switched away from WAITING_FOR_REVEAL to work
+        _updateMatchState();
     }
 
     // Applies the points awarded from round if it's final
@@ -623,11 +641,10 @@ contract TrucoMatch {
         );
     }
 
-    function validateSignature(
-        bytes memory encodedMessage,
+    function _validateSignature(
+        bytes32 hash,
         bytes memory signature
     ) internal view {
-        bytes32 hash = keccak256(encodedMessage);
         address[2] memory players = getPlayers();
         address signer = hash.getSigner(signature);
         require(

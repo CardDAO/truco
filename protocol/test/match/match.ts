@@ -1112,10 +1112,10 @@ describe('Truco Match', function () {
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
 
-            await match.connect(player2).spellEnvidoCount(22)
-            await match.connect(player1).spellEnvidoCount(0)
+            await match.connect(player2).spellEnvidoCount(22, [])
+            await match.connect(player1).spellEnvidoCount(0, [])
 
-            await match.connect(player2).playCard(2) // 2 of Coins
+            await match.connect(player2).playCard(2, []) // 2 of Coins
             await match.connect(player1).resign()
 
             let matchState = await match.matchState()
@@ -1143,10 +1143,10 @@ describe('Truco Match', function () {
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
 
-            await match.connect(player2).spellEnvidoCount(22)
-            await match.connect(player1).spellEnvidoCount(0)
+            await match.connect(player2).spellEnvidoCount(22, [])
+            await match.connect(player1).spellEnvidoCount(0, [])
 
-            await match.connect(player2).playCard(2) // 2 of Coins
+            await match.connect(player2).playCard(2, []) // 2 of Coins
             await match.connect(player1).resign()
 
             let matchState = await match.matchState()
@@ -1174,10 +1174,10 @@ describe('Truco Match', function () {
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
 
-            await match.connect(player2).spellEnvidoCount(22)
-            await match.connect(player1).spellEnvidoCount(0)
+            await match.connect(player2).spellEnvidoCount(22, [])
+            await match.connect(player1).spellEnvidoCount(0, [])
 
-            await match.connect(player2).playCard(2) // 2 of Coins
+            await match.connect(player2).playCard(2, []) // 2 of Coins
             await match.connect(player1).resign()
 
             let matchState = await match.matchState()
@@ -1214,14 +1214,14 @@ describe('Truco Match', function () {
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
 
-            await match.connect(player2).spellEnvidoCount(22)
-            await match.connect(player1).spellEnvidoCount(0)
+            await match.connect(player2).spellEnvidoCount(22, [])
+            await match.connect(player1).spellEnvidoCount(0, [])
 
-            await match.connect(player2).playCard(2) // 2 of Coins
-            await match.connect(player1).playCard(21) // 1 of Swords
+            await match.connect(player2).playCard(2, []) // 2 of Coins
+            await match.connect(player1).playCard(21, []) // 1 of Swords
 
-            await match.connect(player1).playCard(3) // 3 of Coins
-            await match.connect(player2).playCard(4) // 4 of Coins
+            await match.connect(player1).playCard(3, []) // 3 of Coins
+            await match.connect(player2).playCard(4, []) // 4 of Coins
 
             let matchState = await match.matchState()
             expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_REVEAL)
@@ -1233,7 +1233,7 @@ describe('Truco Match', function () {
             ]
             await match
                 .connect(player2)
-                .revealCards(cardsThatSumEnvidoSpelledOk)
+                .revealCards(cardsThatSumEnvidoSpelledOk, [])
 
             matchState = await match.matchState()
             expect(matchState.state).to.equal(MatchStateEnum.FINISHED)
@@ -1268,10 +1268,10 @@ describe('Truco Match', function () {
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
 
-            await match.connect(player2).spellEnvidoCount(22)
-            await match.connect(player1).spellEnvidoCount(0)
+            await match.connect(player2).spellEnvidoCount(22, [])
+            await match.connect(player1).spellEnvidoCount(0, [])
 
-            await match.connect(player2).playCard(2) // 2 of Coins
+            await match.connect(player2).playCard(2, []) // 2 of Coins
             await match.connect(player1).resign()
 
             let matchState = await match.matchState()
