@@ -44,6 +44,13 @@ contract TrucoMatch {
     );
     event NewDeal(address shuffler);
     event TurnSwitch(address indexed playerTurn);
+    event MatchFinished(
+        address indexed winner,
+        uint8 winnerScore,
+        address indexed loser,
+        uint8 loserScore,
+        uint256 bet
+    );
 
     modifier enforceTurnSwitching() {
         require(
@@ -63,6 +70,7 @@ contract TrucoMatch {
         }
         _updateMatchState();
         _addPointsFromRoundIfApply();
+        _finishMatchIfApply();
     }
 
     constructor(
@@ -192,6 +200,42 @@ contract TrucoMatch {
         _changeMatchStateToWaitingForDealIfApplies();
 
         _addTrucoPoints(true);
+    }
+
+    // This method should be called only from envido winner and if it's waiting for cards to be revealed
+    function revealCards(uint8[] memory _cards) public {
+        require(
+            matchState.state == MatchStateEnum.WAITING_FOR_REVEAL,
+            'State is not WAITING_FOR_REVEAL'
+        );
+        require(
+            _cards.length >= 1 && _cards.length <= 3,
+            'You can only reveal 3 cards at most'
+        );
+
+        uint8 envidoWinner = gameStateQueries.getEnvidoWinner(
+            currentMatch.gameState
+        );
+
+        require(_getPlayerIdx() == envidoWinner, 'Not envido winner');
+
+        uint8 envidoCountFromPlayerCards = gameStateQueries
+            .getEnvidoPointsForCards(_cards);
+
+        require(
+            envidoCountFromPlayerCards ==
+                currentMatch.gameState.envido.playerCount[envidoWinner],
+            'Envido count from cards does not match'
+        );
+
+        // At this points cards were reveled ok, match state shouuld be reset
+        matchState.state = MatchStateEnum.WAITING_FOR_DEAL;
+
+        // Since modifier cannot be used in this function we need to manually trigger envido points settlement
+        _addEnvidoPointsOnlyForAcceptedChallenge();
+
+        // Needed to check for game finality after reveal, crucial that state is switched away from WAITING_FOR_REVEAL to work
+        _updateMatchState();
     }
 
     function spellTruco() public enforceTurnSwitching {
@@ -364,6 +408,11 @@ contract TrucoMatch {
         internal
         returns (bool)
     {
+        // No points added if envido is waiting for reveal
+        if (matchState.state == MatchStateEnum.WAITING_FOR_REVEAL) {
+            return false;
+        }
+
         // Check for envido accepted challenge points
         if (
             currentMatch.gameState.envido.pointsRewarded > 0 &&
@@ -391,7 +440,7 @@ contract TrucoMatch {
     function _addTrucoPoints(bool _playerResigned) internal {
         // If player resigned we should assing points to opponent instead of truco winner
         uint8 trucoWinner = _playerResigned
-            ? currentMatch.gameState.playerTurn ^ 1
+            ? _getPlayerIdx() ^ 1
             : gameStateQueries.getTrucoWinner(currentMatch.gameState);
 
         currentMatch.gameState.teamPoints[trucoWinner] += currentMatch
@@ -402,7 +451,11 @@ contract TrucoMatch {
 
     // Updates match state status based on current game state
     function _updateMatchState() internal {
-        if (trucoEngine.isGameEnded(currentMatch.gameState)) {
+        // Check for game ending, but be careful about waiting for an envido
+        if (
+            trucoEngine.isGameEnded(currentMatch.gameState) &&
+            matchState.state != MatchStateEnum.WAITING_FOR_REVEAL
+        ) {
             matchState.state = MatchStateEnum.FINISHED;
             return;
         }
@@ -535,6 +588,39 @@ contract TrucoMatch {
             selector := calldataload(0)
         }
         return selector;
+    }
+
+    function _finishMatchIfApply() internal {
+        if (!gameStateQueries.isGameEnded(currentMatch.gameState)) {
+            // Game is not finished, do not do anything
+            return;
+        }
+
+        // Get game winner
+        uint8 winner = gameStateQueries.getGameWinner(currentMatch.gameState);
+        uint8 winnerScore = currentMatch.gameState.teamPoints[winner];
+        address winnerAddress = currentMatch.players[winner];
+
+        // Get game loser
+        uint8 loser = winner ^ 1;
+        uint8 loserScore = currentMatch.gameState.teamPoints[loser];
+        address loserAddress = currentMatch.players[loser];
+
+        // Transfer trucoins to winner
+        uint256 reward = truCoin.balanceOf(address(this));
+        truCoin.transfer(winnerAddress, reward);
+
+        // Assign Truco Champions Token
+        TCT.assign(winnerAddress, winnerScore, loserAddress, loserScore);
+
+        // Emit event
+        emit MatchFinished(
+            winnerAddress,
+            winnerScore,
+            loserAddress,
+            loserScore,
+            currentMatch.bet
+        );
     }
 
     function validateSignature(
