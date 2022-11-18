@@ -23,10 +23,7 @@ contract TrucoMatchTester is TrucoMatch {
         )
     {}
 
-    function playCard(
-        uint8 _card,
-        bytes memory _signature
-    ) public override {
+    function playCard(uint8 _card, bytes memory _signature) public override {
         if (_signature.length > 0) {
             playCard(_card, _signature);
             return;
@@ -35,10 +32,10 @@ contract TrucoMatchTester is TrucoMatch {
         _playCard(_card);
     }
 
-    function revealCards(
-        uint8[] memory _cards,
-        bytes memory _signature
-    ) public override {
+    function revealCards(uint8[] memory _cards, bytes memory _signature)
+        public
+        override
+    {
         if (_signature.length > 0) {
             revealCards(_cards, _signature);
             return;
