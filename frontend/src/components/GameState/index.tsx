@@ -5,6 +5,7 @@ import { useContractEvent, useContractRead } from "wagmi"
 
 export const GameState = ({accountAddress, matchAddress, setJoined, joined, processingAction, setProcessingAction}) => {
     const [ betValue, setBetValue ] = useState(0)
+    const [ matchStateValue, setMatchStateValue ] = useState(undefined)
     useContractRead({
        addressOrName: process.env.FRONT_MATCH_FACADE_ADDRESS as string,
        contractInterface: new Interface(["function getCurrentBet(address) public view returns (uint256)"]),
@@ -15,6 +16,34 @@ export const GameState = ({accountAddress, matchAddress, setJoined, joined, proc
                console.log('bet value data', data)
                setBetValue(formatEther(data))
 
+           }
+       }
+    })
+
+    useContractRead({
+       addressOrName: matchAddress,
+       contractInterface: new Interface(["function matchState() public view returns (uint256, uint8)"]),
+       functionName: 'matchState',
+       onSuccess: (data) => {
+           console.log('get mAtch State', data)
+           if (data.length > 1) {
+               switch(data[1]) {
+                   case 0:
+                       setMatchStateValue("WAITING_FOR_PLAYERS")
+                       break;
+                   case 1:
+                       setMatchStateValue("WAITING_FOR_DEAL")
+                       break;
+                   case 2:
+                       setMatchStateValue("WAITING_FOR_PLAY")
+                       break;
+                   case 3:
+                       setMatchStateValue("WAITING_FOR_REVEAL")
+                       break;
+                   default:
+                       setMatchStateValue("UNDEFINED")
+                       break;
+               }
            }
        }
     })
@@ -46,8 +75,11 @@ export const GameState = ({accountAddress, matchAddress, setJoined, joined, proc
     })
     
     return (
-        <div>
-            <p className="text-gray-300 text-md">Current bet value: {betValue} ETH</p>
+        <div className="text-gray-100">
+            <p className="text-md">Current bet value: {betValue} ETH</p>
+            {
+                matchStateValue
+            }
         </div>
     )
 }

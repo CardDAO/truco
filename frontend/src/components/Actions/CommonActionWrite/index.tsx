@@ -3,6 +3,7 @@ import { useContractRead, useContractWrite, usePrepareContractWrite } from "wagm
 import { ActionButton } from "../Button"
 import { GAS_LIMIT_WRITE } from "../../Dashboard"
 import { useAccountInformation } from "../../../hooks/providers/Wagmi"
+import { toast } from 'react-toastify';
 
 export const CommonActionWrite = ({
     writeSelectorInterface, writeFunctionName, writeArgs,
@@ -24,7 +25,7 @@ export const CommonActionWrite = ({
        enabled: checkExecute,
        args: canFunctionArgs,
        overrides: {
-           from: address
+           from: address as string
        },
        onSuccess: (data) => {
            if (data) {
@@ -40,7 +41,7 @@ export const CommonActionWrite = ({
         if (checkExecute) {
             checkRefetch()
         }
-    }, [checkExecute])
+    }, [checkExecute, processingAction])
 
 
     const { refetch, config } = usePrepareContractWrite({
@@ -64,15 +65,25 @@ export const CommonActionWrite = ({
     })
 
     useEffect(() => {
-        if (canActionSuccess) {
+        if (!checkExecute || canActionSuccess) {
             refetch()
         }
-    }, [canActionSuccess])
+    }, [canActionSuccess, processingAction])
 
-    const { write, error, isLoading, data }= useContractWrite(config)
+    const { write, error, isLoading, data } = useContractWrite(config)
 
     useEffect(() => {
         if (error && goToSpell) {
+            toast.error(`🦄 Error: ${error?.message}`, {
+                position: "bottom-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
             setGoToSpell(false)
             setProcessingAction(false)
         }
@@ -81,7 +92,7 @@ export const CommonActionWrite = ({
     return (
         <>
         {
-            enableAction ?
+            enableAction && canActionSuccess ?
                     <ActionButton clickCallback={() => {
                         setGoToSpell(true) 
                         setProcessingAction(true)
