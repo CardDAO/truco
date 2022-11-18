@@ -1440,13 +1440,13 @@ describe('Truco Match', function () {
 
             const cardToPlay: BigNumber = BigNumber.from(1) // 1 of Coins
 
-            const proofToSign = await match.connect(player2).getCardProofToForSigning(player2.address, [cardToPlay])
+            const proofToSign = await match
+                .connect(player2)
+                .getCardProofToForSigning(player2.address, [cardToPlay])
 
             const signedProof = player2.signMessage(proofToSign)
 
             await match.connect(player2).playCard(cardToPlay, signedProof)
-
-
         })
     })
 })
