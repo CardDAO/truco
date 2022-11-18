@@ -1462,7 +1462,7 @@ describe('Truco Match', function () {
         })
 
         it('Play a card with signature for a differnt card', async function () {
-            const { match, player2 } = deployMatchContractReadyToPlay()
+            const { match, player2 } = await deployMatchContractReadyToPlay()
 
             const cardToPlay: BigNumber = BigNumber.from(1) // 1 of Coins
             const cardSigned: BigNumber = BigNumber.from(2) // 2 of Coins
@@ -1535,7 +1535,7 @@ describe('Truco Match', function () {
         })
 
         it('Reveal envido cards', async function () {
-            const { match, player1, player2 } = deployMatchContractReadyToPlay()
+            const { match, player1, player2 } = await deployMatchContractReadyToPlay()
 
             let player2Idx: BigNumber = await match
                 .connect(player2)
