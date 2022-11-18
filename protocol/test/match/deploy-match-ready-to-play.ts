@@ -43,6 +43,6 @@ export async function deployMatchContractReadyToPlay() {
         gameStateQueries,
         trucoin,
         trucoChampionsToken,
-        invalid_player
+        invalid_player,
     }
 }
