@@ -1432,5 +1432,21 @@ describe('Truco Match', function () {
                     .getCardProofToForSigning(player1.address, cards)
             ).to.equal(hash)
         })
+
+        it('Play a card with signature check', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            const cardToPlay: BigNumber = BigNumber.from(1) // 1 of Coins
+
+            const proofToSign = await match.connect(player2).getCardProofToForSigning(player2.address, [cardToPlay])
+
+            const signedProof = player2.signMessage(proofToSign)
+
+            await match.connect(player2).playCard(cardToPlay, signedProof)
+
+
+        })
     })
 })
