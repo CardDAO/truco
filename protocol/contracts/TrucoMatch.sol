@@ -43,6 +43,7 @@ contract TrucoMatch {
         uint256 bet
     );
     event NewDeal(address shuffler);
+    event NewDealRequired(address newShuffler, uint8 nextNonce);
     event TurnSwitch(address indexed playerTurn);
     event MatchFinished(
         address indexed winner,
@@ -118,7 +119,7 @@ contract TrucoMatch {
         currentMatch.players[1] = msg.sender;
 
         // Change match status
-        matchState.state = MatchStateEnum.WAITING_FOR_DEAL;
+        _changeMatchStateToWaitingForDeal();
 
         // Start match
         currentMatch.gameState = trucoEngine.startGame();
@@ -178,7 +179,7 @@ contract TrucoMatch {
     }
 
     function resign() public enforceTurnSwitching {
-        matchState.state = MatchStateEnum.WAITING_FOR_DEAL;
+        _changeMatchStateToWaitingForDeal();
 
         // Check if player is resigning while an Envido is at play
         if (
@@ -415,7 +416,7 @@ contract TrucoMatch {
         );
 
         // At this points cards were reveled ok, match state shouuld be reset
-        matchState.state = MatchStateEnum.WAITING_FOR_DEAL;
+        _changeMatchStateToWaitingForDeal();
 
         // Since modifier cannot be used in this function we need to manually trigger envido points settlement
         _addEnvidoPointsOnlyForAcceptedChallenge();
@@ -518,11 +519,19 @@ contract TrucoMatch {
                 return;
             }
 
-            matchState.state = MatchStateEnum.WAITING_FOR_DEAL;
+            _changeMatchStateToWaitingForDeal();
             return;
         }
 
         matchState.state = MatchStateEnum.WAITING_FOR_PLAY;
+    }
+
+    // Change state and emit event to signal for new shuffling requirement
+    function _changeMatchStateToWaitingForDeal() internal {
+        // Emit event
+        address newShuffler = currentMatch.players[currentMatch.gameState.playerWhoShuffled ^ 1];
+        emit NewDealRequired(newShuffler, matchState.dealNonce + 1);
+        matchState.state = MatchStateEnum.WAITING_FOR_DEAL;
     }
 
     // Changes match state to waiting for deal if applies
