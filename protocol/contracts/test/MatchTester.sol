@@ -23,6 +23,27 @@ contract TrucoMatchTester is TrucoMatch {
         )
     {}
 
+    function playCard(uint8 _card, bytes memory _signature) public override {
+        if (_signature.length > 0) {
+            super.playCard(_card, _signature);
+            return;
+        }
+
+        _playCard(_card);
+    }
+
+    function revealCards(uint8[] memory _cards, bytes memory _signature)
+        public
+        override
+    {
+        if (_signature.length > 0) {
+            super.revealCards(_cards, _signature);
+            return;
+        }
+
+        _revealCards(_cards);
+    }
+
     function getEnvidoCountPerPlayer() public view returns (uint8[] memory) {
         return currentMatch.gameState.envido.playerCount;
     }
@@ -47,5 +68,13 @@ contract TrucoMatchTester is TrucoMatch {
         public
     {
         TCT = _TCT;
+    }
+
+    function getCardsString(address _playerAddress, uint8[] memory _cards)
+        public
+        view
+        returns (bytes memory)
+    {
+        return _getCardsString(_playerAddress, _cards);
     }
 }

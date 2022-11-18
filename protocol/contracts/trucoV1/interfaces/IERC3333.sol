@@ -7,6 +7,7 @@ pragma solidity 0.8.16;
  */
 interface IERC3333 {
     // Valid Actions for Moves
+
     enum Action {
         PlayCard,
         EnvidoCount,

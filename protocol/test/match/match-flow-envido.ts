@@ -39,7 +39,7 @@ describe('Multi Transaction Test: Envido', function () {
             await match.connect(player2).spellEnvido()
 
             await expect(
-                match.connect(player1).spellEnvidoCount(BigNumber.from(33))
+                match.connect(player1).spellEnvidoCount(BigNumber.from(33), [])
             ).to.be.reverted
         })
 
@@ -59,8 +59,8 @@ describe('Multi Transaction Test: Envido', function () {
                 deployMatchContractReadyToPlay
             )
 
-            await match.connect(player2).playCard(BigNumber.from(22))
-            await match.connect(player1).playCard(BigNumber.from(33))
+            await match.connect(player2).playCard(BigNumber.from(22), [])
+            await match.connect(player1).playCard(BigNumber.from(33), [])
 
             await expect(match.connect(player2).spellEnvido()).to.be.reverted
         })
@@ -70,11 +70,11 @@ describe('Multi Transaction Test: Envido', function () {
                 deployMatchContractReadyToPlay
             )
 
-            await match.connect(player2).playCard(BigNumber.from(22))
-            await match.connect(player1).playCard(BigNumber.from(33))
+            await match.connect(player2).playCard(BigNumber.from(22), [])
+            await match.connect(player1).playCard(BigNumber.from(33), [])
 
-            await match.connect(player1).playCard(BigNumber.from(11))
-            await match.connect(player2).playCard(BigNumber.from(12))
+            await match.connect(player1).playCard(BigNumber.from(11), [])
+            await match.connect(player2).playCard(BigNumber.from(12), [])
 
             await expect(match.connect(player2).spellEnvido()).to.be.reverted
         })
@@ -88,7 +88,7 @@ describe('Multi Transaction Test: Envido', function () {
             await match.connect(player1).refuseChallenge()
 
             await expect(
-                match.connect(player1).spellEnvidoCount(BigNumber.from(34))
+                match.connect(player1).spellEnvidoCount(BigNumber.from(34), [])
             ).to.be.reverted
         })
 
@@ -101,7 +101,7 @@ describe('Multi Transaction Test: Envido', function () {
             await match.connect(player1).refuseChallenge()
 
             await expect(
-                match.connect(player2).spellEnvidoCount(BigNumber.from(99))
+                match.connect(player2).spellEnvidoCount(BigNumber.from(99), [])
             ).to.be.reverted
         })
 
@@ -124,7 +124,7 @@ describe('Multi Transaction Test: Envido', function () {
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
             await expect(
-                match.connect(player1).spellEnvidoCount(BigNumber.from(33))
+                match.connect(player1).spellEnvidoCount(BigNumber.from(33), [])
             ).to.be.reverted
         })
     })
@@ -379,10 +379,14 @@ describe('Multi Transaction Test: Envido', function () {
             await match.connect(player2).acceptChallengeForRaising()
 
             // TRANSACTION: Player 2 spells envido count (its mano)
-            await match.connect(player2).spellEnvidoCount(BigNumber.from(20))
+            await match
+                .connect(player2)
+                .spellEnvidoCount(BigNumber.from(20), [])
 
             // TRANSACTION: Player 1 spells envido count and resolves envido
-            await match.connect(player1).spellEnvidoCount(BigNumber.from(33))
+            await match
+                .connect(player1)
+                .spellEnvidoCount(BigNumber.from(33), [])
 
             let envidoCount = await match.getEnvidoCountPerPlayer()
             let state = await match.currentMatch()
@@ -420,10 +424,14 @@ describe('Multi Transaction Test: Envido', function () {
             await match.connect(player1).acceptChallenge()
 
             // TRANSACTION: Player 2 spells envido count
-            await match.connect(player2).spellEnvidoCount(BigNumber.from(33))
+            await match
+                .connect(player2)
+                .spellEnvidoCount(BigNumber.from(33), [])
 
             // TRANSACTION: Player 1 spells envido count
-            await match.connect(player1).spellEnvidoCount(BigNumber.from(20))
+            await match
+                .connect(player1)
+                .spellEnvidoCount(BigNumber.from(20), [])
 
             let envidoCount = await match.getEnvidoCountPerPlayer()
             let state = await match.currentMatch()
@@ -453,8 +461,10 @@ describe('Multi Transaction Test: Envido', function () {
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
 
-            await match.connect(player2).spellEnvidoCount(BigNumber.from(0))
-            await match.connect(player1).spellEnvidoCount(BigNumber.from(33))
+            await match.connect(player2).spellEnvidoCount(BigNumber.from(0), [])
+            await match
+                .connect(player1)
+                .spellEnvidoCount(BigNumber.from(33), [])
 
             let envidoCount = await match.getEnvidoCountPerPlayer()
             let state = await match.currentMatch()
@@ -514,7 +524,7 @@ describe('Multi Transaction Test: Envido', function () {
                 deployMatchContractReadyToPlay
             )
 
-            await match.connect(player2).playCard(BigNumber.from(1))
+            await match.connect(player2).playCard(BigNumber.from(1), [])
             await match.connect(player1).spellTruco()
 
             // Envido can't be spelled if player already played a card
@@ -589,7 +599,9 @@ describe('Multi Transaction Test: Envido', function () {
             )
 
             // TRANSACTION: Player 2 spells envido count
-            await match.connect(player2).spellEnvidoCount(BigNumber.from(20))
+            await match
+                .connect(player2)
+                .spellEnvidoCount(BigNumber.from(20), [])
 
             let envidoCount = await match.getEnvidoCountPerPlayer()
 
@@ -612,7 +624,7 @@ describe('Multi Transaction Test: Envido', function () {
             // TRANSACTION: Player 1 spells envido count and resolves envido
 
             await expect(
-                match.connect(player1).spellEnvidoCount(BigNumber.from(33))
+                match.connect(player1).spellEnvidoCount(BigNumber.from(33), [])
             )
                 .to.emit(match, 'TurnSwitch')
                 .withArgs(player2.address) // turn should return to player2

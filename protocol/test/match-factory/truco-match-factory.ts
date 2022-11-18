@@ -12,7 +12,7 @@ describe('Truco Match Factory', function () {
                 deployFactoryContract
             )
 
-            const [player1] = await ethers.getSigners()
+            const [player1, player2] = await ethers.getSigners()
 
             // Mint trucoins to player1
             trucoin.mint(player1.address, min_bet)
@@ -31,7 +31,7 @@ describe('Truco Match Factory', function () {
             const { factory, trucoin, min_bet } = await loadFixture(
                 deployFactoryContract
             )
-            const [player1] = await ethers.getSigners()
+            const [player1, player2] = await ethers.getSigners()
 
             // Mint trucoins to player1
             trucoin.mint(player1.address, min_bet)

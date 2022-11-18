@@ -175,7 +175,7 @@ describe('Front Match Facade', function () {
             const { frontMatchFacade, match, player1, player2 } =
                 await loadFixture(deployContract)
 
-            await match.connect(player2).playCard(BigNumber.from(1))
+            await match.connect(player2).playCard(BigNumber.from(1), [])
             await match.connect(player1).spellTruco()
             await match.connect(player2).acceptChallenge()
             expect(
