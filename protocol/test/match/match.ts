@@ -163,16 +163,21 @@ describe('Truco Match', function () {
             expect(matchState.dealNonce).to.equal(BigNumber.from(1))
         })
 
-        it('Game reached final state, new shuffling is needed', async function () {
+        it('Game reached final state, new shuffling is needed. Check for event emit', async function () {
             const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
             )
+
+            let originalMatchState = await match.matchState()
 
             await match.connect(player2).playCard(BigNumber.from(1), [])
             await match.connect(player1).playCard(BigNumber.from(4), [])
 
             await match.connect(player2).playCard(BigNumber.from(2), [])
-            await match.connect(player1).playCard(BigNumber.from(5), [])
+            await expect(match.connect(player1).playCard(BigNumber.from(5), [])).to.emit(
+                match,
+                'NewDealRequired'
+            ).withArgs(player2.address, BigNumber.from(originalMatchState.dealNonce).add(1))
 
             let matchState = await match.matchState()
 
