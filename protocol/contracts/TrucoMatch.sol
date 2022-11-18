@@ -329,7 +329,18 @@ contract TrucoMatch {
 
     function getCardProofToForSigning(uint8[] memory _cards) public view returns (bytes32) {
 
-        require (_cards.length > 0 && _cards.length == 3, "You can only sign 3 cards maximum");
+        require (_cards.length > 0 && _cards.length <= 3, "You can only sign 3 cards maximum");
+
+        return keccak256(_getCardsString(_cards));
+    }
+
+    // INTERNAL METHODS -------------------------------------------------------------------------
+
+
+    // Get cards abi encoded representation for cards to sign
+    // IV template:
+    // revealedCards:<player_address>:<match_address>:<shuffling_nonce>:<card1>:<card2>:... etc
+    function _getCardsString(uint8[] memory _cards) internal view returns (bytes memory) {
 
         bytes memory encodedCards;
 
@@ -337,20 +348,17 @@ contract TrucoMatch {
             encodedCards = abi.encodePacked(encodedCards, ':', _cards[i] );
         }
 
-        // IV template:
-        // revealedCards:<player_address>:<match_address>:<shuffling_nonce>:<card1>:<card2>:... etc
         bytes memory sigToHash = abi.encodePacked(
             'revealedCards:',
             msg.sender,':',
-            address(this),':'
-        ,matchState.dealNonce, ':',
+            address(this),':',
+            matchState.dealNonce,
             encodedCards
         );
 
-        return keccak256(sigToHash);
+        return sigToHash;
     }
 
-    // INTERNAL METHODS -------------------------------------------------------------------------
     function _playCard(uint8 _card) internal enforceTurnSwitching {
         IERC3333.Transaction memory transaction = _buildTransaction(
             IERC3333.Action.PlayCard,
