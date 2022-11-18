@@ -1345,7 +1345,7 @@ describe('Truco Match', function () {
             const cards = [BigNumber.from(1), BigNumber.from(2)]
 
             let packed = await getCardsEncodedForSig(player1, match, cards)
-            expect(await match.connect(player1).getCardsString(cards)).to.equal(
+            expect(await match.connect(player1).getCardsString(player1.address, cards)).to.equal(
                 player1.address,
                 packed
             )

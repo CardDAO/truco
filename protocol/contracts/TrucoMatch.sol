@@ -207,7 +207,7 @@ contract TrucoMatch {
         public
         virtual
     {
-        _validateSignature(getCardProofToForSigning(_cards), signature);
+        _validateSignature(getCardProofToForSigning(msg.sender, _cards), signature);
         _revealCards(_cards);
     }
 
