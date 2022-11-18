@@ -1535,7 +1535,8 @@ describe('Truco Match', function () {
         })
 
         it('Reveal envido cards', async function () {
-            const { match, player1, player2 } = await deployMatchContractReadyToPlay()
+            const { match, player1, player2 } =
+                await deployMatchContractReadyToPlay()
 
             let player2Idx: BigNumber = await match
                 .connect(player2)
