@@ -42,4 +42,10 @@ contract TrucoMatchTester is TrucoMatch {
     function setTeamPoints(uint8 _playerIdx, uint8 _points) public {
         currentMatch.gameState.teamPoints[_playerIdx] = _points;
     }
+
+    function setTrucoChampionsTokenContractAddress(TrucoChampionsToken _TCT)
+        public
+    {
+        TCT = _TCT;
+    }
 }

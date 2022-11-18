@@ -1,11 +1,17 @@
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
-import { deployMatchContract } from '../deploy-contracts'
+import {
+    deployMatchContract,
+    deployMatchFromFactory,
+} from '../deploy-contracts'
 import { deployMatchContractReadyToPlay } from './deploy-match-ready-to-play'
 
 import { MatchStateEnum } from './struct-enums'
 import { BigNumber } from 'ethers'
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { TrucoMatch } from '../../typechain-types'
+import { deployTrucoChampionsTokenContract } from '../../scripts/helpers/truco-champions-token-deploy'
 
 describe('Truco Match', function () {
     // Constructor tests
@@ -198,26 +204,6 @@ describe('Truco Match', function () {
             let matchState = await match.matchState()
 
             expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_REVEAL)
-            expect(matchState.dealNonce).to.equal(BigNumber.from(1))
-        })
-
-        it('Game reached final state', async function () {
-            const { match, player1, player2 } = await loadFixture(
-                deployMatchContractReadyToPlay
-            )
-
-            let gameState = (await match.currentMatch()).gameState
-
-            await match.setTeamPoints(
-                await match.connect(player1).currentPlayerIdx(),
-                gameState.pointsToWin
-            )
-
-            await match.connect(player2).playCard(BigNumber.from(2))
-
-            let matchState = await match.matchState()
-
-            expect(matchState.state).to.equal(MatchStateEnum.FINISHED)
             expect(matchState.dealNonce).to.equal(BigNumber.from(1))
         })
     })
@@ -657,6 +643,17 @@ describe('Truco Match', function () {
                 deployMatchContractReadyToPlay
             )
 
+            const { trucoChampionsToken } =
+                await deployTrucoChampionsTokenContract()
+
+            // Since game will end we Prepare SBT NFT for winner in order to logic goes through
+            await trucoChampionsToken.mint(match.address)
+
+            // Change SBT contract address to the one deployed in this test
+            await match.setTrucoChampionsTokenContractAddress(
+                trucoChampionsToken.address
+            )
+
             await match.connect(player2).spellFaltaEnvido()
             await match.connect(player1).acceptChallenge()
 
@@ -672,17 +669,10 @@ describe('Truco Match', function () {
             let currentMatch = await match.currentMatch()
             let matchState = await match.matchState()
 
-            let player1Idx: BigNumber = await match
-                .connect(player1)
-                .currentPlayerIdx()
-            let player2Idx: BigNumber = await match
-                .connect(player2)
-                .currentPlayerIdx()
-
-            expect(currentMatch.gameState.teamPoints[player1Idx]).to.equal(
+            expect(currentMatch.gameState.teamPoints[0]).to.equal(
                 BigNumber.from(0)
             )
-            expect(currentMatch.gameState.teamPoints[player2Idx]).to.equal(
+            expect(currentMatch.gameState.teamPoints[1]).to.equal(
                 BigNumber.from(currentMatch.gameState.pointsToWin)
             )
             expect(matchState.state).to.equal(MatchStateEnum.FINISHED)
@@ -1017,6 +1007,103 @@ describe('Truco Match', function () {
         })
     })
 
+    describe('Game finished', function () {
+        async function reachPointstoWin(
+            _match: TrucoMatch,
+            _winner: SignerWithAddress,
+            _loser: SignerWithAddress
+        ) {
+            await _match.connect(_winner).spellFaltaEnvido()
+            await _match.connect(_loser).acceptChallenge()
+
+            await _match.connect(_winner).spellEnvidoCount(22)
+            await _match.connect(_loser).spellEnvidoCount(0)
+
+            await _match.connect(_winner).playCard(2) // 2 of Coins
+            await _match.connect(_loser).playCard(1) // 1 of Coins
+
+            await _match.connect(_winner).playCard(8) // 10 of Coins
+        }
+
+        // Transfer trucoins to winner
+        it('Transfer trucoins to winner', async function () {
+            const { match, player1, player2, trucoin } = await loadFixture(
+                deployMatchFromFactory
+            )
+
+            const matchBalanceBefore = await trucoin.balanceOf(match.address)
+
+            await reachPointstoWin(match, player2, player1)
+            // 4 of Coins
+            await expect(
+                match.connect(player1).playCard(4)
+            ).to.changeTokenBalances(
+                trucoin,
+                [match.address, player2.address],
+                [matchBalanceBefore.mul(-1), matchBalanceBefore]
+            )
+        })
+
+        it('Game reached final state', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchFromFactory
+            )
+
+            await reachPointstoWin(match, player2, player1)
+
+            await match.connect(player1).playCard(4)
+
+            let matchState = await match.matchState()
+
+            expect(matchState.state).to.equal(MatchStateEnum.FINISHED)
+            expect(matchState.dealNonce).to.equal(BigNumber.from(1))
+        })
+
+        // Assign Truco Champions Token }
+        it('Assign Truco Champions Token', async function () {
+            const { match, player1, player2, trucoChampionsToken } =
+                await loadFixture(deployMatchFromFactory)
+
+            let currentMatch = await match.currentMatch()
+
+            await reachPointstoWin(match, player2, player1)
+
+            await match.connect(player1).playCard(BigNumber.from(4))
+
+            const trophy = await trucoChampionsToken.getTrophyByMatch(
+                match.address
+            )
+
+            expect(trophy.winner).to.equal(player2.address)
+            expect(trophy.winnerScore).to.equal(
+                BigNumber.from(currentMatch.gameState.pointsToWin)
+            )
+            expect(trophy.loser).to.equal(player1.address)
+            expect(trophy.loserScore).to.equal(BigNumber.from(0))
+        })
+
+        // Emit Event
+        it('Emit event', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchFromFactory
+            )
+
+            await reachPointstoWin(match, player2, player1)
+
+            let currentMatch = await match.currentMatch()
+
+            await expect(match.connect(player1).playCard(4))
+                .to.emit(match, 'MatchFinished')
+                .withArgs(
+                    player2.address,
+                    currentMatch.gameState.pointsToWin,
+                    player1.address,
+                    BigNumber.from(0),
+                    currentMatch.bet
+                )
+        })
+    })
+
     describe('Cards Reveal', function () {
         it('Reveal incorrect number of cards', async function () {
             const { match, player1, player2 } = await loadFixture(
@@ -1159,6 +1246,17 @@ describe('Truco Match', function () {
         it('Reveal ok - Match ended after with a resignation after reveal', async function () {
             const { match, player1, player2 } = await loadFixture(
                 deployMatchContractReadyToPlay
+            )
+
+            const { trucoChampionsToken } =
+                await deployTrucoChampionsTokenContract()
+
+            // Since game will end we Prepare SBT NFT for winner in order to logic goes through
+            await trucoChampionsToken.mint(match.address)
+
+            // Change SBT contract address to the one deployed in this test
+            await match.setTrucoChampionsTokenContractAddress(
+                trucoChampionsToken.address
             )
 
             let player2Idx: BigNumber = await match

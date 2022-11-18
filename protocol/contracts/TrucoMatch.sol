@@ -42,6 +42,13 @@ contract TrucoMatch {
     );
     event NewDeal(address shuffler);
     event TurnSwitch(address indexed playerTurn);
+    event MatchFinished(
+        address indexed winner,
+        uint8 winnerScore,
+        address indexed loser,
+        uint8 loserScore,
+        uint256 bet
+    );
 
     modifier enforceTurnSwitching() {
         require(
@@ -61,6 +68,7 @@ contract TrucoMatch {
         }
         _updateMatchState();
         _addPointsFromRoundIfApply();
+        _finishMatchIfApply();
     }
 
     constructor(
@@ -553,5 +561,38 @@ contract TrucoMatch {
             selector := calldataload(0)
         }
         return selector;
+    }
+
+    function _finishMatchIfApply() internal {
+        if (!gameStateQueries.isGameEnded(currentMatch.gameState)) {
+            // Game is not finished, do not do anything
+            return;
+        }
+
+        // Get game winner
+        uint8 winner = gameStateQueries.getGameWinner(currentMatch.gameState);
+        uint8 winnerScore = currentMatch.gameState.teamPoints[winner];
+        address winnerAddress = currentMatch.players[winner];
+
+        // Get game loser
+        uint8 loser = winner ^ 1;
+        uint8 loserScore = currentMatch.gameState.teamPoints[loser];
+        address loserAddress = currentMatch.players[loser];
+
+        // Transfer trucoins to winner
+        uint256 reward = truCoin.balanceOf(address(this));
+        truCoin.transfer(winnerAddress, reward);
+
+        // Assign Truco Champions Token
+        TCT.assign(winnerAddress, winnerScore, loserAddress, loserScore);
+
+        // Emit event
+        emit MatchFinished(
+            winnerAddress,
+            winnerScore,
+            loserAddress,
+            loserScore,
+            currentMatch.bet
+        );
     }
 }

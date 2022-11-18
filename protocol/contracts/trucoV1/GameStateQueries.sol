@@ -342,6 +342,20 @@ contract GameStateQueries is Initializable, OwnableUpgradeable {
         return false;
     }
 
+    function getGameWinner(IERC3333.GameState memory gameState)
+        public
+        view
+        returns (uint8)
+    {
+        require(this.isGameEnded(gameState), 'Game is not ended');
+        // Check if there's a winner
+        if (gameState.teamPoints[0] >= gameState.pointsToWin) {
+            return 0;
+        }
+
+        return 1;
+    }
+
     // Check if envido can be spelled at this game
     function _canEnvidoBeSpelled(IERC3333.GameState memory gameState)
         internal
