@@ -1107,13 +1107,13 @@ describe('Truco Match', function () {
             )
 
             // Not in reveal state
-            await expect(match.connect(player2).revealCards([])).to.be.reverted
+            await expect(match.connect(player2).revealCards([], [])).to.be.reverted
 
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
 
-            await match.connect(player2).spellEnvidoCount(22, [])
-            await match.connect(player1).spellEnvidoCount(0, [])
+            await match.connect(player2).spellEnvidoCount(22)
+            await match.connect(player1).spellEnvidoCount(0)
 
             await match.connect(player2).playCard(2, []) // 2 of Coins
             await match.connect(player1).resign()
@@ -1128,7 +1128,7 @@ describe('Truco Match', function () {
                 BigNumber.from(4),
             ]
             await expect(
-                match.connect(player2).revealCards(tooMuchCardsToReveal)
+                match.connect(player2).revealCards(tooMuchCardsToReveal, [])
             ).to.be.reverted
         })
 
@@ -1138,13 +1138,13 @@ describe('Truco Match', function () {
             )
 
             // Not in reveal state
-            await expect(match.connect(player2).revealCards([])).to.be.reverted
+            await expect(match.connect(player2).revealCards([], [])).to.be.reverted
 
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
 
-            await match.connect(player2).spellEnvidoCount(22, [])
-            await match.connect(player1).spellEnvidoCount(0, [])
+            await match.connect(player2).spellEnvidoCount(22)
+            await match.connect(player1).spellEnvidoCount(0)
 
             await match.connect(player2).playCard(2, []) // 2 of Coins
             await match.connect(player1).resign()
@@ -1159,7 +1159,7 @@ describe('Truco Match', function () {
             await expect(
                 match
                     .connect(player2)
-                    .revealCards(cardsThatDoesNotSumEnvidoCountSpelledInMatch)
+                    .revealCards(cardsThatDoesNotSumEnvidoCountSpelledInMatch, [])
             ).to.be.revertedWith('Envido count from cards does not match')
         })
 
@@ -1169,13 +1169,13 @@ describe('Truco Match', function () {
             )
 
             // Not in reveal state
-            await expect(match.connect(player2).revealCards([])).to.be.reverted
+            await expect(match.connect(player2).revealCards([], [])).to.be.reverted
 
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
 
-            await match.connect(player2).spellEnvidoCount(22, [])
-            await match.connect(player1).spellEnvidoCount(0, [])
+            await match.connect(player2).spellEnvidoCount(22)
+            await match.connect(player1).spellEnvidoCount(0)
 
             await match.connect(player2).playCard(2, []) // 2 of Coins
             await match.connect(player1).resign()
@@ -1190,7 +1190,7 @@ describe('Truco Match', function () {
             ]
             await match
                 .connect(player2)
-                .revealCards(cardsThatSumEnvidoSpelledOk)
+                .revealCards(cardsThatSumEnvidoSpelledOk, [])
 
             matchState = await match.matchState()
             expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_DEAL)
@@ -1214,8 +1214,8 @@ describe('Truco Match', function () {
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
 
-            await match.connect(player2).spellEnvidoCount(22, [])
-            await match.connect(player1).spellEnvidoCount(0, [])
+            await match.connect(player2).spellEnvidoCount(22)
+            await match.connect(player1).spellEnvidoCount(0)
 
             await match.connect(player2).playCard(2, []) // 2 of Coins
             await match.connect(player1).playCard(21, []) // 1 of Swords
@@ -1284,7 +1284,7 @@ describe('Truco Match', function () {
             ]
             await match
                 .connect(player2)
-                .revealCards(cardsThatSumEnvidoSpelledOk)
+                .revealCards(cardsThatSumEnvidoSpelledOk, [])
 
             matchState = await match.matchState()
             expect(matchState.state).to.equal(MatchStateEnum.FINISHED)
