@@ -1302,7 +1302,7 @@ describe('Truco Match', function () {
         // revealedCards:<player_address>:<match_address>:<shuffling_nonce>:<card1>:<card2>:... etc
         async function getCardsEncodedForSig(
             player: SignerWithAddress,
-            match: TrucoMatch,
+            match: TrucoMatchTester,
             cards: BigNumber[]
         ) {
             const matchState = await match.matchState()
@@ -1351,7 +1351,39 @@ describe('Truco Match', function () {
                 await match
                     .connect(player1)
                     .getCardsString(player1.address, cards)
-            ).to.equal(player1.address, packed)
+            ).to.equal(packed)
+        })
+
+        it('Signature hash generation for invalid number of cards', async function () {
+            const { match, player1 } = await loadFixture(deployMatchContract)
+
+            // Empty cards
+            await expect(match.connect(player1).getCardProofToForSigning(player1.address, [])).to.be.revertedWith('Invalid number of cards')
+
+            let tooMuchCards = [BigNumber.from(1), BigNumber.from(2), BigNumber.from(3), BigNumber.from(4)]
+
+            // More than 3 cards
+            await expect(match.connect(player1).getCardProofToForSigning(player1.address, tooMuchCards)).to.be.revertedWith('Invalid number of cards')
+        })
+
+        it('Signature hash generation for plater not involved in match', async function () {
+            const { match, invalid_player} = await loadFixture(deployMatchContract)
+
+            await expect(match.connect(invalid_player).getCardProofToForSigning(invalid_player.address, [BigNumber.from(1)])).to.be.revertedWith('Address is not a player in this match')
+        })
+
+        it('Check correct hash for signature generation', async function () {
+            const { match, player1 } = await loadFixture(deployMatchContract)
+
+            const cards = [BigNumber.from(1), BigNumber.from(2)]
+
+            const packedCardsWithTemplate = await getCardsEncodedForSig(player1, match, cards)
+
+            let hash = ethers.utils.keccak256(packedCardsWithTemplate)
+
+            expect(await match.connect(player1).getCardProofToForSigning(player1.address, cards)).to.equal(
+                hash
+            )
         })
     })
 })

@@ -340,13 +340,9 @@ contract TrucoMatch {
     ) public view returns (bytes32) {
         require(
             _cards.length > 0 && _cards.length <= 3,
-            'You can only sign 3 cards maximum'
+            'Invalid number of cards'
         );
-        require(
-            _playerAddress == currentMatch.players[0] ||
-                _playerAddress == currentMatch.players[1],
-            'Player address is not valid'
-        );
+        require ( _playerAddress == currentMatch.players[0] || _playerAddress == currentMatch.players[1], "Address is not a player in this match");
 
         return keccak256(_getCardsString(_playerAddress, _cards));
     }
