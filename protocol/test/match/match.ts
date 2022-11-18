@@ -1,19 +1,17 @@
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
-import {
-    deployMatchContract,
-    deployMatchFromFactory,
-} from '../deploy-contracts'
+import { deployMatchContract } from '../deploy-contracts'
 import { deployMatchContractReadyToPlay } from './deploy-match-ready-to-play'
 
 import { MatchStateEnum } from './struct-enums'
 import { BigNumber } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { TrucoMatch } from '../../typechain-types'
+import { TrucoMatchTester } from '../../typechain-types'
 import { deployTrucoChampionsTokenContract } from '../../scripts/helpers/truco-champions-token-deploy'
 
 describe('Truco Match', function () {
+
     // Constructor tests
     describe('Constructor', function () {
         it('The player1 must be player 1. Player 2 must be address(0)', async function () {
@@ -647,17 +645,6 @@ describe('Truco Match', function () {
                 deployMatchContractReadyToPlay
             )
 
-            const { trucoChampionsToken } =
-                await deployTrucoChampionsTokenContract()
-
-            // Since game will end we Prepare SBT NFT for winner in order to logic goes through
-            await trucoChampionsToken.mint(match.address)
-
-            // Change SBT contract address to the one deployed in this test
-            await match.setTrucoChampionsTokenContractAddress(
-                trucoChampionsToken.address
-            )
-
             await match.connect(player2).spellFaltaEnvido()
             await match.connect(player1).acceptChallenge()
 
@@ -1011,36 +998,36 @@ describe('Truco Match', function () {
         })
     })
 
-    describe('Game finished', function () {
-        async function reachPointstoWin(
-            _match: TrucoMatch,
-            _winner: SignerWithAddress,
-            _loser: SignerWithAddress
-        ) {
-            await _match.connect(_winner).spellFaltaEnvido()
-            await _match.connect(_loser).acceptChallenge()
+    describe('Match finished', function () {
 
-            await _match.connect(_winner).spellEnvidoCount(22)
-            await _match.connect(_loser).spellEnvidoCount(0)
+        async function reachPointsToWin(_match: TrucoMatchTester, _winner: SignerWithAddress, _loser: SignerWithAddress) {
+            let loserIdx: BigNumber = await _match
+                .connect(_loser)
+                .currentPlayerIdx()
+            let winnerIdx: BigNumber = await _match
+                .connect(_winner)
+                .currentPlayerIdx()
 
-            await _match.connect(_winner).playCard(2) // 2 of Coins
-            await _match.connect(_loser).playCard(1) // 1 of Coins
+            let currentMatch = await _match.currentMatch()
 
-            await _match.connect(_winner).playCard(8) // 10 of Coins
+            // End game
+            await _match.setTeamPoints(winnerIdx, currentMatch.gameState.pointsToWin)
+            await _match.setTeamPoints(loserIdx, BigNumber.from(0))
         }
 
         // Transfer trucoins to winner
         it('Transfer trucoins to winner', async function () {
             const { match, player1, player2, trucoin } = await loadFixture(
-                deployMatchFromFactory
+                deployMatchContractReadyToPlay
             )
 
             const matchBalanceBefore = await trucoin.balanceOf(match.address)
 
-            await reachPointstoWin(match, player2, player1)
+            await reachPointsToWin(match, player2, player1)
+
             // 4 of Coins
             await expect(
-                match.connect(player1).playCard(4)
+                match.connect(player2).resign()
             ).to.changeTokenBalances(
                 trucoin,
                 [match.address, player2.address],
@@ -1050,12 +1037,12 @@ describe('Truco Match', function () {
 
         it('Game reached final state', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployMatchFromFactory
+                deployMatchContractReadyToPlay
             )
 
-            await reachPointstoWin(match, player2, player1)
+            await reachPointsToWin(match, player2, player1)
 
-            await match.connect(player1).playCard(4)
+            await match.connect(player2).resign()
 
             let matchState = await match.matchState()
 
@@ -1063,46 +1050,46 @@ describe('Truco Match', function () {
             expect(matchState.dealNonce).to.equal(BigNumber.from(1))
         })
 
-        // Assign Truco Champions Token }
+        // Assign Truco Champions Token 
         it('Assign Truco Champions Token', async function () {
             const { match, player1, player2, trucoChampionsToken } =
-                await loadFixture(deployMatchFromFactory)
+                await loadFixture(deployMatchContractReadyToPlay)
 
-            let currentMatch = await match.currentMatch()
+            await reachPointsToWin(match, player2, player1)
 
-            await reachPointstoWin(match, player2, player1)
-
-            await match.connect(player1).playCard(BigNumber.from(4))
+            await match.connect(player2).resign()
 
             const trophy = await trucoChampionsToken.getTrophyByMatch(
                 match.address
             )
+            
+            let currentMatch = await match.currentMatch()
 
             expect(trophy.winner).to.equal(player2.address)
             expect(trophy.winnerScore).to.equal(
                 BigNumber.from(currentMatch.gameState.pointsToWin)
             )
             expect(trophy.loser).to.equal(player1.address)
-            expect(trophy.loserScore).to.equal(BigNumber.from(0))
+            expect(trophy.loserScore).to.equal(BigNumber.from(1))
         })
 
         // Emit Event
         it('Emit event', async function () {
             const { match, player1, player2 } = await loadFixture(
-                deployMatchFromFactory
+                deployMatchContractReadyToPlay
             )
-
-            await reachPointstoWin(match, player2, player1)
+            
+            await reachPointsToWin(match, player2, player1)
 
             let currentMatch = await match.currentMatch()
 
-            await expect(match.connect(player1).playCard(4))
+            await expect(match.connect(player2).resign())
                 .to.emit(match, 'MatchFinished')
                 .withArgs(
                     player2.address,
                     currentMatch.gameState.pointsToWin,
                     player1.address,
-                    BigNumber.from(0),
+                    BigNumber.from(1),
                     currentMatch.bet
                 )
         })

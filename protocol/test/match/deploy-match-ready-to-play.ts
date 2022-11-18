@@ -1,5 +1,20 @@
 import { ethers } from 'hardhat'
+import { deployTrucoChampionsTokenContract } from '../../scripts/helpers/truco-champions-token-deploy'
 import { deployMatchContract } from '../deploy-contracts'
+
+async function setTrucoChampionsToken(_match: TrucoMatchTester) {
+    const { trucoChampionsToken } =
+        await deployTrucoChampionsTokenContract()
+
+    // Since game will end we Prepare SBT NFT for winner in order to logic goes through
+    await trucoChampionsToken.mint(_match.address)
+
+    // Change SBT contract address to the one deployed in this test
+    await _match.setTrucoChampionsTokenContractAddress(
+        trucoChampionsToken.address
+    )
+    return trucoChampionsToken
+}
 
 export async function deployMatchContractReadyToPlay() {
     // Contracts are deployed using the first signer/account by default
@@ -8,7 +23,6 @@ export async function deployMatchContractReadyToPlay() {
     const {
         match,
         trucoin,
-        trucoChampionsToken,
         engine,
         gameStateQueries,
         bet,
@@ -24,6 +38,8 @@ export async function deployMatchContractReadyToPlay() {
 
     // Start deal
     await match.connect(player1).newDeal()
+
+    const trucoChampionsToken = await setTrucoChampionsToken(match)
 
     return {
         match,
