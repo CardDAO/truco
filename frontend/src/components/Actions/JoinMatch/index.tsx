@@ -11,7 +11,9 @@ export const JoinMatch = ({match, processingAction, setProcessingAction, setJoin
     const [ enableAction, setEnableAction ] = useState(true)
     const [allowanceClick, setAllowanceClick] = useState(false)
     const [ inProgress , setInProgress ] = useState(false)
+    const [ betValue, setBetValue ] = useState(undefined)
 
+     
     const finishProcess = useCallback(() => {
         console.log('finish process', inProgress, allowanceClick)
         setProcessingAction(false)
@@ -19,10 +21,8 @@ export const JoinMatch = ({match, processingAction, setProcessingAction, setJoin
     }, [])
 
     const initJoin = async () => {
-
         setProcessingAction(true)
         setInProgress(true)
-        setAllowanceClick(true)
         try {
             await approveTrucoins?.()
         } catch {
@@ -30,6 +30,11 @@ export const JoinMatch = ({match, processingAction, setProcessingAction, setJoin
             setInProgress(false)
         }
     }
+    useEffect(() => {
+        if (betValue > 0) {
+           setAllowanceClick(true) 
+        }
+    }, [betValue])
 
 
     // APPROVE TRUCOIN BUTTON
@@ -39,7 +44,7 @@ export const JoinMatch = ({match, processingAction, setProcessingAction, setJoin
         functionName: "approve",
         args: [
             match, // match (join player)
-            10000
+            betValue 
         ],
         //enabled: allowanceClick,
         onSuccess: (data: any) => {
@@ -162,9 +167,22 @@ export const JoinMatch = ({match, processingAction, setProcessingAction, setJoin
         <>
         {
             enableAction ?
+                <>
+                    <input
+                        value={betValue}
+                        onChange={(event) => setBetValue(event.target.value)}
+                        type="number"
+                        placeholder="Bet value for the game (wei)"
+                        className="block p-2 pl-5 w-full text-sm rounded-lg border bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                    />
                     <ActionButton clickCallback={() => {
-                        initJoin()
-                    }} text="Allowance Trucoin and Join" />
+                            if (allowanceClick) {
+                                initJoin()
+                            }
+                        }} text="Allowance Trucoin and Join" 
+                        enabled={allowanceClick}
+                    />
+                </>
             : ""
         }
         </>
