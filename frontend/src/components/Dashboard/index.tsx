@@ -29,6 +29,8 @@ import { SpellReTruco } from "../Actions/SpellReTruco"
 import { SpellEnvidoEnvido } from "../Actions/SpellEnvidoEnvido"
 import { SpellRealEnvido } from "../Actions/SpellRealEnvido"
 import { SpellValeCuatro } from "../Actions/SpellValeCuatro"
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 export const GAS_LIMIT_WRITE = process.env.GAS_LIMIT_WRITE
@@ -272,6 +274,7 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                                 }
                             </Actions>
                         </div>
+                    <ToastContainer />
                 </div>
             </div>
         </div>

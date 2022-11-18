@@ -28,12 +28,10 @@ export const useGetPlayers = (matchAddress) => {
 
     useEffect(() => {
         try {
-            console.log('is valid')
             ethers.utils.getAddress(matchAddress)
             setValidAddress(true)
             refetch({ throwOnError: false, cancelRefetch: true })
         } catch {
-            console.log('error valid')
             setValidAddress(false)
         }
     }, [matchAddress, refetch])

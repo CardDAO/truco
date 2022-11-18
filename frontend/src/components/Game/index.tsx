@@ -4,7 +4,6 @@ import { useGetPlayers } from "../../hooks/match/GetPlayers"
 import {  useAccountInformation, AccountType } from '../../hooks/providers/Wagmi'
 import { Dashboard } from "../Dashboard"
 import { DeployMatch } from "../DeployMatch"
-import { Toast } from "../Toast"
 
 const BUTTON_STYLE = "text-white focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
 
@@ -22,25 +21,23 @@ export const Game = () => {
     const goToJoin = () => {
         if (invalidAddress.length === 0) {
             setInSession(!inSession)
+            localStorage.setItem('latest_deployed_match', matchAddress)
         }
     }
 
     const verifyAndSetMatchAddress = (value: any) => {
+        setMatchAddress(value)
         try {
             if (value.length === 0) {
-                console.log('value zero')
                 setInvalidAddress("Complete for join")
             } else if (getPlayersError.length > 0) {
-                console.log('invalid players')
                 setInvalidAddress(getPlayersError)
             } else {
                 ethers.utils.getAddress(value)
                 setInvalidAddress("")
             }
             //0x8e80FFe6Dc044F4A766Afd6e5a8732Fe0977A493
-            setMatchAddress(value)
         } catch {
-            console.log('catch error invalid address')
             setInvalidAddress("Error, verifique el address del match")
         }
     }
@@ -70,7 +67,7 @@ export const Game = () => {
                         !processingAction ?
                             <>
                                 <div>
-                                    <input placeholder="Match Addresss (empty to deploy)" type="text" onChange={(e) => verifyAndSetMatchAddress(e.target.value)} className="block p-2 w-full rounded-lg border sm:text-xs bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 my-5" />
+                                    <input placeholder="Match Addresss (empty to deploy)" value={matchAddress} type="text" onChange={(e) => verifyAndSetMatchAddress(e.target.value)} className="block p-2 w-full rounded-lg border sm:text-xs bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 my-5" />
                                 </div>
                                 <button type="button" className={ invalidAddress ? BUTTON_STYLE + " bg-gray-400" : BUTTON_STYLE + " bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl" } onClick={goToJoin}>Join game</button>
                                 <p className="text-sm text-red-500">{invalidAddress ?? ""}</p>
@@ -91,7 +88,6 @@ export const Game = () => {
                     />
             }
 
-            <Toast />
         </>
     )
 }

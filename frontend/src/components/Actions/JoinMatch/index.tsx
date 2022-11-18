@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from "react"
-import { BigNumber } from "ethers"
+import { BigNumber, ethers } from "ethers"
 import { Interface } from "ethers/lib/utils"
 import { useContractRead, useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi"
 import { ActionButton } from "../Button"
 import { GAS_LIMIT_WRITE } from "../../Dashboard"
+import { ToastContainer, toast } from 'react-toastify';
 
 export const JoinMatch = ({match, processingAction, setProcessingAction, setJoined}: any) => {
 
@@ -42,13 +43,11 @@ export const JoinMatch = ({match, processingAction, setProcessingAction, setJoin
         ],
         //enabled: allowanceClick,
         onSuccess: (data: any) => {
-            console.log('approve trucoins for join', data, inProgress)
             if (inProgress) { 
                 finishProcess()
             }
         },
         onError: (error: Error) => {
-            console.log('error approve trucoin', error)
             if (inProgress){ 
                 finishProcess()
             }
@@ -68,12 +67,9 @@ export const JoinMatch = ({match, processingAction, setProcessingAction, setJoin
             gasLimit: GAS_LIMIT_WRITE
         },
         onSuccess: (data) => {
-            console.log('can join')
             //setGoToSpell(false)
         },
         onError: (err: Error) => {
-            console.log('errorrrr')
-            console.log('test join FALSE -> hide', err)
             if (inProgress) { 
                 finishProcess()
             }
@@ -145,26 +141,30 @@ export const JoinMatch = ({match, processingAction, setProcessingAction, setJoin
 
     useEffect(() => {
         if (approveError || joinError) {
-            console.log('finsih')
+
+            toast.error(`🦄 Error: ${approveError ? approveError?.message : joinError?.message}`, {
+                position: "bottom-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
+
             finishProcess()
         }
-        console.log('approve or algo error', approveError, joinError)
 
     }, [approveError, joinError])
 
     return (
         <>
         {
-            joinError ? 
-            <p>{joinError?.message}</p>
-            :
-            ""
-        }
-        {
             enableAction ?
                     <ActionButton clickCallback={() => {
                         initJoin()
-                    }} text="Join Allowance Trucoin" />
+                    }} text="Allowance Trucoin and Join" />
             : ""
         }
         </>
