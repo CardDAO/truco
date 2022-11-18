@@ -1330,7 +1330,7 @@ describe('Truco Match', function () {
         }
 
         it('Check template generation for 1 card', async function () {
-            const { match, player1 } = await loadFixture(deployMatchContract)
+            const {match, player1} = await loadFixture(deployMatchContract)
             const card = BigNumber.from(1)
 
             let packed = await getCardsEncodedForSig(player1, match, [card])
@@ -1342,7 +1342,7 @@ describe('Truco Match', function () {
         })
 
         it('Check template generation for 2 cards', async function () {
-            const { match, player1 } = await loadFixture(deployMatchContract)
+            const {match, player1} = await loadFixture(deployMatchContract)
 
             const cards = [BigNumber.from(1), BigNumber.from(2)]
 
@@ -1355,7 +1355,7 @@ describe('Truco Match', function () {
         })
 
         it('Signature hash generation for invalid number of cards', async function () {
-            const { match, player1 } = await loadFixture(deployMatchContract)
+            const {match, player1} = await loadFixture(deployMatchContract)
 
             // Empty cards
             await expect(
@@ -1380,7 +1380,7 @@ describe('Truco Match', function () {
         })
 
         it('Signature hash generation for plater not involved in match', async function () {
-            const { match, invalid_player } = await loadFixture(
+            const {match, invalid_player} = await loadFixture(
                 deployMatchContract
             )
 
@@ -1394,7 +1394,7 @@ describe('Truco Match', function () {
         })
 
         it('Check correct hash for signature generation', async function () {
-            const { match, player1 } = await loadFixture(deployMatchContract)
+            const {match, player1} = await loadFixture(deployMatchContract)
 
             const cards = [BigNumber.from(1), BigNumber.from(2)]
 
@@ -1414,7 +1414,7 @@ describe('Truco Match', function () {
         })
 
         it('Play a card', async function () {
-            const { match, player1 } = await loadFixture(deployMatchContract)
+            const {match, player1} = await loadFixture(deployMatchContract)
 
             const cards = [BigNumber.from(1), BigNumber.from(2)]
 
@@ -1434,19 +1434,179 @@ describe('Truco Match', function () {
         })
 
         it('Play a card with signature check', async function () {
-            const { match, player1, player2 } = await loadFixture(
+            const {match, player2} = await loadFixture(
                 deployMatchContractReadyToPlay
             )
 
             const cardToPlay: BigNumber = BigNumber.from(1) // 1 of Coins
 
-            const proofToSign = await match
-                .connect(player2)
-                .getCardProofToForSigning(player2.address, [cardToPlay])
+            const proofToSign = await match.getCardProofToForSigning(player2.address, [cardToPlay])
 
-            const signedProof = player2.signMessage(proofToSign)
+            // Convert DataHexString representation obtained from getCardProofToForSigning to Uint8Array
+            // This is because ethers.utils.signMessage checks for argument type, and if it's not `Bytes` it will treat
+            // it as if it's a string a do a toUtf8Bytes() conversion, which is not what we want
+            // See important note in doc
+            // @see https://docs.ethers.io/v5/api/signer/#Signer-signMessage
+            let arrayed = ethers.utils.arrayify(proofToSign)
+
+            const signedProof = await player2.signMessage(arrayed)
 
             await match.connect(player2).playCard(cardToPlay, signedProof)
+
+            let playedCards = await match.getRevealedCards()
+
+            let player2Idx: BigNumber = await match
+                .connect(player2)
+                .currentPlayerIdx()
+
+            expect(playedCards[player2Idx][0]).to.equal(cardToPlay)
+        })
+
+
+        it('Play a card with signature for a differnt card', async function () {
+            const {match, player2} = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            const cardToPlay: BigNumber = BigNumber.from(1) // 1 of Coins
+            const cardSigned: BigNumber = BigNumber.from(2) // 2 of Coins
+
+            const proofToSign = await match.getCardProofToForSigning(player2.address, [cardSigned])
+            let arrayed = ethers.utils.arrayify(proofToSign)
+            const signedProof = await player2.signMessage(arrayed)
+
+            await expect(match.connect(player2).playCard(cardToPlay, signedProof)).to.be.revertedWith('Invalid signature')
+        })
+
+        it('Play a card with signature from different player, who is acting as IV', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+            const cardToPlay: BigNumber = BigNumber.from(1) // 1 of Coins
+
+            const proofToSign = await match.getCardProofToForSigning(player2.address, [cardToPlay])
+
+            let arrayed = ethers.utils.arrayify(proofToSign)
+
+            // Different player signs
+            const signedProof = await player1.signMessage(arrayed)
+
+            await match.connect(player2).playCard(cardToPlay, signedProof)
+
+            let playedCards = await match.getRevealedCards()
+
+            let player2Idx: BigNumber = await match
+                .connect(player2)
+                .currentPlayerIdx()
+
+            expect(playedCards[player2Idx][0]).to.equal(cardToPlay)
+        })
+
+        it('Play a card with signature check signed from address which is not part of the match', async function () {
+            const { match, invalid_player, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            const cardToPlay: BigNumber = BigNumber.from(1) // 1 of Coins
+
+            const proofToSign = await match.getCardProofToForSigning(player2.address, [cardToPlay])
+
+            let arrayed = ethers.utils.arrayify(proofToSign)
+
+            const signedProof = await invalid_player.signMessage(arrayed)
+
+            await expect(match.connect(player2).playCard(cardToPlay, signedProof)).to.be.revertedWith('Invalid signature')
+
+            let playedCards = await match.getRevealedCards()
+
+            let player2Idx: BigNumber = await match
+                .connect(player2)
+                .currentPlayerIdx()
+
+            expect(playedCards[player2Idx][0]).to.not.equal(cardToPlay)
+        })
+
+
+        it('Reveal envido cards', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            let player2Idx: BigNumber = await match
+                .connect(player2)
+                .currentPlayerIdx()
+
+            let currentMatch = await match.currentMatch()
+            await match.setTeamPoints(
+                player2Idx,
+                currentMatch.gameState.pointsToWin - 2
+            )
+
+            await match.connect(player2).spellEnvido()
+            await match.connect(player1).acceptChallenge()
+
+            await match.connect(player2).spellEnvidoCount(22)
+            await match.connect(player1).spellEnvidoCount(0)
+
+            await match.connect(player2).playCard(2, []) // 2 of Coins
+            await match.connect(player1).resign()
+
+            // Check that match is in reveal card state
+            let matchState = await match.matchState()
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_REVEAL)
+
+            // 2 of Coins and 10 of Coins should sum 22
+            let cardsThatSumEnvidoSpelledOk = [
+                BigNumber.from(2),
+                BigNumber.from(8),
+            ]
+
+            const revealCardsProofToSign = await match.getCardProofToForSigning(player2.address, cardsThatSumEnvidoSpelledOk)
+            const arrayed = ethers.utils.arrayify(revealCardsProofToSign)
+            const signedProof = await player2.signMessage(arrayed)
+
+            await match
+                .connect(player2)
+                .revealCards(cardsThatSumEnvidoSpelledOk, signedProof)
+
+            // Check that match is finished after reveal
+            matchState = await match.matchState()
+            expect(matchState.state).to.equal(MatchStateEnum.FINISHED)
+        })
+
+        it('Reveal different cards that do not count for spelled envido count', async function () {
+            const { match, player1, player2 } = await loadFixture(
+                deployMatchContractReadyToPlay
+            )
+
+            await match.connect(player2).spellEnvido()
+            await match.connect(player1).acceptChallenge()
+
+            await match.connect(player2).spellEnvidoCount(33)
+            await match.connect(player1).spellEnvidoCount(0)
+
+            await match.connect(player2).playCard(2, []) // 2 of Coins
+            await match.connect(player1).resign()
+
+            let matchState = await match.matchState()
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_REVEAL)
+
+            // 7 of Coins and 10 of Coins should sum 27 and do not match
+            let cardsThatDoNotCountForEnvido = [
+                BigNumber.from(7),
+                BigNumber.from(8),
+            ]
+
+            const revealCardsProofToSign = await match.getCardProofToForSigning(player2.address, cardsThatDoNotCountForEnvido)
+            const arrayed = ethers.utils.arrayify(revealCardsProofToSign)
+            const signedProof = await player2.signMessage(arrayed)
+
+            await expect(match
+                .connect(player2)
+                .revealCards(cardsThatDoNotCountForEnvido, signedProof)).to.be.revertedWith('Envido count from cards does not match')
+
+            matchState = await match.matchState()
+            expect(matchState.state).to.equal(MatchStateEnum.WAITING_FOR_REVEAL)
         })
     })
 })

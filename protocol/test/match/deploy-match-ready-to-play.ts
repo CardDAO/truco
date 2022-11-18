@@ -17,7 +17,7 @@ async function setTrucoChampionsToken(_match: TrucoMatchTester) {
 
 export async function deployMatchContractReadyToPlay() {
     // Contracts are deployed using the first signer/account by default
-    const [player1, player2] = await ethers.getSigners()
+    const [player1, player2, invalid_player] = await ethers.getSigners()
 
     const { match, trucoin, engine, gameStateQueries, bet } =
         await deployMatchContract()
@@ -43,5 +43,6 @@ export async function deployMatchContractReadyToPlay() {
         gameStateQueries,
         trucoin,
         trucoChampionsToken,
+        invalid_player
     }
 }
