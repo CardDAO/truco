@@ -1330,7 +1330,7 @@ describe('Truco Match', function () {
         }
 
         it('Check template generation for 1 card', async function () {
-            const {match, player1} = await deployMatchContract()
+            const { match, player1 } = await deployMatchContract()
             const card = BigNumber.from(1)
 
             let packed = await getCardsEncodedForSig(player1, match, [card])
@@ -1342,7 +1342,7 @@ describe('Truco Match', function () {
         })
 
         it('Check template generation for 2 cards', async function () {
-            const {match, player1} = await deployMatchContract()
+            const { match, player1 } = await deployMatchContract()
 
             const cards = [BigNumber.from(1), BigNumber.from(2)]
 
@@ -1355,7 +1355,7 @@ describe('Truco Match', function () {
         })
 
         it('Signature hash generation for invalid number of cards', async function () {
-            const {match, player1} = await deployMatchContract()
+            const { match, player1 } = await deployMatchContract()
 
             // Empty cards
             await expect(
@@ -1380,8 +1380,7 @@ describe('Truco Match', function () {
         })
 
         it('Signature hash generation for plater not involved in match', async function () {
-            const {match, invalid_player} = await deployMatchContract()
-
+            const { match, invalid_player } = await deployMatchContract()
 
             await expect(
                 match
@@ -1393,7 +1392,7 @@ describe('Truco Match', function () {
         })
 
         it('Check correct hash for signature generation', async function () {
-            const {match, player1} = await deployMatchContract()
+            const { match, player1 } = await deployMatchContract()
 
             const cards = [BigNumber.from(1), BigNumber.from(2)]
 
@@ -1433,7 +1432,7 @@ describe('Truco Match', function () {
         })
 
         it('Play a card with signature check', async function () {
-            const {match, player2} = await deployMatchContractReadyToPlay()
+            const { match, player2 } = await deployMatchContractReadyToPlay()
 
             const cardToPlay: BigNumber = BigNumber.from(1) // 1 of Coins
 
@@ -1465,7 +1464,6 @@ describe('Truco Match', function () {
         it('Play a card with signature for a differnt card', async function () {
             const { match, player2 } = deployMatchContractReadyToPlay()
 
-
             const cardToPlay: BigNumber = BigNumber.from(1) // 1 of Coins
             const cardSigned: BigNumber = BigNumber.from(2) // 2 of Coins
 
@@ -1482,7 +1480,8 @@ describe('Truco Match', function () {
         })
 
         it('Play a card with signature from different player, who is acting as IV', async function () {
-            const { match, player1, player2 } = await deployMatchContractReadyToPlay()
+            const { match, player1, player2 } =
+                await deployMatchContractReadyToPlay()
 
             const cardToPlay: BigNumber = BigNumber.from(1) // 1 of Coins
 
@@ -1508,7 +1507,8 @@ describe('Truco Match', function () {
         })
 
         it('Play a card with signature check signed from address which is not part of the match', async function () {
-            const { match, invalid_player, player2 } = await deployMatchContractReadyToPlay()
+            const { match, invalid_player, player2 } =
+                await deployMatchContractReadyToPlay()
 
             const cardToPlay: BigNumber = BigNumber.from(1) // 1 of Coins
 
@@ -1583,7 +1583,8 @@ describe('Truco Match', function () {
         })
 
         it('Reveal different cards that do not count for spelled envido count', async function () {
-            const { match, player1, player2 } = await deployMatchContractReadyToPlay()
+            const { match, player1, player2 } =
+                await deployMatchContractReadyToPlay()
 
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
