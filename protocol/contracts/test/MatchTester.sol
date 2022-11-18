@@ -63,7 +63,11 @@ contract TrucoMatchTester is TrucoMatch {
         TCT = _TCT;
     }
 
-    function getCardsString(uint8[] memory _cards) public view returns (bytes memory) {
+    function getCardsString(uint8[] memory _cards)
+        public
+        view
+        returns (bytes memory)
+    {
         return _getCardsString(_cards);
     }
 }

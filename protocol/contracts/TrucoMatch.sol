@@ -204,8 +204,9 @@ contract TrucoMatch {
 
     // IV signature proof method
     function revealCards(uint8[] memory _cards, bytes memory signature)
-    public
-    virtual {
+        public
+        virtual
+    {
         _validateSignature(getCardProofToForSigning(_cards), signature);
         _revealCards(_cards);
     }
@@ -327,31 +328,41 @@ contract TrucoMatch {
         }
     }
 
-    function getCardProofToForSigning(uint8[] memory _cards) public view returns (bytes32) {
-
-        require (_cards.length > 0 && _cards.length <= 3, "You can only sign 3 cards maximum");
+    function getCardProofToForSigning(uint8[] memory _cards)
+        public
+        view
+        returns (bytes32)
+    {
+        require(
+            _cards.length > 0 && _cards.length <= 3,
+            'You can only sign 3 cards maximum'
+        );
 
         return keccak256(_getCardsString(_cards));
     }
 
     // INTERNAL METHODS -------------------------------------------------------------------------
 
-
     // Get cards abi encoded representation for cards to sign
     // IV template:
     // revealedCards:<player_address>:<match_address>:<shuffling_nonce>:<card1>:<card2>:... etc
-    function _getCardsString(uint8[] memory _cards) internal view returns (bytes memory) {
-
+    function _getCardsString(uint8[] memory _cards)
+        internal
+        view
+        returns (bytes memory)
+    {
         bytes memory encodedCards;
 
         for (uint8 i = 0; i < _cards.length; i++) {
-            encodedCards = abi.encodePacked(encodedCards, ':', _cards[i] );
+            encodedCards = abi.encodePacked(encodedCards, ':', _cards[i]);
         }
 
         bytes memory sigToHash = abi.encodePacked(
             'revealedCards:',
-            msg.sender,':',
-            address(this),':',
+            msg.sender,
+            ':',
+            address(this),
+            ':',
             matchState.dealNonce,
             encodedCards
         );
@@ -385,11 +396,11 @@ contract TrucoMatch {
         require(_getPlayerIdx() == envidoWinner, 'Not envido winner');
 
         uint8 envidoCountFromPlayerCards = gameStateQueries
-        .getEnvidoPointsForCards(_cards);
+            .getEnvidoPointsForCards(_cards);
 
         require(
             envidoCountFromPlayerCards ==
-            currentMatch.gameState.envido.playerCount[envidoWinner],
+                currentMatch.gameState.envido.playerCount[envidoWinner],
             'Envido count from cards does not match'
         );
 
@@ -649,10 +660,10 @@ contract TrucoMatch {
         );
     }
 
-    function _validateSignature(
-        bytes32 hash,
-        bytes memory signature
-    ) internal view {
+    function _validateSignature(bytes32 hash, bytes memory signature)
+        internal
+        view
+    {
         address[2] memory players = getPlayers();
         address signer = hash.getSigner(signature);
         require(

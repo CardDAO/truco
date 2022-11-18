@@ -1107,7 +1107,8 @@ describe('Truco Match', function () {
             )
 
             // Not in reveal state
-            await expect(match.connect(player2).revealCards([], [])).to.be.reverted
+            await expect(match.connect(player2).revealCards([], [])).to.be
+                .reverted
 
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
@@ -1138,7 +1139,8 @@ describe('Truco Match', function () {
             )
 
             // Not in reveal state
-            await expect(match.connect(player2).revealCards([], [])).to.be.reverted
+            await expect(match.connect(player2).revealCards([], [])).to.be
+                .reverted
 
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
@@ -1159,7 +1161,10 @@ describe('Truco Match', function () {
             await expect(
                 match
                     .connect(player2)
-                    .revealCards(cardsThatDoesNotSumEnvidoCountSpelledInMatch, [])
+                    .revealCards(
+                        cardsThatDoesNotSumEnvidoCountSpelledInMatch,
+                        []
+                    )
             ).to.be.revertedWith('Envido count from cards does not match')
         })
 
@@ -1169,7 +1174,8 @@ describe('Truco Match', function () {
             )
 
             // Not in reveal state
-            await expect(match.connect(player2).revealCards([], [])).to.be.reverted
+            await expect(match.connect(player2).revealCards([], [])).to.be
+                .reverted
 
             await match.connect(player2).spellEnvido()
             await match.connect(player1).acceptChallenge()
@@ -1291,48 +1297,57 @@ describe('Truco Match', function () {
         })
     })
     describe('IV Signature', function () {
-
         // Returns encoded message to be signed following common template
         // IV template:
         // revealedCards:<player_address>:<match_address>:<shuffling_nonce>:<card1>:<card2>:... etc
-        async function getCardsEncodedForSig(player: SignerWithAddress, match: TrucoMatch, cards: BigNumber[]) {
+        async function getCardsEncodedForSig(
+            player: SignerWithAddress,
+            match: TrucoMatch,
+            cards: BigNumber[]
+        ) {
             const matchState = await match.matchState()
 
-            let packedBytes = ethers.utils.solidityPack(['string','address','string','address','string', 'uint8'], [
-                'revealedCards:',
-                player.address, ':',
-                match.address, ':',
-                matchState.dealNonce
-            ])
+            let packedBytes = ethers.utils.solidityPack(
+                ['string', 'address', 'string', 'address', 'string', 'uint8'],
+                [
+                    'revealedCards:',
+                    player.address,
+                    ':',
+                    match.address,
+                    ':',
+                    matchState.dealNonce,
+                ]
+            )
 
             cards.map((card) => {
-                packedBytes = ethers.utils.solidityPack(['bytes', 'string', 'uint8'], [packedBytes, ':', card])
-            });
+                packedBytes = ethers.utils.solidityPack(
+                    ['bytes', 'string', 'uint8'],
+                    [packedBytes, ':', card]
+                )
+            })
 
-            return packedBytes;
+            return packedBytes
         }
 
         it('Check template generation for 1 card', async function () {
-
-            const {match, player1} = await loadFixture(
-                deployMatchContract
-            )
+            const { match, player1 } = await loadFixture(deployMatchContract)
             const card = BigNumber.from(1)
 
             let packed = await getCardsEncodedForSig(player1, match, [card])
-            expect(await match.connect(player1).getCardsString([card])).to.equal(packed);
+            expect(
+                await match.connect(player1).getCardsString([card])
+            ).to.equal(packed)
         })
 
         it('Check template generation for 2 cards', async function () {
-
-            const {match, player1} = await loadFixture(
-                deployMatchContract
-            )
+            const { match, player1 } = await loadFixture(deployMatchContract)
 
             const cards = [BigNumber.from(1), BigNumber.from(2)]
 
             let packed = await getCardsEncodedForSig(player1, match, cards)
-            expect(await match.connect(player1).getCardsString(cards)).to.equal(packed);
+            expect(await match.connect(player1).getCardsString(cards)).to.equal(
+                packed
+            )
         })
     })
 })
