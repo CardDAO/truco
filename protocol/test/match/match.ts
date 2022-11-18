@@ -174,10 +174,12 @@ describe('Truco Match', function () {
             await match.connect(player1).playCard(BigNumber.from(4), [])
 
             await match.connect(player2).playCard(BigNumber.from(2), [])
-            await expect(match.connect(player1).playCard(BigNumber.from(5), [])).to.emit(
-                match,
-                'NewDealRequired'
-            ).withArgs(player2.address, BigNumber.from(originalMatchState.dealNonce).add(1))
+            await expect(match.connect(player1).playCard(BigNumber.from(5), []))
+                .to.emit(match, 'NewDealRequired')
+                .withArgs(
+                    player2.address,
+                    BigNumber.from(originalMatchState.dealNonce).add(1)
+                )
 
             let matchState = await match.matchState()
 

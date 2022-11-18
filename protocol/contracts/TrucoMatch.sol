@@ -529,7 +529,9 @@ contract TrucoMatch {
     // Change state and emit event to signal for new shuffling requirement
     function _changeMatchStateToWaitingForDeal() internal {
         // Emit event
-        address newShuffler = currentMatch.players[currentMatch.gameState.playerWhoShuffled ^ 1];
+        address newShuffler = currentMatch.players[
+            currentMatch.gameState.playerWhoShuffled ^ 1
+        ];
         emit NewDealRequired(newShuffler, matchState.dealNonce + 1);
         matchState.state = MatchStateEnum.WAITING_FOR_DEAL;
     }
