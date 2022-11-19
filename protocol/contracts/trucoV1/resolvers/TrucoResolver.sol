@@ -120,7 +120,7 @@ contract TrucoResolver is Initializable, OwnableUpgradeable {
             }
 
             // If it's an acceptance, points are overriden with the challenge points
-            _gameState.currentChallenge.pointsAtStake = pointsPerChallenge(
+            _gameState.currentChallenge.pointsAtStake = _pointsPerChallenge(
                 _gameState.currentChallenge.challenge
             );
 
@@ -136,15 +136,15 @@ contract TrucoResolver is Initializable, OwnableUpgradeable {
             );
 
             // Card should be valid
-            require(isValidCard(_move.parameters[0]));
+            require(_isValidCard(_move.parameters[0]));
 
-            uint8 slot = findRoundIdOrFail(
+            uint8 slot = _findRoundIdOrFail(
                 _gameState.revealedCardsByPlayer[_gameState.playerTurn]
             );
 
             // Check card is not repeated
             require(
-                cardNotRepeated(
+                _cardNotRepeated(
                     _gameState.revealedCardsByPlayer,
                     _move.parameters[0]
                 )
@@ -244,7 +244,7 @@ contract TrucoResolver is Initializable, OwnableUpgradeable {
 
         // If it's a tie in the third round, "mano" wins
         if (round3Winner < 0) {
-            return reversePlayer(_gameState.playerWhoShuffled);
+            return _reversePlayer(_gameState.playerWhoShuffled);
         }
 
         return uint8(round3Winner);
@@ -275,7 +275,7 @@ contract TrucoResolver is Initializable, OwnableUpgradeable {
         pure
         returns (int8)
     {
-        uint8[41] memory cardsHierachy = getCardsHierarchy();
+        uint8[41] memory cardsHierachy = _getCardsHierarchy();
         uint8 cardPlayer0AtCurrentRound = _revealedCards[0][_roundId];
         uint8 cardPlayer1AtCurrentRound = _revealedCards[1][_roundId];
 
@@ -294,27 +294,6 @@ contract TrucoResolver is Initializable, OwnableUpgradeable {
         }
 
         return int8(1);
-    }
-
-    function reversePlayer(uint8 _player) internal pure returns (uint8) {
-        return _player ^ 1;
-    }
-
-    // Check if card is not repeated in the array
-    function cardNotRepeated(uint8[3][] memory _revealedCards, uint8 _card)
-        internal
-        pure
-        returns (bool)
-    {
-        for (uint8 i = 0; i < _revealedCards.length; i++) {
-            for (uint8 j = 0; j < _revealedCards[i].length; j++) {
-                if (_revealedCards[i][j] == _card) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
     }
 
     // Get current round id at play
@@ -372,8 +351,29 @@ contract TrucoResolver is Initializable, OwnableUpgradeable {
         return 1;
     }
 
+    function _reversePlayer(uint8 _player) internal pure returns (uint8) {
+        return _player ^ 1;
+    }
+
+    // Check if card is not repeated in the array
+    function _cardNotRepeated(uint8[3][] memory _revealedCards, uint8 _card)
+        internal
+        pure
+        returns (bool)
+    {
+        for (uint8 i = 0; i < _revealedCards.length; i++) {
+            for (uint8 j = 0; j < _revealedCards[i].length; j++) {
+                if (_revealedCards[i][j] == _card) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     // Return points that should be at stake for a given challenge
-    function pointsPerChallenge(IERC3333.Challenge challenge)
+    function _pointsPerChallenge(IERC3333.Challenge challenge)
         internal
         pure
         returns (uint8)
@@ -394,12 +394,12 @@ contract TrucoResolver is Initializable, OwnableUpgradeable {
     }
 
     // Check if it's a valid card representation
-    function isValidCard(uint8 _card) internal pure returns (bool) {
+    function _isValidCard(uint8 _card) internal pure returns (bool) {
         return _card >= 1 && _card <= 41;
     }
 
     // Find first round slot available for a player to play a card
-    function findRoundIdOrFail(uint8[3] memory _playerRounds)
+    function _findRoundIdOrFail(uint8[3] memory _playerRounds)
         internal
         pure
         returns (uint8)
@@ -418,7 +418,7 @@ contract TrucoResolver is Initializable, OwnableUpgradeable {
     }
 
     // @dev Card Hierarchy for Castillian Suited Card Deck, see CastillianDeck.sol (IDeck impl) for deck card definition
-    function getCardsHierarchy() internal pure returns (uint8[41] memory) {
+    function _getCardsHierarchy() internal pure returns (uint8[41] memory) {
         /*
         // Generation Code
         uint8[41] memory hierarchy;
