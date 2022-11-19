@@ -8,7 +8,6 @@ export const mint = async (_, { ethers }) => {
 
     const tx = await trucoin.mint(beneficiaryAddress, amount)
     const { events } = await tx.wait()
-    console.log('events', events)
     const event = events.find(
         (e: { event: string }) => e.event === 'Transfer'
     )
