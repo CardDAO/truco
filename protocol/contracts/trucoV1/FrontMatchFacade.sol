@@ -117,6 +117,15 @@ contract FrontMatchFacade {
         return bet;
     }
 
+    function getCurrentShuffler(TrucoMatch _contractMatch)
+        public
+        view
+        returns (address)
+    {
+        address[2] memory players = _contractMatch.getPlayers();
+        return players[_getCurrentGameState(_contractMatch).playerWhoShuffled];
+    }
+
     function _prepareMove(IERC3333.Action _action, IERC3333.Challenge _param)
         internal
         pure

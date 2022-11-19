@@ -35,7 +35,7 @@ import { GameState } from "../GameState"
 
 export const GAS_LIMIT_WRITE = process.env.GAS_LIMIT_WRITE
 export enum MatchStateEnum {
-    WAITING_FOR_PLAYERS = 0,
+    WAITING_FOR_PLAYERS,
     WAITING_FOR_DEAL,
     WAITING_FOR_PLAY,
     WAITING_FOR_REVEAL,
@@ -61,6 +61,7 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
     const [ cleanCards, setCleanCards ] = useState([])
     const [ currentEnvido, setCurrentEnvido ] = useState(0)
     const [ matchStateValue, setMatchStateValue ] = useState(undefined)
+
     
     // verify before to send
     const { data, error: errorSendMessage, isLoading, signMessage } = useSignMessage({
@@ -276,7 +277,7 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                                     </>
                                     :
                                     matchStateValue === MatchStateEnum.WAITING_FOR_DEAL ?
-                                        <NewDeal match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                        <NewDeal match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} myAddress={address} />
                                     :
                                     <>
                                         <InitCommunication signMessage={signMessage} latestNonce={latestNonce} state={state} self={selfPlayer} setState={setState} />

@@ -2,6 +2,7 @@ import { formatEther, Interface } from "ethers/lib/utils"
 import { useState } from "react"
 import { MdMoney } from "react-icons/md"
 import { useContractEvent, useContractRead } from "wagmi"
+import { MatchStateEnum } from "../Dashboard"
 
 export const GameState = ({accountAddress, matchAddress, setJoined, joined, processingAction, setProcessingAction, matchStateValue, setMatchStateValue}) => {
     const [ betValue, setBetValue ] = useState(0)
@@ -26,23 +27,7 @@ export const GameState = ({accountAddress, matchAddress, setJoined, joined, proc
        onSuccess: (data) => {
            console.log('get mAtch State', data)
            if (data.length > 1) {
-               switch(data[1]) {
-                   case 0:
-                       setMatchStateValue("WAITING_FOR_PLAYERS")
-                       break;
-                   case 1:
-                       setMatchStateValue("WAITING_FOR_DEAL")
-                       break;
-                   case 2:
-                       setMatchStateValue("WAITING_FOR_PLAY")
-                       break;
-                   case 3:
-                       setMatchStateValue("WAITING_FOR_REVEAL")
-                       break;
-                   default:
-                       setMatchStateValue("UNDEFINED")
-                       break;
-               }
+               setMatchStateValue(data[1])
            }
        }
     })
@@ -91,7 +76,7 @@ export const GameState = ({accountAddress, matchAddress, setJoined, joined, proc
         <div className="text-gray-100">
             <p className="text-md">Current bet value: {betValue} ETH</p>
             {
-                matchStateValue
+                MatchStateEnum[matchStateValue]
             }
         </div>
     )

@@ -1,20 +1,34 @@
 import { useState, useEffect } from "react"
-import { useContractRead, useContractWrite, usePrepareContractWrite } from "wagmi"
 import { ActionButton } from "../Button"
 import { GAS_LIMIT_WRITE } from "../../Dashboard"
-import { useAccountInformation } from "../../../hooks/providers/Wagmi"
 import { toast } from 'react-toastify';
 import { Interface } from "ethers/lib/utils"
+import { useContractRead, useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi"
 
 export const NewDeal = ({
-     match, processingAction, setProcessingAction }: any
+     match, processingAction, setProcessingAction, myAddress }: any
 ) => {
 
+    const [ imShuffler, setImShuffler] = useState(false)
     const [ goToSpell, setGoToSpell] = useState(false)
     const [ enableAction, setEnableAction ] = useState(false)
-    const [ canActionSuccess, setCanActionSuccess ] = useState(false)
-    const { address } = useAccountInformation()
-    //function canSpellTruco(TrucoMatch _contractMatch)
+
+    useContractRead({
+        addressOrName: process.env.FRONT_MATCH_FACADE_ADDRESS as string,
+        contractInterface: new Interface(['function getCurrentShuffler(address) public view returns (address)']),
+        functionName: 'getCurrentShuffler',
+        onSuccess: (data) => {
+            console.log('data current shuffler', data)
+            if (data && myAddress === data) {
+                setImShuffler(true)
+                refetch()
+            }
+        },
+        onError:(err: Error) => {
+            console.log('ERROR: getdata current shuffler', err)
+
+        }
+    })
 
     const { refetch, config } = usePrepareContractWrite({
         addressOrName: match, // match
@@ -25,7 +39,9 @@ export const NewDeal = ({
         },
         onSuccess: (data) => {
             console.log(`can newDeal (TRUE)`, data)
-            setEnableAction(true)
+            if (imShuffler) {
+                setEnableAction(true)
+            }
         },
         onError: (err: Error) => {
             console.log(`can't newDeal (FALSE)`, err)
@@ -33,13 +49,18 @@ export const NewDeal = ({
         }
     })
 
-    useEffect(() => {
-        if (!checkExecute || canActionSuccess) {
-            refetch()
-        }
-    }, [canActionSuccess, processingAction])
-
     const { write, error, isLoading, data } = useContractWrite(config)
+
+    useWaitForTransaction({
+        hash: data?.hash,
+        wait: data?.wait,
+        onSuccess: (data) => {
+            console.log('succes transaction newdeal', data)
+        },
+        onError: (err:Error) => {
+            console.log('ERROR transaction newdeal', err)
+        }
+    })
 
     useEffect(() => {
         if (error && goToSpell) {
@@ -61,12 +82,12 @@ export const NewDeal = ({
     return (
         <>
         {
-            enableAction && canActionSuccess ?
+            enableAction ?
                     <ActionButton clickCallback={() => {
                         setGoToSpell(true) 
                         setProcessingAction(true)
                         write?.()
-                    }} text={buttonText} />
+                    }} text="New deal" />
             : ""
         }
         </>
