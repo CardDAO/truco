@@ -29,10 +29,17 @@ import { SpellReTruco } from "../Actions/SpellReTruco"
 import { SpellEnvidoEnvido } from "../Actions/SpellEnvidoEnvido"
 import { SpellRealEnvido } from "../Actions/SpellRealEnvido"
 import { SpellValeCuatro } from "../Actions/SpellValeCuatro"
+import { NewDeal } from "../Actions/NewDeal"
 import { GameState } from "../GameState"
 
 
 export const GAS_LIMIT_WRITE = process.env.GAS_LIMIT_WRITE
+export enum MatchStateEnum {
+    WAITING_FOR_PLAYERS = 0,
+    WAITING_FOR_DEAL,
+    WAITING_FOR_PLAY,
+    WAITING_FOR_REVEAL,
+}
 
 
 const arrayToBuffer = (array: any[]) => array.map(simpleObject => Buffer.from(simpleObject.data))
@@ -53,6 +60,7 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
     const [ processingAction, setProcessingAction ] = useState(false)
     const [ cleanCards, setCleanCards ] = useState([])
     const [ currentEnvido, setCurrentEnvido ] = useState(0)
+    const [ matchStateValue, setMatchStateValue ] = useState(undefined)
     
     // verify before to send
     const { data, error: errorSendMessage, isLoading, signMessage } = useSignMessage({
@@ -214,7 +222,16 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                 <p>Deck: {deck}</p>
                 <p>cardcodewords: {cardCodewords}</p>
                 <p>status: {state}</p>
-                <GameState matchAddress={matchAddress} joined={joined} />
+                <GameState 
+                    setJoined={setJoined}
+                    accountAddress={address}
+                    matchAddress={matchAddress}
+                    joined={joined}
+                    setProcessingAction={setProcessingAction}
+                    processingAction={processingAction}
+                    matchStateValue={matchStateValue}
+                    setMatchStateValue={setMatchStateValue}
+                />
             </div>
             <div className="Game-View">
                 <div className="h-full m-2 grid grid-cols-1 grid-rows-7 text-gray-200 gap-3 justify-center h-min-50">
@@ -243,6 +260,7 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                             <Actions>
                             {
                                 matchAddress ?
+                                matchStateValue === MatchStateEnum.WAITING_FOR_PLAY ?
                                     <>
                                         <SpellTruco match={matchAddress}  setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                         <SpellReTruco match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
@@ -257,9 +275,13 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                                         <AcceptChallengeForRaising match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                     </>
                                     :
+                                    matchStateValue === MatchStateEnum.WAITING_FOR_DEAL ?
+                                        <NewDeal match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                    :
                                     <>
                                         <InitCommunication signMessage={signMessage} latestNonce={latestNonce} state={state} self={selfPlayer} setState={setState} />
                                     </>
+                                    : ""
                             }
                             </Actions>
                         </div>

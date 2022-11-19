@@ -1,14 +1,18 @@
-import { Interface } from "ethers/lib/utils"
+import { BigNumber } from "ethers"
+import { arrayify, Interface } from "ethers/lib/utils"
 import { useCallback, useEffect, useState } from "react"
-import { useContractRead, useContractWrite, usePrepareContractWrite } from "wagmi"
+import { useContractRead, useContractWrite, usePrepareContractWrite, useSignMessage } from "wagmi"
 import { CASTILLAN_CARDS } from "../../assets/castillan-cards"
+import { AccountType, useAccountInformation } from "../../hooks/providers/Wagmi"
 import { GAS_LIMIT_WRITE } from "../Dashboard"
 
 export const Card = ({ match, onChangeAction, setProcessingAction }) => {
 
     const [cardName, setCardName ] = useState("")
     const [ cleanCardIndex, setCleanCardIndex ] = useState(-1)
+    const [ signature, setSignature ] = useState("")
     const { address } : AccountType = useAccountInformation()
+    const [ inProgress, setInProgress ] = useState(false)
 
     const changeAndCallback = (event: any) => {
         setCleanCardIndex(parseInt(event.target.value))
@@ -28,33 +32,61 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
         }
     }, [cleanCardIndex])
 
+    const { error: errorToSign, signMessage } = useSignMessage({
+        onSuccess(signature: any, variables: any) {
+            console.log("firm",signature)
+            console.log("arrary before", signature)
+            setSignature(signature)
+            setGoToSpell(true)
+            console.log('go to write')
+        }
+    })
     const onWrite = () => {
+        console.log('go')
         getHashToSign().then((result) => {
-            console.log('sucess get hash for play card', result)
-            write?.()
+            console.log('sucess get hash for play card', result, result.data?.toString())
+            signMessage({
+                message: arrayify(result.data)
+            })
+            //write?.({
+            //    args: [cleanCardIndex, result.data]})
         }).catch((err: Error) => {
+            setProcessingAction(false)
             console.log('error after get hash to sign from contract', err)
         })
     }
 
     const { refetch: getHashToSign } = useContractRead({
-        addressOrName: process.env.FRONT_MATCH_FACADE_ADDRESS as string,
-        contractInterface: new Interface(["function getCardProofToForSigning(address, uint8[]) public returns (bytes32)"]),
+        addressOrName: match,
+        contractInterface: new Interface(["function getCardProofToForSigning(address, uint8[]) public view returns (bytes32)"]),
         functionName: "getCardProofToForSigning",
-        args: [address, [cleanCardIndex]]
+        enabled: inProgress,
+        args: [address, [ BigNumber.from(cleanCardIndex.toString() ??  "0")]],
+        overrides: {
+            from: address as string
+        },
+        onSuccess: (data) => {
+            console.log('we', data)
+        },
+        onError: (err: Error) => {
+            console.log('dos', err)
+        }
     })
 
     const { config } = usePrepareContractWrite({
         addressOrName: match, // match
         contractInterface: new Interface(["function playCard(uint8, bytes) public"]),
         functionName: "playCard",
-        args: [ cleanCardIndex ],
+        enabled: goToSpell,
+        staleTime: 2000,
+        args: [ BigNumber.from(cleanCardIndex.toString()), signature],
         overrides: {
             gasLimit: GAS_LIMIT_WRITE
         },
         onSuccess: (data) => {
-            console.log(`can playCard (TRUE) with card ${cleanCardIndex}`, data)
-            validateCard()
+            console.log(`can't playCard (TRUE)`, data)
+            //validateCard()
+            write?.()
         },
         onError: (err: Error) => {
             console.log(`can't playCard (FALSE)`, err)
@@ -63,17 +95,21 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
     })
 
     const { write, error, isLoading, data }= useContractWrite(config)
+
     useEffect(() => {
+        console.log('validate card')
         validateCard()
     }, [validateCard])
 
     useEffect(() => {
-        console.log('spell')
-        if (error && goToSpell) {
+        console.log('spell', error)
+        console.log('spell', errorToSign)
+        if ((error || errorToSign)) {
             setGoToSpell(false)
+            setInProgress(false)
             setProcessingAction(false)
         }
-    }, [ error, goToSpell ])
+    }, [ error, errorToSign ])
 
     return (
         <div className="relative">
@@ -82,8 +118,9 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
             {
                 enableAction ?
                     <button onClick={() => {
-                        setGoToSpell(true) 
+                    console.log('na bolo')
                         setProcessingAction(true)
+                        setInProgress(true)
                         onWrite()
                     }} className="text-white absolute right-2.5 bottom-1.5 bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-800 font-medium rounded-lg text-sm px-2 py-1">
                         PlayCard

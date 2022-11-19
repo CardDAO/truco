@@ -3,9 +3,8 @@ import { useState } from "react"
 import { MdMoney } from "react-icons/md"
 import { useContractEvent, useContractRead } from "wagmi"
 
-export const GameState = ({accountAddress, matchAddress, setJoined, joined, processingAction, setProcessingAction}) => {
+export const GameState = ({accountAddress, matchAddress, setJoined, joined, processingAction, setProcessingAction, matchStateValue, setMatchStateValue}) => {
     const [ betValue, setBetValue ] = useState(0)
-    const [ matchStateValue, setMatchStateValue ] = useState(undefined)
     useContractRead({
        addressOrName: process.env.FRONT_MATCH_FACADE_ADDRESS as string,
        contractInterface: new Interface(["function getCurrentBet(address) public view returns (uint256)"]),
@@ -20,7 +19,7 @@ export const GameState = ({accountAddress, matchAddress, setJoined, joined, proc
        }
     })
 
-    useContractRead({
+    const {refetch: refetchState} = useContractRead({
        addressOrName: matchAddress,
        contractInterface: new Interface(["function matchState() public view returns (uint256, uint8)"]),
        functionName: 'matchState',
@@ -61,7 +60,6 @@ export const GameState = ({accountAddress, matchAddress, setJoined, joined, proc
     })
 
     useContractEvent({
-        enabled: joined,
         addressOrName: matchAddress, // match factory
         contractInterface: new Interface([
             'event TurnSwitch(address indexed playerTurn)'
@@ -70,6 +68,21 @@ export const GameState = ({accountAddress, matchAddress, setJoined, joined, proc
         listener: (event) => {
             setProcessingAction(true)
             console.log('turn switched event, change', event)
+            refetchState()
+            setProcessingAction(false)
+        },
+    })
+
+    useContractEvent({
+        addressOrName: matchAddress, // match factory
+        contractInterface: new Interface([
+            'event MatchStarted(address indexed player1, address indexed player2, uint256 bet)'
+        ]),
+        eventName: 'MatchStarted',
+        listener: (event) => {
+            setProcessingAction(true)
+            refetchState()
+            console.log('match start event, change', event)
             setProcessingAction(false)
         },
     })
