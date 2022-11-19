@@ -8,6 +8,7 @@ import { MatchStateEnum } from "../Dashboard"
 export const GameState = ({accountAddress, matchAddress, setJoined, joined, processingAction, setProcessingAction, matchStateValue, setMatchStateValue}) => {
     //const [ betValue, setBetValue ] = useState(0)
     const {currentBetValue: betValue} = useCurrentBet(matchAddress)
+    const [playerTurn, setPlayerTurn] = useState(undefined)
 
     const {refetch: refetchState} = useContractRead({
        addressOrName: matchAddress,
@@ -42,6 +43,9 @@ export const GameState = ({accountAddress, matchAddress, setJoined, joined, proc
         listener: (event) => {
             setProcessingAction(true)
             console.log('turn switched event, change', event)
+            if (event) {
+                setPlayerTurn(event[0])
+            }
             refetchState()
             setProcessingAction(false)
         },
@@ -78,9 +82,18 @@ export const GameState = ({accountAddress, matchAddress, setJoined, joined, proc
     return (
         <div className="text-gray-100">
             <p className="text-md">Current bet value: {betValue} Weis</p>
+            <p>
             {
                 MatchStateEnum[matchStateValue]
             }
+            </p>
+            <p>
+                {
+                    playerTurn === accountAddress ?
+                        "YOUR TURN" : playerTurn
+                }
+            </p>
+            
         </div>
     )
 }

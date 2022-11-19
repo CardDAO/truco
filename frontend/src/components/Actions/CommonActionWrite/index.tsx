@@ -28,6 +28,7 @@ export const CommonActionWrite = ({
            from: address as string
        },
        onSuccess: (data) => {
+           console.log('result call can',data)
            if (data) {
                setCanActionSuccess(true)
            }

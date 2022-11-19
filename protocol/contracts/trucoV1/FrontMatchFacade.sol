@@ -126,6 +126,14 @@ contract FrontMatchFacade {
         return players[_getCurrentGameState(_contractMatch).playerWhoShuffled];
     }
 
+    function getCurrentChallenge(TrucoMatch _contractMatch)
+        public
+        view
+        returns (uint256)
+    {
+
+        return uint256(_getCurrentGameState(_contractMatch).currentChallenge.challenge);
+   }
     function _prepareMove(IERC3333.Action _action, IERC3333.Challenge _param)
         internal
         pure
