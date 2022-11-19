@@ -1,18 +1,26 @@
 import { useState, useEffect, useCallback } from "react"
 import { BigNumber, ethers } from "ethers"
 import { Interface } from "ethers/lib/utils"
-import { useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi"
+import { useContractRead, useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi"
 import { ActionButton } from "../Button"
 import { GAS_LIMIT_WRITE } from "../../Dashboard"
 import { ToastContainer, toast } from 'react-toastify';
+import { useCurrentBet } from "../../../hooks/match/GetCurrentBet"
 
 export const JoinMatch = ({match, processingAction, setProcessingAction, setJoined}: any) => {
 
     const [ enableAction, setEnableAction ] = useState(true)
     const [allowanceClick, setAllowanceClick] = useState(false)
     const [ inProgress , setInProgress ] = useState(false)
+    const {currentBetValue} = useCurrentBet(match)
     const [ betValue, setBetValue ] = useState(undefined)
 
+    useEffect(() => {
+        if((!betValue || betValue === 0) && currentBetValue) {
+            setBetValue(currentBetValue)
+             
+        }
+    }, [betValue, currentBetValue])
      
     const finishProcess = useCallback(() => {
         console.log('finish process', inProgress, allowanceClick)
@@ -35,6 +43,7 @@ export const JoinMatch = ({match, processingAction, setProcessingAction, setJoin
            setAllowanceClick(true) 
         }
     }, [betValue])
+
 
 
     // APPROVE TRUCOIN BUTTON

@@ -17,11 +17,13 @@ export const NewDeal = ({
         addressOrName: process.env.FRONT_MATCH_FACADE_ADDRESS as string,
         contractInterface: new Interface(['function getCurrentShuffler(address) public view returns (address)']),
         functionName: 'getCurrentShuffler',
+        args: [match],
         onSuccess: (data) => {
             console.log('data current shuffler', data)
             if (data && myAddress === data) {
+                console.log('im shuffler')
                 setImShuffler(true)
-                refetch()
+                
             }
         },
         onError:(err: Error) => {
@@ -40,6 +42,7 @@ export const NewDeal = ({
         onSuccess: (data) => {
             console.log(`can newDeal (TRUE)`, data)
             if (imShuffler) {
+                console.log('im shuffler, set enable')
                 setEnableAction(true)
             }
         },
@@ -61,6 +64,13 @@ export const NewDeal = ({
             console.log('ERROR transaction newdeal', err)
         }
     })
+
+    useEffect(() => {
+        if (imShuffler) {
+            refetch()
+        }
+    }, [imShuffler, refetch])
+
 
     useEffect(() => {
         if (error && goToSpell) {

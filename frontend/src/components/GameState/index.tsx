@@ -2,23 +2,12 @@ import { formatEther, Interface } from "ethers/lib/utils"
 import { useState } from "react"
 import { MdMoney } from "react-icons/md"
 import { useContractEvent, useContractRead } from "wagmi"
+import { useCurrentBet } from "../../hooks/match/GetCurrentBet"
 import { MatchStateEnum } from "../Dashboard"
 
 export const GameState = ({accountAddress, matchAddress, setJoined, joined, processingAction, setProcessingAction, matchStateValue, setMatchStateValue}) => {
-    const [ betValue, setBetValue ] = useState(0)
-    useContractRead({
-       addressOrName: process.env.FRONT_MATCH_FACADE_ADDRESS as string,
-       contractInterface: new Interface(["function getCurrentBet(address) public view returns (uint256)"]),
-       functionName: 'getCurrentBet',
-       args: [matchAddress],
-       onSuccess: (data) => {
-           if (data) {
-               console.log('bet value data', data)
-               setBetValue(formatEther(data))
-
-           }
-       }
-    })
+    //const [ betValue, setBetValue ] = useState(0)
+    const {currentBetValue: betValue} = useCurrentBet(matchAddress)
 
     const {refetch: refetchState} = useContractRead({
        addressOrName: matchAddress,
@@ -74,7 +63,7 @@ export const GameState = ({accountAddress, matchAddress, setJoined, joined, proc
     
     return (
         <div className="text-gray-100">
-            <p className="text-md">Current bet value: {betValue} ETH</p>
+            <p className="text-md">Current bet value: {betValue} Weis</p>
             {
                 MatchStateEnum[matchStateValue]
             }
