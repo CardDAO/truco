@@ -60,6 +60,20 @@ export const GameState = ({accountAddress, matchAddress, setJoined, joined, proc
             setProcessingAction(false)
         },
     })
+
+    useContractEvent({
+        addressOrName: matchAddress, // match factory
+        contractInterface: new Interface([
+            'event NewDeal(address shuffler)'
+        ]),
+        eventName: 'NewDeal',
+        listener: (event) => {
+            setProcessingAction(true)
+            console.log('new deal event, change', event)
+            refetchState()
+            setProcessingAction(false)
+        },
+    })
     
     return (
         <div className="text-gray-100">
