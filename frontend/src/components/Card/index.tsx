@@ -1,6 +1,6 @@
 import { Interface } from "ethers/lib/utils"
 import { useCallback, useEffect, useState } from "react"
-import { useContractWrite, usePrepareContractWrite } from "wagmi"
+import { useContractRead, useContractWrite, usePrepareContractWrite } from "wagmi"
 import { CASTILLAN_CARDS } from "../../assets/castillan-cards"
 import { GAS_LIMIT_WRITE } from "../Dashboard"
 
@@ -8,6 +8,7 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
 
     const [cardName, setCardName ] = useState("")
     const [ cleanCardIndex, setCleanCardIndex ] = useState(-1)
+    const { address } : AccountType = useAccountInformation()
 
     const changeAndCallback = (event: any) => {
         setCleanCardIndex(parseInt(event.target.value))
@@ -27,9 +28,25 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
         }
     }, [cleanCardIndex])
 
+    const onWrite = () => {
+        getHashToSign().then((result) => {
+            console.log('sucess get hash for play card', result)
+            write?.()
+        }).catch((err: Error) => {
+            console.log('error after get hash to sign from contract', err)
+        })
+    }
+
+    const { refetch: getHashToSign } = useContractRead({
+        addressOrName: process.env.FRONT_MATCH_FACADE_ADDRESS as string,
+        contractInterface: new Interface(["function getCardProofToForSigning(address, uint8[]) public returns (bytes32)"]),
+        functionName: "getCardProofToForSigning",
+        args: [address, [cleanCardIndex]]
+    })
+
     const { config } = usePrepareContractWrite({
         addressOrName: match, // match
-        contractInterface: new Interface(["function playCard(uint8) public"]),
+        contractInterface: new Interface(["function playCard(uint8, bytes) public"]),
         functionName: "playCard",
         args: [ cleanCardIndex ],
         overrides: {
@@ -67,7 +84,7 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
                     <button onClick={() => {
                         setGoToSpell(true) 
                         setProcessingAction(true)
-                        write?.()
+                        onWrite()
                     }} className="text-white absolute right-2.5 bottom-1.5 bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-800 font-medium rounded-lg text-sm px-2 py-1">
                         PlayCard
                     </button>
