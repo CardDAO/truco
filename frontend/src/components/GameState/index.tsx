@@ -1,34 +1,47 @@
 import { formatEther, Interface } from "ethers/lib/utils"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { MdMoney } from "react-icons/md"
 import { useContractEvent, useContractRead } from "wagmi"
 import { useCurrentBet } from "../../hooks/match/GetCurrentBet"
 import { ChallengeTypes, MatchStateEnum } from "../Dashboard"
 
-export const GameState = ({accountAddress, matchAddress, setJoined, joined, processingAction, setProcessingAction, matchStateValue, setMatchStateValue}) => {
+export const GameState = ({
+    accountAddress, matchAddress,
+    setJoined, joined, processingAction,
+    setPlayerTurn, playerTurn,
+    setProcessingAction, matchStateValue, setMatchStateValue,
+    currentChallenge, setCurrentChallenge,
+    waitResponse, setWaitResponse
+}) => {
     //const [ betValue, setBetValue ] = useState(0)
     const {currentBetValue: betValue} = useCurrentBet(matchAddress)
-    const [playerTurn, setPlayerTurn] = useState(undefined)
-    const [ currentChallenge, setCurrentChallenge ]  = useState(undefined)
+    const [ shuffler, setShuffler ] = useState(undefined)
 
     const {refetch: refetchState} = useContractRead({
        addressOrName: process.env.FRONT_MATCH_FACADE_ADDRESS as string,
-       contractInterface: new Interface(["function getMatchInfo(address) public view returns (uint256 matchState, uint256 challenge, address shuffler, uint256 bet)"]),
+       contractInterface: new Interface([
+           "function getMatchInfo(address) public view returns (uint256 matchState, uint256 challenge, bool waitResponse, address shuffler, uint256 bet)"
+       ]),
        functionName: 'getMatchInfo',
        args: [matchAddress],
        onSuccess: (data) => {
            console.log('get mAtch State', data)
            if (data.length > 1) {
                setMatchStateValue(parseInt(data.matchState.toString()))
-               setCurrentChallenge(data.challenge)
+               setCurrentChallenge(parseInt(data.challenge.toString()))
+               setWaitResponse(data.waitResponse)
+               setShuffler(data.shuffler.toString())
                //setMatchStateValue(data[1])
            }
        },
        onError: (err: Error) => {
            console.log('get match state',err)
        }
-
     })
+
+    useEffect(() => {
+        refetchState()
+    }, [processingAction])
 
     useContractRead({
        addressOrName: matchAddress,
@@ -101,9 +114,15 @@ export const GameState = ({accountAddress, matchAddress, setJoined, joined, proc
                         "YOUR TURN" : playerTurn
                 }
             </p>
+            <p>{waitResponse? "Waiting response...": ""}</p>
             <p>
                 {
                     currentChallenge && currentChallenge > 0 ? `Challenge ${ChallengeTypes[currentChallenge]}` : ""
+                }
+            </p>
+            <p>
+                {
+                    shuffler && accountAddress === shuffler ? `YOUR SHUFFLER` : ""
                 }
             </p>
             

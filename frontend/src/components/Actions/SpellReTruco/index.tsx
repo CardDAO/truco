@@ -1,7 +1,8 @@
 import { Interface } from "ethers/lib/utils"
+import { ChallengeTypes } from "../../Dashboard"
 import { CommonActionWrite } from "../CommonActionWrite"
 
-export const SpellReTruco = ({match, processingAction, setProcessingAction}: any) => {
+export const SpellReTruco = ({ match, processingAction, setProcessingAction}: any) => {
     return (
         <CommonActionWrite
             match={match}
@@ -18,5 +19,4 @@ export const SpellReTruco = ({match, processingAction, setProcessingAction}: any
             setProcessingAction={setProcessingAction}
         />
     )
-
 }

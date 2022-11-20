@@ -72,8 +72,10 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
     const [ cleanCards, setCleanCards ] = useState([])
     const [ currentEnvido, setCurrentEnvido ] = useState(0)
     const [ matchStateValue, setMatchStateValue ] = useState(undefined)
+    const [playerTurn, setPlayerTurn] = useState(undefined)
+    const [ currentChallenge, setCurrentChallenge ]  = useState(undefined)
+    const [ waitResponse, setWaitResponse]  = useState(undefined)
     
-    console.log(matchStateValue, matchStateValue === MatchStateEnum.WAITING_FOR_DEAL)
     // verify before to send
     const { data, error: errorSendMessage, isLoading, signMessage } = useSignMessage({
         onSuccess(signature: any, variables: any) {
@@ -235,6 +237,8 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                 <p>cardcodewords: {cardCodewords}</p>
                 <p>status: {state}</p>
                 <GameState 
+                    setPlayerTurn={setPlayerTurn}
+                    playerTurn={playerTurn}
                     setJoined={setJoined}
                     accountAddress={address}
                     matchAddress={matchAddress}
@@ -243,6 +247,10 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                     processingAction={processingAction}
                     matchStateValue={matchStateValue}
                     setMatchStateValue={setMatchStateValue}
+                    currentChallenge={currentChallenge}
+                    setCurrentChallenge={setCurrentChallenge}
+                    waitResponse={waitResponse}
+                    setWaitResponse={setWaitResponse}
                 />
             </div>
             <div className="Game-View">
@@ -269,22 +277,31 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                         <MyCards match={matchAddress} setProcessingAction={setProcessingAction} cards={cleanCards} setCards={setCleanCards} />
                         </div>
                         <div className="border-dashed border-2 border-gray-600">
-                            <Actions>
+                            <Actions playerTurn={playerTurn} currentChallenge={currentChallenge} setProcessingAction={setProcessingAction} processingAction={processingAction}>
                             {
                                 matchAddress ?
                                 matchStateValue === MatchStateEnum.WAITING_FOR_PLAY ?
                                     <>
+                                    {
+                                        currentChallenge === ChallengeTypes.None || (!waitResponse)?
+                                        <>
                                         <SpellTruco match={matchAddress}  setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                         <SpellReTruco match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                         <SpellValeCuatro match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                         <SpellEnvido match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
-                                        <SpellEnvidoCount match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} count={currentEnvido}/>
-                                        <RecalculateEnvido cards={cleanCards} setCurrentEnvido={setCurrentEnvido} />
                                         <SpellFaltaEnvido match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                         <SpellEnvidoEnvido match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                         <SpellRealEnvido match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
-                                        <AcceptChallenge match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
-                                        <AcceptChallengeForRaising match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                        </>
+                                        :
+                                        <>
+                                        <SpellEnvidoCount
+                                        playerTurn={playerTurn} currentChallenge={currentChallenge} match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} count={currentEnvido}/>
+                                        <RecalculateEnvido playerTurn={playerTurn} currentChallenge={currentChallenge} cards={cleanCards} setCurrentEnvido={setCurrentEnvido} />
+                                        <AcceptChallenge playerTurn={playerTurn} currentChallenge={currentChallenge} match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                        <AcceptChallengeForRaising playerTurn={playerTurn} currentChallenge={currentChallenge} match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                        </>
+                                   }
                                     </>
                                     :
                                     matchStateValue === MatchStateEnum.WAITING_FOR_DEAL ?

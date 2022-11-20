@@ -13,6 +13,7 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
     const [ signature, setSignature ] = useState("")
     const { address } : AccountType = useAccountInformation()
     const [ inProgress, setInProgress ] = useState(false)
+    const [ checkSuccess, setCheckSuccess ] = useState(false)
 
     const changeAndCallback = (event: any) => {
         setCleanCardIndex(parseInt(event.target.value))
@@ -52,6 +53,7 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
             //    args: [cleanCardIndex, result.data]})
         }).catch((err: Error) => {
             setProcessingAction(false)
+            setCheckSuccess(false)
             console.log('error after get hash to sign from contract', err)
         })
     }
@@ -84,9 +86,9 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
             gasLimit: GAS_LIMIT_WRITE
         },
         onSuccess: (data) => {
-            console.log(`can't playCard (TRUE)`, data)
+            console.log(`can playCard (TRUE)`, data)
             //validateCard()
-            write?.()
+            setCheckSuccess(true)
         },
         onError: (err: Error) => {
             console.log(`can't playCard (FALSE)`, err)
@@ -95,6 +97,12 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
     })
 
     const { write, error, isLoading, data }= useContractWrite(config)
+    useEffect(() => {
+        if (inProgress && checkSuccess && write) {
+            write()
+        }
+
+    }, [checkSuccess, inProgress, write])
 
     useEffect(() => {
         console.log('validate card')
@@ -108,6 +116,7 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
             setGoToSpell(false)
             setInProgress(false)
             setProcessingAction(false)
+            setCheckSuccess(false)
         }
     }, [ error, errorToSign ])
 

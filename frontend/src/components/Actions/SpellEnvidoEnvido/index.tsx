@@ -1,7 +1,7 @@
 import { Interface } from "ethers/lib/utils"
 import { CommonActionWrite } from "../CommonActionWrite"
 
-export const SpellEnvidoEnvido = ({match, processingAction, setProcessingAction}: any) => {
+export const SpellEnvidoEnvido = ({ match, processingAction, setProcessingAction}: any) => {
     return (
         <CommonActionWrite
             match={match}
