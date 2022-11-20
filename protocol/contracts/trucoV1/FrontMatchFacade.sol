@@ -126,14 +126,20 @@ contract FrontMatchFacade {
         return players[_getCurrentGameState(_contractMatch).playerWhoShuffled];
     }
 
-    function getCurrentChallenge(TrucoMatch _contractMatch)
+    function getMatchInfo(TrucoMatch _contractMatch)
         public
         view
-        returns (uint256)
+        returns (uint256, uint256, address, uint256)
     {
+        (,TrucoMatch.MatchStateEnum state) = _contractMatch.matchState();
 
-        return uint256(_getCurrentGameState(_contractMatch).currentChallenge.challenge);
+        return (uint(state), // match state
+                uint(_getCurrentGameState(_contractMatch).currentChallenge.challenge), // current challenge
+                address(getCurrentShuffler(_contractMatch)), // shuffler
+                getCurrentBet(_contractMatch) // bet amount
+        );
    }
+
     function _prepareMove(IERC3333.Action _action, IERC3333.Challenge _param)
         internal
         pure

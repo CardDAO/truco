@@ -3,23 +3,31 @@ import { useState } from "react"
 import { MdMoney } from "react-icons/md"
 import { useContractEvent, useContractRead } from "wagmi"
 import { useCurrentBet } from "../../hooks/match/GetCurrentBet"
-import { MatchStateEnum } from "../Dashboard"
+import { ChallengeTypes, MatchStateEnum } from "../Dashboard"
 
 export const GameState = ({accountAddress, matchAddress, setJoined, joined, processingAction, setProcessingAction, matchStateValue, setMatchStateValue}) => {
     //const [ betValue, setBetValue ] = useState(0)
     const {currentBetValue: betValue} = useCurrentBet(matchAddress)
     const [playerTurn, setPlayerTurn] = useState(undefined)
+    const [ currentChallenge, setCurrentChallenge ]  = useState(undefined)
 
     const {refetch: refetchState} = useContractRead({
-       addressOrName: matchAddress,
-       contractInterface: new Interface(["function matchState() public view returns (uint256, uint8)"]),
-       functionName: 'matchState',
+       addressOrName: process.env.FRONT_MATCH_FACADE_ADDRESS as string,
+       contractInterface: new Interface(["function getMatchInfo(address) public view returns (uint256 matchState, uint256 challenge, address shuffler, uint256 bet)"]),
+       functionName: 'getMatchInfo',
+       args: [matchAddress],
        onSuccess: (data) => {
            console.log('get mAtch State', data)
            if (data.length > 1) {
-               setMatchStateValue(data[1])
+               setMatchStateValue(parseInt(data.matchState.toString()))
+               setCurrentChallenge(data.challenge)
+               //setMatchStateValue(data[1])
            }
+       },
+       onError: (err: Error) => {
+           console.log('get match state',err)
        }
+
     })
 
     useContractRead({
@@ -83,14 +91,19 @@ export const GameState = ({accountAddress, matchAddress, setJoined, joined, proc
         <div className="text-gray-100">
             <p className="text-md">Current bet value: {betValue} Weis</p>
             <p>
-            {
-                MatchStateEnum[matchStateValue]
-            }
+                {
+                    MatchStateEnum[matchStateValue]
+                }
             </p>
             <p>
                 {
                     playerTurn === accountAddress ?
                         "YOUR TURN" : playerTurn
+                }
+            </p>
+            <p>
+                {
+                    currentChallenge && currentChallenge > 0 ? `Challenge ${ChallengeTypes[currentChallenge]}` : ""
                 }
             </p>
             

@@ -42,6 +42,17 @@ export enum MatchStateEnum {
 }
 
 
+export enum ChallengeTypes {
+    None,
+    Truco,
+    ReTruco,
+    ValeCuatro,
+    Envido,
+    EnvidoEnvido,
+    RealEnvido,
+    FaltaEnvido
+}
+
 const arrayToBuffer = (array: any[]) => array.map(simpleObject => Buffer.from(simpleObject.data))
 
 
@@ -61,8 +72,8 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
     const [ cleanCards, setCleanCards ] = useState([])
     const [ currentEnvido, setCurrentEnvido ] = useState(0)
     const [ matchStateValue, setMatchStateValue ] = useState(undefined)
-
     
+    console.log(matchStateValue, matchStateValue === MatchStateEnum.WAITING_FOR_DEAL)
     // verify before to send
     const { data, error: errorSendMessage, isLoading, signMessage } = useSignMessage({
         onSuccess(signature: any, variables: any) {

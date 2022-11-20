@@ -12,6 +12,7 @@ export const NewDeal = ({
     const [ imShuffler, setImShuffler] = useState(false)
     const [ goToSpell, setGoToSpell] = useState(false)
     const [ enableAction, setEnableAction ] = useState(false)
+    console.log('deal')
 
     useContractRead({
         addressOrName: process.env.FRONT_MATCH_FACADE_ADDRESS as string,
