@@ -18,6 +18,10 @@ export const CommonActionWrite = ({
     const { address } = useAccountInformation()
     //function canSpellTruco(TrucoMatch _contractMatch)
 
+    useEffect(() => {
+        setCanActionSuccess(!checkExecute)
+    }, [])
+
     const {refetch: checkRefetch} = useContractRead({
        addressOrName: canContractAddress,
        contractInterface: canSelectorInterface,

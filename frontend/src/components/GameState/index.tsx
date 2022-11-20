@@ -99,6 +99,20 @@ export const GameState = ({
             setProcessingAction(false)
         },
     })
+
+    useContractEvent({
+        addressOrName: matchAddress,
+        contractInterface: new Interface(['event NewDealRequired(address newShuffler, uint8 nextNonce)']),
+        eventName: 'NewDealRequired',
+        listener: (event) => {
+            setProcessingAction(true)
+            console.log('new deal required -> New Shuffler event, change', event)
+            //refetchState()
+            setShuffler(event.newShuffler)
+            setProcessingAction(false)
+        },
+
+    })
     
     return (
         <div className="text-gray-100">

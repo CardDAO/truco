@@ -35,26 +35,19 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
 
     const { error: errorToSign, signMessage } = useSignMessage({
         onSuccess(signature: any, variables: any) {
-            console.log("firm",signature)
-            console.log("arrary before", signature)
             setSignature(signature)
             setGoToSpell(true)
-            console.log('go to write')
         }
     })
     const onWrite = () => {
         console.log('go')
         getHashToSign().then((result) => {
-            console.log('sucess get hash for play card', result, result.data?.toString())
             signMessage({
                 message: arrayify(result.data)
             })
-            //write?.({
-            //    args: [cleanCardIndex, result.data]})
         }).catch((err: Error) => {
             setProcessingAction(false)
             setCheckSuccess(false)
-            console.log('error after get hash to sign from contract', err)
         })
     }
 
@@ -105,13 +98,10 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
     }, [checkSuccess, inProgress, write])
 
     useEffect(() => {
-        console.log('validate card')
         validateCard()
     }, [validateCard])
 
     useEffect(() => {
-        console.log('spell', error)
-        console.log('spell', errorToSign)
         if ((error || errorToSign)) {
             setGoToSpell(false)
             setInProgress(false)
@@ -127,7 +117,6 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
             {
                 enableAction ?
                     <button onClick={() => {
-                    console.log('na bolo')
                         setProcessingAction(true)
                         setInProgress(true)
                         onWrite()

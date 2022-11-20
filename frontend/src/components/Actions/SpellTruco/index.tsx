@@ -15,7 +15,7 @@ export const SpellTruco = ({ match, processingAction, setProcessingAction}: any)
             canContractAddress={process.env.FRONT_MATCH_FACADE_ADDRESS}
             processingAction={processingAction}
             setProcessingAction={setProcessingAction}
-            buttonText="Spell Truco!"
+            buttonText="Truco!"
         />
     )
 }

@@ -31,6 +31,7 @@ import { SpellRealEnvido } from "../Actions/SpellRealEnvido"
 import { SpellValeCuatro } from "../Actions/SpellValeCuatro"
 import { NewDeal } from "../Actions/NewDeal"
 import { GameState } from "../GameState"
+import { Resign } from "../Actions/Resign"
 
 
 export const GAS_LIMIT_WRITE = process.env.GAS_LIMIT_WRITE
@@ -302,6 +303,7 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                                         <AcceptChallengeForRaising playerTurn={playerTurn} currentChallenge={currentChallenge} match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                         </>
                                    }
+                                        <Resign playerTurn={playerTurn} currentChallenge={currentChallenge} match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                     </>
                                     :
                                     matchStateValue === MatchStateEnum.WAITING_FOR_DEAL ?
