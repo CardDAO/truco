@@ -5,6 +5,7 @@ import { useContractEvent, useContractRead } from "wagmi"
 import { useCurrentBet } from "../../hooks/match/GetCurrentBet"
 import { ChallengeTypes, MatchStateEnum } from "../Dashboard"
 import { Modal } from "../Modal"
+import { walletParser } from "../../hooks/helpers/walletParser"
 
 export const GameState = ({
     accountAddress, matchAddress,
@@ -29,7 +30,6 @@ export const GameState = ({
        functionName: 'getMatchInfo',
        args: [matchAddress],
        onSuccess: (data) => {
-           console.log('get mAtch State', data)
            if (data.length > 1) {
                setMatchStateValue(parseInt(data.matchState.toString()))
                setCurrentChallenge(parseInt(data.challenge.toString()))
@@ -54,7 +54,6 @@ export const GameState = ({
        contractInterface: new Interface(["function getPlayers() public view returns (address[2])"]),
        functionName: 'getPlayers',
        onSuccess: (data) => {
-           console.log('get playes')
            if (data?.indexOf(accountAddress) >= 0) {
                setJoined(true)
            }
@@ -139,22 +138,23 @@ export const GameState = ({
     
     return (
         <div className="text-gray-100">
-            <p className="text-md">Current bet value: {betValue} Weis</p>
             <p>
                 {
                     MatchStateEnum[matchStateValue]
                 }
             </p>
-            <p>
+            <p className={`${playerTurn === accountAddress ? "text-amber-400" : "text-stone-400"}`}>
                 {
                     playerTurn === accountAddress ?
-                        "YOUR TURN" : playerTurn
+                        "YOUR TURN"
+                        : 
+                            playerTurn ? `TURN OF ${walletParser(playerTurn)}`: ""
                 }
             </p>
             <p>{waitResponse? "Waiting response...": ""}</p>
             <p>
                 {
-                    shuffler && accountAddress === shuffler ? `YOUR SHUFFLER` : ""
+                    shuffler && accountAddress === shuffler ? `YOU'RE SHUFFLER` : ""
                 }
             </p>
             <button onClick={() => {setShowPoints(currentShowPoints => !currentShowPoints)}} className="relative inline-flex items-center justify-center p-0.5 mb-2 mr-2 overflow-hidden text-sm font-medium text-gray-100 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white focus:ring-4 focus:outline-none focus:ring-cyan-800 ">
@@ -164,6 +164,7 @@ export const GameState = ({
             </button>
             <Modal show={showPoints} title="Points" closeModal={() => {setShowPoints(currentShowPoints=> !currentShowPoints)}}>
                 <p>Match address {matchAddress}</p>
+                <p className="text-md">Current bet value: {betValue} Weis</p>
                 <p>
                     {
                         currentChallenge && currentChallenge > 0 ? `Current challenge -> ${ChallengeTypes[currentChallenge]}` : ""
