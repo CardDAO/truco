@@ -123,7 +123,6 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
 
     const { write, error, isLoading, data }= useContractWrite(config)
     useEffect(() => {
-        console.log('send play card', checkSuccess, inProgress, write)
         if (inProgress && checkSuccess && write) {
             write()
         }
@@ -134,7 +133,7 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
         hash: data?.hash,
         wait: data?.wait,
         onSuccess: (dataResult) => {
-            toast.success(`🦄 Success: PlayCard -> ${dataResult}`, {
+            toast.success(`🦄 Success: PlayCard`, {
                 position: "bottom-center",
                 autoClose: 5000,
                 hideProgressBar: false,
