@@ -1,16 +1,13 @@
 
+const DECK_PATH =  '/deck_images'
 export const GraphicCard = ({cardIndex}) => {
-
-    if (cardIndex === 0) {
-        return (<div><img src={`/cards/1.jpg`} /></div>)
-    }
     return (
         <div>
             {
                 cardIndex === 0 ?
-                    <img src={`/cards/hidden.png`} />
+                    <img src={`${DECK_PATH}/hidden.png`} />
                     :
-                    <img src={`/cards/${cardIndex}.png`} />
+                    <img src={`${DECK_PATH}/${cardIndex}.png`} />
             }
         </div>
     )
