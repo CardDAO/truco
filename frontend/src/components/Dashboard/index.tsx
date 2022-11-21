@@ -33,6 +33,7 @@ import { NewDeal } from "../Actions/NewDeal"
 import { GameState } from "../GameState"
 import { Resign } from "../Actions/Resign"
 import { OpponentInfo } from "../OpponentInfo"
+import { MdRefresh } from "react-icons/md"
 
 
 export const GAS_LIMIT_WRITE = process.env.GAS_LIMIT_WRITE
@@ -235,6 +236,7 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
         joined ?
         <div className="Dashboard-Grid">
             <div className="Chat-Column">
+                <button className="text-gray-100 hover:text-gray-300 text-md" onClick={()=> { setProcessingAction(true); setTimeout(() => {setProcessingAction(false)}, 2000) }}><MdRefresh /></button>
                 <p>Deck: {deck}</p>
                 <p>cardcodewords: {cardCodewords}</p>
                 <p>status: {state}</p>
@@ -298,16 +300,15 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                                         <SpellFaltaEnvido match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                         <SpellEnvidoEnvido match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                         <SpellRealEnvido match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                        <SpellEnvidoCount playerTurn={playerTurn} currentChallenge={currentChallenge} match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} count={currentEnvido}/>
                                         </>
                                         :
                                         <>
-                                        <SpellEnvidoCount
-                                        playerTurn={playerTurn} currentChallenge={currentChallenge} match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} count={currentEnvido}/>
-                                        <RecalculateEnvido playerTurn={playerTurn} currentChallenge={currentChallenge} cards={cleanCards} setCurrentEnvido={setCurrentEnvido} />
                                         <AcceptChallenge playerTurn={playerTurn} currentChallenge={currentChallenge} match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                         <AcceptChallengeForRaising playerTurn={playerTurn} currentChallenge={currentChallenge} match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                         </>
                                     }
+                                    <RecalculateEnvido playerTurn={playerTurn} currentChallenge={currentChallenge} cards={cleanCards} setCurrentEnvido={setCurrentEnvido} />
                                     <Resign playerTurn={playerTurn} currentChallenge={currentChallenge} match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                     </>
                                     :

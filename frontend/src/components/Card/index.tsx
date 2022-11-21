@@ -1,7 +1,7 @@
 import { BigNumber } from "ethers"
 import { arrayify, Interface } from "ethers/lib/utils"
 import { useCallback, useEffect, useState } from "react"
-import { useContractRead, useContractWrite, usePrepareContractWrite, useSignMessage } from "wagmi"
+import { useContractRead, useContractWrite, usePrepareContractWrite, useSignMessage, useWaitForTransaction } from "wagmi"
 import { CASTILLAN_CARDS } from "../../assets/castillan-cards"
 import { AccountType, useAccountInformation } from "../../hooks/providers/Wagmi"
 import { GAS_LIMIT_WRITE } from "../Dashboard"
@@ -106,7 +106,6 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
         contractInterface: new Interface(["function playCard(uint8, bytes) public"]),
         functionName: "playCard",
         enabled: goToSpell,
-        staleTime: 2000,
         args: [ BigNumber.from(cleanCardIndex.toString()), signature],
         overrides: {
             gasLimit: GAS_LIMIT_WRITE
@@ -124,17 +123,50 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
 
     const { write, error, isLoading, data }= useContractWrite(config)
     useEffect(() => {
+        console.log('send play card', checkSuccess, inProgress, write)
         if (inProgress && checkSuccess && write) {
             write()
         }
 
     }, [checkSuccess, inProgress, write])
 
+    useWaitForTransaction({
+        hash: data?.hash,
+        wait: data?.wait,
+        onSuccess: (dataResult) => {
+            toast.success(`🦄 Success: PlayCard -> ${dataResult}`, {
+                position: "bottom-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
+
+        },
+        onError: (error: Error) => {
+            toast.error(`🦄 Error playcard: ${error}`, {
+                position: "bottom-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
+
+        }
+    })
+
     useEffect(() => {
         validateCard()
     }, [validateCard])
 
     useEffect(() => {
+        console.log('error?', error, errorToSign)
         if ((error || errorToSign)) {
             setGoToSpell(false)
             setInProgress(false)
@@ -151,7 +183,7 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
                 theme: "dark",
             });
         }
-    }, [ error, errorToSign ])
+    }, [ error, errorToSign, setProcessingAction ])
 
     return (
         <div className="relative flex-nowrap">

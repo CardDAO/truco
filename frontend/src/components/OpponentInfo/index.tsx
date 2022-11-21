@@ -51,9 +51,9 @@ export const OpponentInfo = ({ playerAddress, match, processingAction, playerTur
         <div>
             <div><p>Cards</p>
             {
-                revealedCards?.map((cardIndex) => {
+                revealedCards?.map((cardIndex, indexKey) => {
                     console.log('cards', cardIndex)
-                    return <GraphicCard key={cardIndex} cardIndex={parseInt(cardIndex)} />
+                    return <GraphicCard key={indexKey} cardIndex={parseInt(cardIndex)} />
                 })
             }
             </div>

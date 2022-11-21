@@ -123,7 +123,7 @@ contract FrontMatchFacade {
         returns (address)
     {
         address[2] memory players = _contractMatch.getPlayers();
-        return players[_getCurrentGameState(_contractMatch).playerWhoShuffled];
+        return players[_getCurrentGameState(_contractMatch).playerWhoShuffled ^ 1];
     }
 
     function getOpponentInfo(TrucoMatch _contractMatch)
