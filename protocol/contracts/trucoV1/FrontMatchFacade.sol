@@ -169,7 +169,14 @@ contract FrontMatchFacade {
     function getMatchInfo(TrucoMatch _contractMatch)
         public
         view
-        returns (uint256, uint256, bool, address, address, uint256)
+        returns (
+            uint256,
+            uint256,
+            bool,
+            address,
+            address,
+            uint256
+        )
     {
         (,TrucoMatch.MatchStateEnum state) = _contractMatch.matchState();
         IERC3333.GameState memory gameState = _getCurrentGameState(_contractMatch);
@@ -182,7 +189,7 @@ contract FrontMatchFacade {
                 address(players[gameState.playerTurn]), // playerTurn
                 getCurrentBet(_contractMatch) // bet amount
         );
-   }
+    }
 
     function _prepareMove(IERC3333.Action _action, IERC3333.Challenge _param)
         internal
