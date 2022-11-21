@@ -4,6 +4,7 @@ import { MdMoney } from "react-icons/md"
 import { useContractEvent, useContractRead } from "wagmi"
 import { useCurrentBet } from "../../hooks/match/GetCurrentBet"
 import { ChallengeTypes, MatchStateEnum } from "../Dashboard"
+import { Modal } from "../Modal"
 
 export const GameState = ({
     accountAddress, matchAddress,
@@ -16,6 +17,9 @@ export const GameState = ({
     //const [ betValue, setBetValue ] = useState(0)
     const {currentBetValue: betValue} = useCurrentBet(matchAddress)
     const [ shuffler, setShuffler ] = useState(undefined)
+    const [ teamPoints, setTeamPoints ] = useState([])
+    const [ matchPoints, setMatchPoints ] = useState(0)
+    const [ showPoints , setShowPoints ] = useState(false)
 
     const {refetch: refetchState} = useContractRead({
        addressOrName: process.env.FRONT_MATCH_FACADE_ADDRESS as string,
@@ -53,6 +57,26 @@ export const GameState = ({
            if (data?.indexOf(accountAddress) >= 0) {
                setJoined(true)
            }
+       }
+    })
+
+    const {refetch: fetchPoints } = useContractRead({
+       addressOrName: process.env.FRONT_MATCH_FACADE_ADDRESS as string,
+       contractInterface: new Interface([
+           "function getMatchPoints(address) public view returns (uint8[] memory, uint8)"
+       ]),
+       functionName: 'getMatchPoints',
+       args: [matchAddress],
+       onSuccess: (data) => {
+           console.log('get match points', data)
+           if (data.length > 1) {
+               setTeamPoints(data[0])
+               setMatchPoints(data[1])
+               //setMatchStateValue(data[1])
+           }
+       },
+       onError: (err: Error) => {
+           console.log('get match points errr',err)
        }
     })
 
@@ -117,7 +141,6 @@ export const GameState = ({
     
     return (
         <div className="text-gray-100">
-            <p>Match address {matchAddress}</p>
             <p className="text-md">Current bet value: {betValue} Weis</p>
             <p>
                 {
@@ -133,14 +156,26 @@ export const GameState = ({
             <p>{waitResponse? "Waiting response...": ""}</p>
             <p>
                 {
-                    currentChallenge && currentChallenge > 0 ? `Challenge ${ChallengeTypes[currentChallenge]}` : ""
-                }
-            </p>
-            <p>
-                {
                     shuffler && accountAddress === shuffler ? `YOUR SHUFFLER` : ""
                 }
             </p>
+            <button onClick={() => {setShowPoints(currentShowPoints => !currentShowPoints)}} className="relative inline-flex items-center justify-center p-0.5 mb-2 mr-2 overflow-hidden text-sm font-medium text-gray-100 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white focus:ring-4 focus:outline-none focus:ring-cyan-800 ">
+              <span className="relative px-2 py-1.5 transition-all ease-in duration-75 bg-gray-900 rounded-md group-hover:bg-opacity-0">
+                  View match resume
+              </span>
+            </button>
+            <Modal show={showPoints} title="Points" closeModal={() => {setShowPoints(currentShowPoints=> !currentShowPoints)}}>
+                <p>Match address {matchAddress}</p>
+                <p>
+                    {
+                        currentChallenge && currentChallenge > 0 ? `Current challenge -> ${ChallengeTypes[currentChallenge]}` : ""
+                    }
+                </p>
+                {teamPoints.map((point, index) => {
+                    return <div key={index}>Team: <small>{index}</small> - Points: <small>{point}</small></div>
+                })}
+                <p>MatchPoints {matchPoints}</p>
+            </Modal>
             
         </div>
     )
