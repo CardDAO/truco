@@ -139,6 +139,20 @@ contract FrontMatchFacade {
             gameState.envido.playerCount[opponentIndex] // envido count
         );
     }
+
+    function getMyCardsInfo(TrucoMatch _contractMatch)
+        public
+        view
+        returns(uint8[3] memory, uint8)
+    {
+        IERC3333.GameState memory gameState = _getCurrentGameState(_contractMatch);
+        uint8 meIndex = _currentPlayerIdx(_contractMatch);
+
+        return (
+            gameState.revealedCardsByPlayer[meIndex], // revealed cards
+            gameState.envido.playerCount[meIndex] // envido count
+        );
+    }
     
     function getMatchPoints(TrucoMatch _contractMatch)
         public

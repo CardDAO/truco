@@ -38,6 +38,7 @@ export const GameState = ({
                setPlayerTurn(data.playerTurn.toString())
                //setMatchStateValue(data[1])
            }
+            fetchPoints()
        },
        onError: (err: Error) => {
            console.log('get match state',err)
@@ -68,15 +69,12 @@ export const GameState = ({
        functionName: 'getMatchPoints',
        args: [matchAddress],
        onSuccess: (data) => {
-           console.log('get match points', data)
            if (data.length > 1) {
                setTeamPoints(data[0])
                setMatchPoints(data[1])
-               //setMatchStateValue(data[1])
            }
        },
        onError: (err: Error) => {
-           console.log('get match points errr',err)
        }
     })
 

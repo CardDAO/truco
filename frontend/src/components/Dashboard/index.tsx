@@ -34,6 +34,7 @@ import { GameState } from "../GameState"
 import { Resign } from "../Actions/Resign"
 import { OpponentInfo } from "../OpponentInfo"
 import { MdRefresh } from "react-icons/md"
+import { RevealCards } from "../Actions/RevealCards"
 
 
 export const GAS_LIMIT_WRITE = process.env.GAS_LIMIT_WRITE
@@ -61,6 +62,7 @@ const arrayToBuffer = (array: any[]) => array.map(simpleObject => Buffer.from(si
 
 export const Dashboard = ({ address, inSession, matchAddress }: any) => {
     // TODO add hasPeers -> allow actions
+    // FRONT -> SHUFFLING AND P2P
     const { p2pt, peers, messages, sendToPeers, latestNonce } = useP2PT(inSession, 'UNIQUE_KEY_GAME')
     const [ sharedCodewordFragment, setSharedCodewordFragments ] = useState([])
     const [ opponents, setOpponents ] = useState({})
@@ -70,9 +72,11 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
     const [ myCards, setMyCards ] = useState({} as AssignedCards)
     const [ usedCardsIndexes, setUsedCardsIndexes ] = useState([] as number[])
     const [ selfPlayer, setSelfPlayer ] = useState(createPlayer(GAME_CONFIG))
+    // FRONT -> CONTRACT
     const [ joined , setJoined ] = useState(false)
     const [ processingAction, setProcessingAction ] = useState(false)
     const [ cleanCards, setCleanCards ] = useState([])
+    const [ usedContractCards, setUsedContractCards ] = useState([])
     const [ currentEnvido, setCurrentEnvido ] = useState(0)
     const [ matchStateValue, setMatchStateValue ] = useState(undefined)
     const [playerTurn, setPlayerTurn] = useState(undefined)
@@ -288,10 +292,14 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                         My cards
                             <div>
                                 <label>Envido
-                                <input value={currentEnvido} className="block p-2 w-full rounded-lg border sm:text-xs bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500" onChange={(event) => setCurrentEnvido(event.target.value)} />
+                                <input value={currentEnvido} className="block p-2 w-20 rounded-lg border sm:text-xs bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500" onChange={(event) => setCurrentEnvido(event.target.value)} />
                                 </label>
                             </div>
-                        <MyCards match={matchAddress} setProcessingAction={setProcessingAction} cards={cleanCards} setCards={setCleanCards} />
+                            <MyCards processingAction={processingAction} match={matchAddress} setProcessingAction={setProcessingAction} cards={cleanCards} setCards={setCleanCards} usedContractCards={usedContractCards} setUsedContractCards={setUsedContractCards} />
+                            {
+                            matchAddress && matchStateValue === MatchStateEnum.WAITING_FOR_REVEAL && playerTurn === address ?
+                            <RevealCards cards={cleanCards} match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} /> : ""
+                            }
                         </div>
                         <div className="border-dashed border-2 border-gray-600">
                             <Actions playerTurn={playerTurn} currentChallenge={currentChallenge} setProcessingAction={setProcessingAction} processingAction={processingAction}>
