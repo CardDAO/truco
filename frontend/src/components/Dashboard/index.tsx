@@ -32,6 +32,7 @@ import { SpellValeCuatro } from "../Actions/SpellValeCuatro"
 import { NewDeal } from "../Actions/NewDeal"
 import { GameState } from "../GameState"
 import { Resign } from "../Actions/Resign"
+import { OpponentInfo } from "../OpponentInfo"
 
 
 export const GAS_LIMIT_WRITE = process.env.GAS_LIMIT_WRITE
@@ -258,7 +259,11 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                 <div className="h-full m-2 grid grid-cols-1 grid-rows-7 text-gray-200 gap-3 justify-center h-min-50">
                         <div>
                         <div className="border-dashed border-2 border-orange-700 justify-center">
-                        Opponent
+                        {
+                            matchAddress && matchStateValue === MatchStateEnum.WAITING_FOR_PLAY ?
+                                <OpponentInfo match={matchAddress} processingAction={processingAction} playerTurn={playerTurn} />
+                            : ""
+                        }
                         {
                             Object.keys(opponents).map((opponent, index) => {
                                 return <p key={index}>{opponent}</p>
@@ -281,7 +286,7 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                             <Actions playerTurn={playerTurn} currentChallenge={currentChallenge} setProcessingAction={setProcessingAction} processingAction={processingAction}>
                             {
                                 matchAddress ?
-                                matchStateValue === MatchStateEnum.WAITING_FOR_PLAY ?
+                                matchStateValue === MatchStateEnum.WAITING_FOR_PLAY && playerTurn === address ?
                                     <>
                                     {
                                         currentChallenge === ChallengeTypes.None || (!waitResponse)?
@@ -302,8 +307,8 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                                         <AcceptChallenge playerTurn={playerTurn} currentChallenge={currentChallenge} match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                         <AcceptChallengeForRaising playerTurn={playerTurn} currentChallenge={currentChallenge} match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                         </>
-                                   }
-                                        <Resign playerTurn={playerTurn} currentChallenge={currentChallenge} match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
+                                    }
+                                    <Resign playerTurn={playerTurn} currentChallenge={currentChallenge} match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                     </>
                                     :
                                     matchStateValue === MatchStateEnum.WAITING_FOR_DEAL ?

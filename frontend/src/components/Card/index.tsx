@@ -5,6 +5,7 @@ import { useContractRead, useContractWrite, usePrepareContractWrite, useSignMess
 import { CASTILLAN_CARDS } from "../../assets/castillan-cards"
 import { AccountType, useAccountInformation } from "../../hooks/providers/Wagmi"
 import { GAS_LIMIT_WRITE } from "../Dashboard"
+import { toast } from 'react-toastify';
 
 export const Card = ({ match, onChangeAction, setProcessingAction }) => {
 
@@ -37,6 +38,18 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
         onSuccess(signature: any, variables: any) {
             setSignature(signature)
             setGoToSpell(true)
+        },
+        onError(error:Error) {
+            toast.error(`🦄 Error: ${error?.message}`, {
+                position: "bottom-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
         }
     })
     const onWrite = () => {
@@ -45,9 +58,20 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
             signMessage({
                 message: arrayify(result.data)
             })
-        }).catch((err: Error) => {
+        }).catch((error: Error) => {
             setProcessingAction(false)
+            setInProgress(false)
             setCheckSuccess(false)
+            toast.error(`🦄 Error: ${error?.message}`, {
+                position: "bottom-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
         })
     }
 
@@ -65,6 +89,16 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
         },
         onError: (err: Error) => {
             console.log('dos', err)
+            toast.error(`🦄 Error: ${error?.message}`, {
+                position: "bottom-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
         }
     })
 
@@ -107,6 +141,16 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
             setInProgress(false)
             setProcessingAction(false)
             setCheckSuccess(false)
+            toast.error(`🦄 Error: ${error ? error.message : errorToSign?.message}`, {
+                position: "bottom-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
         }
     }, [ error, errorToSign ])
 

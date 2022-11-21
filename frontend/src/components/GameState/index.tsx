@@ -20,7 +20,7 @@ export const GameState = ({
     const {refetch: refetchState} = useContractRead({
        addressOrName: process.env.FRONT_MATCH_FACADE_ADDRESS as string,
        contractInterface: new Interface([
-           "function getMatchInfo(address) public view returns (uint256 matchState, uint256 challenge, bool waitResponse, address shuffler, uint256 bet)"
+           "function getMatchInfo(address) public view returns (uint256 matchState, uint256 challenge, bool waitResponse, address shuffler, address playerTurn, uint256 bet)"
        ]),
        functionName: 'getMatchInfo',
        args: [matchAddress],
@@ -31,6 +31,7 @@ export const GameState = ({
                setCurrentChallenge(parseInt(data.challenge.toString()))
                setWaitResponse(data.waitResponse)
                setShuffler(data.shuffler.toString())
+               setPlayerTurn(data.playerTurn.toString())
                //setMatchStateValue(data[1])
            }
        },
@@ -116,6 +117,7 @@ export const GameState = ({
     
     return (
         <div className="text-gray-100">
+            <p>Match address {matchAddress}</p>
             <p className="text-md">Current bet value: {betValue} Weis</p>
             <p>
                 {

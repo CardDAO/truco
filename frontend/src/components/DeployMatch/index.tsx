@@ -12,7 +12,7 @@ export const DeployMatch = ({ processingAction, setProcessingAction, setMatchAdd
     const [availableClick, setAvailableClick] = useState(false)
     const [inProgress, setInProgress] = useState(false)
     const [error, setError] = useState("")
-    const [ betValue, setBetValue ] = useState(undefined)
+    const [ betValue, setBetValue ] = useState(-1)
 
     const finishProcess = useCallback(() => {
         setProcessingAction(false)
@@ -26,17 +26,15 @@ export const DeployMatch = ({ processingAction, setProcessingAction, setMatchAdd
         functionName: "approve",
         args: [
             TRUCOMATCH_FACTORY, // match factory
-            betValue ?? 0
+            betValue >= 0 ? betValue : 0
         ],
         onSuccess: (data: any) => {
             if (!inProgress) {
                 setError("")
                 setEnableAction(true)
             }
-            console.log('can approve trucoin', data)
         },
         onError: (error: Error) => {
-            console.log('cant approve trucoin', error)
             setAvailableClick(false)
         }
     })
@@ -45,12 +43,11 @@ export const DeployMatch = ({ processingAction, setProcessingAction, setMatchAdd
         addressOrName: TRUCOMATCH_FACTORY, // match factory
         contractInterface: new Interface(["function newMatch(uint) public returns (address)"]),
         functionName: "newMatch",
-        args: [BigNumber.from(10000)],
+        args: [BigNumber.from(betValue >= 0 ? betValue.toString() : 0)],
         overrides: {
             gasLimit: process.env.GAS_LIMIT_WRITE * 2
         },
         onSuccess: (data: any) => {
-            console.log('can deploy', data)
         },
         onError: (error: Error) => {
             //console.log('deploy match calc', error)
@@ -88,6 +85,16 @@ export const DeployMatch = ({ processingAction, setProcessingAction, setMatchAdd
                 setError("Transaction approve failed")
                 finishProcess()
             }
+            toast.error(`🦄 Error: ${e?.message}`, {
+                position: "bottom-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
             setAvailableClick(false)
             setBetValue(0)
         },
@@ -111,7 +118,16 @@ export const DeployMatch = ({ processingAction, setProcessingAction, setMatchAdd
                 setError("TX: deploy failed")
                 finishProcess()
             }
-            console.log("ERROR deploy")
+            toast.error(`🦄 Error: ${e?.message}`, {
+                position: "bottom-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
             setAvailableClick(false)
             setBetValue(0)
         },
@@ -142,7 +158,7 @@ export const DeployMatch = ({ processingAction, setProcessingAction, setMatchAdd
             }
             setError("")
             setAvailableClick(false)
-            setBetValue(0)
+            setBetValue(-1)
         },
     })
 
@@ -188,7 +204,6 @@ export const DeployMatch = ({ processingAction, setProcessingAction, setMatchAdd
                 enableAction ?
                     <>
                         <input
-                            value={betValue}
                             onChange={(event) => setBetValue(event.target.value)}
                             type="number"
                             placeholder="Bet value for the game (wei)"
