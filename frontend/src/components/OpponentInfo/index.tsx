@@ -7,7 +7,6 @@ import { GraphicCard } from "../GraphicCard"
 export const OpponentInfo = ({ playerAddress, match, processingAction, playerTurn }) => {
     const [revealedCards, setRevealedCards] = useState([])
     const [envidoCount, setEnvidoCount ] = useState(0)
-    console.log("QWEQWEEWQQEWQEWQWE")
 
     const { error, refetch: refreshData , data} = useContractRead({
         addressOrName: process.env.FRONT_MATCH_FACADE_ADDRESS as string,
@@ -19,7 +18,6 @@ export const OpponentInfo = ({ playerAddress, match, processingAction, playerTur
             from: playerAddress
         },
         onSuccess: (data) => {
-            console.log('data opponent', data)
             if (data) {
                 setRevealedCards(data[0])
                 setEnvidoCount(data[1])
@@ -28,22 +26,16 @@ export const OpponentInfo = ({ playerAddress, match, processingAction, playerTur
         onError:(err: Error) => {
             console.log('ERROR: getdata opponent', err)
         },
-        onSettled: (data) => {
-            console.log('settled opponent' , data)
-        }
     })
 
     useEffect(() => {
-        console.log('refetching', data)
         refreshData({ throwOnError: true, cancelRefetch: false})
     }, [processingAction, playerTurn, refreshData, data])
 
     useEffect(() => {
         if(error) {
-            console.log("ERROR OPPONENT",error)
+            console.log("ERROR getdata opponent",error)
         }
-
-        //refreshData()
     }, [error])
 
 
@@ -52,7 +44,6 @@ export const OpponentInfo = ({ playerAddress, match, processingAction, playerTur
             <div><p>Cards</p>
             {
                 revealedCards?.map((cardIndex, indexKey) => {
-                    console.log('cards', cardIndex)
                     return <GraphicCard key={indexKey} cardIndex={parseInt(cardIndex)} />
                 })
             }
