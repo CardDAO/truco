@@ -6,10 +6,10 @@ import { CASTILLAN_CARDS } from "../../assets/castillan-cards"
 import { AccountType, useAccountInformation } from "../../hooks/providers/Wagmi"
 import { GAS_LIMIT_WRITE } from "../Dashboard"
 import { toast } from 'react-toastify';
+import { GraphicCard } from "../GraphicCard"
 
 export const Card = ({ match, onChangeAction, setProcessingAction }) => {
 
-    const [cardName, setCardName ] = useState("")
     const [ cleanCardIndex, setCleanCardIndex ] = useState(-1)
     const [ signature, setSignature ] = useState("")
     const { address } : AccountType = useAccountInformation()
@@ -17,8 +17,7 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
     const [ checkSuccess, setCheckSuccess ] = useState(false)
 
     const changeAndCallback = (event: any) => {
-        setCleanCardIndex(parseInt(event.target.value))
-        setCardName(CASTILLAN_CARDS[parseInt(event.target.value)])
+        setCleanCardIndex(parseInt(event.target.value) >=0 ? parseInt(event.target.value) : 0)
         onChangeAction(event)
     }
 
@@ -27,10 +26,10 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
 
 
     const validateCard = useCallback(() => {
-        if (CASTILLAN_CARDS[cleanCardIndex] === undefined) {
-            setEnableAction(false)
-        } else {
+        if (cleanCardIndex > 0 && cleanCardIndex <= 40) {
             setEnableAction(true)
+        } else {
+            setEnableAction(false)
         }
     }, [cleanCardIndex])
 
@@ -80,7 +79,7 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
         contractInterface: new Interface(["function getCardProofToForSigning(address, uint8[]) public view returns (bytes32)"]),
         functionName: "getCardProofToForSigning",
         enabled: inProgress,
-        args: [address, [ BigNumber.from(cleanCardIndex.toString() ??  "0")]],
+        args: [address, [ BigNumber.from(cleanCardIndex)]],
         overrides: {
             from: address as string
         },
@@ -155,21 +154,19 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
     }, [ error, errorToSign ])
 
     return (
-        <div className="relative">
-            <label className="block mb-2 text-sm font-medium text-gray-300">Card<span className="text-xs mx-2">{cardName}</span>
-            <input onChange={changeAndCallback} type="text" className="block p-2 pl-5 w-full text-sm rounded-lg border bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500" />
+        <div className="relative flex-nowrap">
             {
-                enableAction ?
+                cleanCardIndex > 0 ?
                     <button onClick={() => {
                         setProcessingAction(true)
                         setInProgress(true)
                         onWrite()
-                    }} className="text-white absolute right-2.5 bottom-1.5 bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-800 font-medium rounded-lg text-sm px-2 py-1">
-                        PlayCard
+                }} className={enableAction ? "hover:shadow-lg hover:shadow-cyan-500/50": ""}>
+                        <GraphicCard cardIndex={cleanCardIndex} />
                     </button>
-                : ""
+                    :""
             }
-            </label>
+            <input onChange={changeAndCallback} type="text" className="block p-2 pl-5 w-20 text-sm rounded-lg border bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500" />
         </div>
     )
 }

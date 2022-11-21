@@ -2,8 +2,9 @@ import { Interface } from "ethers/lib/utils"
 import { useEffect, useState } from "react"
 import { useContractRead } from "wagmi"
 import { CASTILLAN_CARDS } from "../../assets/castillan-cards"
+import { GraphicCard } from "../GraphicCard"
 
-export const OpponentInfo = ({ match, processingAction, playerTurn }) => {
+export const OpponentInfo = ({ playerAddress, match, processingAction, playerTurn }) => {
     const [revealedCards, setRevealedCards] = useState([])
     const [envidoCount, setEnvidoCount ] = useState(0)
     console.log("QWEQWEEWQQEWQEWQWE")
@@ -14,6 +15,9 @@ export const OpponentInfo = ({ match, processingAction, playerTurn }) => {
         functionName: 'getOpponentInfo',
         enabled: true,
         args: [match],
+        overrides: {
+            from: playerAddress
+        },
         onSuccess: (data) => {
             console.log('data opponent', data)
             if (data) {
@@ -49,7 +53,7 @@ export const OpponentInfo = ({ match, processingAction, playerTurn }) => {
             {
                 revealedCards?.map((cardIndex) => {
                     console.log('cards', cardIndex)
-                    return CASTILLAN_CARDS[parseInt(cardIndex)]
+                    return <GraphicCard key={cardIndex} cardIndex={parseInt(cardIndex)} />
                 })
             }
             </div>

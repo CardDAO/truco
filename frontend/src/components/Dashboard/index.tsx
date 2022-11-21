@@ -261,7 +261,7 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                         <div className="border-dashed border-2 border-orange-700 justify-center">
                         {
                             matchAddress && matchStateValue === MatchStateEnum.WAITING_FOR_PLAY ?
-                                <OpponentInfo match={matchAddress} processingAction={processingAction} playerTurn={playerTurn} />
+                                <OpponentInfo playerAddress={address} match={matchAddress} processingAction={processingAction} playerTurn={playerTurn} />
                             : ""
                         }
                         {

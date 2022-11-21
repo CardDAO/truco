@@ -164,7 +164,7 @@ contract FrontMatchFacade {
         return (uint(state), // match state
                 uint(gameState.currentChallenge.challenge), // current challenge
                 bool(gameState.currentChallenge.waitingChallengeResponse),
-                address(players[gameState.playerWhoShuffled]), // shuffler
+                address(players[gameState.playerWhoShuffled ^ 1]), // shuffler
                 address(players[gameState.playerTurn]), // playerTurn
                 getCurrentBet(_contractMatch) // bet amount
         );

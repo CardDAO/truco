@@ -1,15 +1,9 @@
 
 const DECK_PATH =  '/deck_images'
+const CARD_STYLE = 'inline object-cover h-40'
 export const GraphicCard = ({cardIndex}) => {
     return (
-        <div>
-            {
-                cardIndex === 0 ?
-                    <img src={`${DECK_PATH}/hidden.png`} />
-                    :
-                    <img src={`${DECK_PATH}/${cardIndex}.png`} />
-            }
-        </div>
+        <img className={CARD_STYLE} src={`${DECK_PATH}/${cardIndex === 0 ? 'reverse-card' : cardIndex}.png`} />
     )
 
 }
