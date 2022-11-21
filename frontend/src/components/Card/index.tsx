@@ -49,10 +49,11 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
                 progress: undefined,
                 theme: "dark",
             });
+            setProcessingAction(false)
+            setInProgress(false)
         }
     })
     const onWrite = () => {
-        console.log('go')
         getHashToSign().then((result) => {
             signMessage({
                 message: arrayify(result.data)
@@ -84,10 +85,8 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
             from: address as string
         },
         onSuccess: (data) => {
-            console.log('we', data)
         },
         onError: (error: Error) => {
-            console.log('dos', err)
             toast.error(`🦄 Error: ${error?.message}`, {
                 position: "bottom-center",
                 autoClose: 5000,
@@ -143,7 +142,10 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
                 progress: undefined,
                 theme: "dark",
             });
-
+            setGoToSpell(false)
+            setInProgress(false)
+            setProcessingAction(false)
+            setCheckSuccess(false)
         },
         onError: (error: Error) => {
             toast.error(`🦄 Error playcard: ${error}`, {
@@ -156,7 +158,10 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
                 progress: undefined,
                 theme: "dark",
             });
-
+            setGoToSpell(false)
+            setInProgress(false)
+            setProcessingAction(false)
+            setCheckSuccess(false)
         }
     })
 

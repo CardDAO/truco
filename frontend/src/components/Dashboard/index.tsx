@@ -285,11 +285,7 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                         })
                         }
                         </div>
-                        <div className="border-dashed border-2 row-span-3 bg-slate-50/50 border-emerald-50">
-                        Played cards
-                        </div>
-                        <div className="border-dashed border-2 row-span-2 border-lime-700">
-                        My cards
+                        <div className="border-dashed border-2 row-span-3 border-lime-700">
                             <div>
                                 <label>Envido
                                 <input value={currentEnvido} className="block p-2 w-20 rounded-lg border sm:text-xs bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500" onChange={(event) => setCurrentEnvido(event.target.value)} />

@@ -26,7 +26,7 @@ export const MyCards = ({ match, cards, setCards, setProcessingAction, processin
        onSuccess: (data) => {
            console.log('data from contract', data, data[0].length)
            if (data && data[0].length > 0) {
-               setUsedContractCards(data[0])
+               setUsedContractCards(oldCards => [...data[0]])
            }
        },
        onError: (err: Error) => {
@@ -36,7 +36,7 @@ export const MyCards = ({ match, cards, setCards, setProcessingAction, processin
 
     useEffect(() => {
         fetchUsedCards()
-    }, [cards, usedContractCards, fetchUsedCards, processingAction])
+    }, [cards, processingAction,fetchUsedCards])
 
     return (
         <div className="flex flex-row">

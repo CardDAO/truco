@@ -41,17 +41,17 @@ export const OpponentInfo = ({ playerAddress, match, processingAction, playerTur
 
     return (
         <div>
-            <div><p>Cards</p>
+            <div><p className="text-sm text-red-600">Opponent</p>
             {
                 revealedCards?.map((cardIndex, indexKey) => {
                     return <GraphicCard key={indexKey} cardIndex={parseInt(cardIndex)} />
                 })
             }
             </div>
-            <div> <p>Envido</p>
+            <div> <p>Envido <span>
             {
-                envidoCount
-            }
+                envidoCount >= 0 && envidoCount <=33 ? envidoCount : " - "
+            }</span></p>
             </div>
         </div>
     )
