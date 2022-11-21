@@ -9,3 +9,7 @@
 .Game-View {
     @apply bg-gray-800/50 order-1 md:order-2 md:col-span-2 mx-4;
 }
+
+.Loading-GameState {
+    @apply my-5 text-white focus:ring-4 focus:outline-none font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center mr-2 bg-blue-600 hover:bg-blue-700 focus:ring-blue-800;
+}
