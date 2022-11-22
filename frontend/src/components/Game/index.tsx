@@ -23,7 +23,12 @@ export const Game = () => {
     const goToJoin = () => {
         if (invalidAddress.length === 0) {
             setInSession(!inSession)
-            localStorage.setItem('latest_deployed_match', matchAddress)
+            let matchStorage = JSON.parse(localStorage.getItem('match') ?? "{}")
+            if (!matchStorage.address || matchStorage.address !== matchAddress) {
+                matchStorage.address = matchAddress
+                matchStorage.cards = []
+                localStorage.setItem('match', JSON.stringify(matchStorage))
+            }
         }
     }
 
@@ -49,7 +54,7 @@ export const Game = () => {
     }, [players, getPlayersError])
 
     useEffect(() => {
-        const latestDeployedMatch = localStorage.getItem('latest_deployed_match')
+        const latestDeployedMatch = JSON.parse(localStorage.getItem('match') ?? "{}" )?.address ?? ""
         if (latestDeployedMatch) {
             setMatchAddress(latestDeployedMatch)
         }

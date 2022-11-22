@@ -8,6 +8,7 @@ import { createContext } from "react"
 import { StateEnum } from "../../hooks/enums"
 import { createPlayer, createDeck } from 'mental-poker'
 import { InitCommunication, sayHelloAll } from "../Actions/InitComunication"
+import { toast } from 'react-toastify';
 import { useContractRead, useSignMessage, useContractEvent } from "wagmi"
 import { GAME_CONFIG } from "../../engine/truco/GameConfig"
 import {useProcessMessage} from '../../engine/truco/ProcessMessages'
@@ -35,6 +36,8 @@ import { Resign } from "../Actions/Resign"
 import { OpponentInfo } from "../OpponentInfo"
 import { MdRefresh } from "react-icons/md"
 import { RevealCards } from "../Actions/RevealCards"
+import { decryptCard } from 'mental-poker'
+import { ActionButton } from "../Actions/Button"
 
 
 export const GAS_LIMIT_WRITE = process.env.GAS_LIMIT_WRITE
@@ -63,7 +66,7 @@ const arrayToBuffer = (array: any[]) => array.map(simpleObject => Buffer.from(si
 export const Dashboard = ({ address, inSession, matchAddress }: any) => {
     // TODO add hasPeers -> allow actions
     // FRONT -> SHUFFLING AND P2P
-    const { p2pt, peers, messages, sendToPeers, latestNonce } = useP2PT(inSession, 'UNIQUE_KEY_GAME')
+    const { p2pt, peers, messages, sendToPeers, latestNonce } = useP2PT(inSession, matchAddress)
     const [ sharedCodewordFragment, setSharedCodewordFragments ] = useState([])
     const [ opponents, setOpponents ] = useState({})
     const [ state, setState ] = useState(StateEnum.WAITING_PLAYERS)
@@ -82,6 +85,8 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
     const [playerTurn, setPlayerTurn] = useState(undefined)
     const [ currentChallenge, setCurrentChallenge ]  = useState(undefined)
     const [ waitResponse, setWaitResponse]  = useState(undefined)
+    const [ shuffler, setShuffler ] = useState(undefined)
+    const [ playingDeal, setPlayingDeal ] = useState(true)
     
     // verify before to send
     const { data, error: errorSendMessage, isLoading, signMessage } = useSignMessage({
@@ -103,7 +108,7 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
 
     useEffect(() => {
         let interval = setInterval(() => {
-            if (p2pt.current && peers?.length === 0) {
+            if (p2pt.current ) {
                 p2pt.current.requestMorePeers()
             }
         }, 1000)
@@ -127,6 +132,7 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                             setState(StateEnum.CREATING_DECK)
 
                             if (cardCodewords.length === 0) { // generate only one deck
+                                    
                                 setCardCodewords(
                                     createDeck([selfPlayer.cardCodewordFragments, newOpponents[signer].cardCodewordFragments])
                                 )
@@ -143,28 +149,23 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                     break
                 case 'init_shuffling':
                     if (state === StateEnum.SECOND_SHUFFLING_WAITING_OTHERS) {
-                        console.log('shuffling p2')
                        consecutiveShuffling(deck, arrayToBuffer(newMessage.message.data?.deck), selfPlayer, latestNonce, signMessage) 
                     }
-                    console.log('comenzar el shuffling', newMessage)
                     break
                 case 'consecutive_shuffling':
                     if (state === StateEnum.SECOND_SHUFFLING_WAITING_OTHERS) {
-                        console.log('encrypt p1')
                        initEncryptDeck(deck, arrayToBuffer(newMessage.message.data?.deck), selfPlayer, latestNonce, signMessage) 
                        setState(StateEnum.DEAL_CARDS)
                     }
-                    console.log('comenzar el shuffling', newMessage)
                     break
                 case 'init_locking':
                     if (state === StateEnum.SECOND_SHUFFLING_WAITING_OTHERS) {
-                        console.log('encrypt p2')
+                        console.log('deck before', deck)
                         const encryptedDeck = await initEncryptDeck(deck, arrayToBuffer(newMessage.message.data?.deck), selfPlayer, latestNonce, signMessage)
                         setDeck(encryptedDeck)
                         setState(StateEnum.WAITING_MY_CARDS)
                     }
                     if (state === StateEnum.DEAL_CARDS) {
-                        console.log('select cards for p2')
                         const finalDeck = arrayToBuffer(newMessage.message.data?.deck)
                         setDeck(finalDeck) // save deck
                         // DEAL CARDS
@@ -185,35 +186,39 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                             return oldOpponents
                         })
 
-                        setState(StateEnum.START_GAME)
+                        setState(StateEnum.WAITING_MY_CARDS)
+
                     }
                     break
                 case 'deal_cards':
-                    if (state === StateEnum.DEAL_CARDS) {
+                    if (state === StateEnum.WAITING_MY_CARDS) {
                         // SET MY CARDS
-                        setMyCards({cards: newMessage.message.data?.cardsToDeal})
+                        setMyCards(oldMyCards => ( {...oldMyCards, cards: newMessage.message.data?.cardsToDeal} ))
 
                         // DEAL CARDS
-                        const dealedCards: MentalPokerCard[] = dealCards(deck, usedCardsIndexes, selfPlayer, latestNonce, signMessage)
-                        const dealedCardIndexes = dealedCards.map((dealCard: MentalPokerCard) => dealCard.cardIndex)
-                        
-                        setUsedCardsIndexes(
-                            oldUsedCardsIndexes => [
-                                ...oldUsedCardsIndexes,
-                                ...dealedCards.map((dealCard: MentalPokerCard) => dealCard.cardIndex)
-                            ])
-                        setOpponents(oldOpponents => {
-                            const opponentToDeal = oldOpponents[signer]
-                            opponentToDeal.cardsIndexes = dealedCardIndexes
-                            oldOpponents[signer] = opponentToDeal
+                        if (!opponents[signer]?.cardsIndexes || opponents[signer]?.cardsIndexes.length === 0) {
+                            const dealedCards: MentalPokerCard[] = dealCards(deck, usedCardsIndexes, selfPlayer, latestNonce, signMessage)
+                            const dealedCardIndexes = dealedCards.map((dealCard: MentalPokerCard) => dealCard.cardIndex)
+                            
+                            setUsedCardsIndexes(
+                                oldUsedCardsIndexes => [
+                                    ...oldUsedCardsIndexes,
+                                    ...dealedCards.map((dealCard: MentalPokerCard) => dealCard.cardIndex)
+                                ])
+                            setOpponents(oldOpponents => {
+                                const opponentToDeal = oldOpponents[signer]
+                                opponentToDeal.cardsIndexes = dealedCardIndexes
+                                oldOpponents[signer] = opponentToDeal
 
-                            return oldOpponents
-                        })
+                                return oldOpponents
+                            })
+                        }
                         setState(StateEnum.START_GAME)
+
                     }
                     break
             }
-        }, [state, address, signMessage, deck, cardCodewords, latestNonce, opponents, selfPlayer ])
+        }, [state, address, signMessage, deck, cardCodewords, latestNonce, opponents, selfPlayer, messages ])
     })
     // go to first shuffling
     useEffect(() => {
@@ -222,6 +227,63 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
            setState(StateEnum.SECOND_SHUFFLING_WAITING_OTHERS)
         }
     }, [opponents, cardCodewords, state])
+
+    useEffect(() => {
+        if (state === StateEnum.START_GAME && myCards?.cards) {
+            const newCleanCards = []
+            myCards.cards.forEach((card) => {
+                const cardIndex = card.cardIndex
+                const encryptedCard = deck[cardIndex]
+                const decryptedCard = decryptCard(
+                    encryptedCard, [selfPlayer.keyPairs[cardIndex].privateKey, ...arrayToBuffer(card.private_keys)]
+                )
+                const codewordIndex = cardCodewords.findIndex(cardCodeword => cardCodeword.equals(decryptedCard))
+                if (codewordIndex === -1) {
+                    toast.error(`🦄 Error PROTOCOL VIOLATION`, {
+                        position: "bottom-center",
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "dark",
+                    });
+                } else {
+                    newCleanCards.push(codewordIndex+1)
+                }
+            })
+            setCleanCards(newCleanCards)
+            let matchStorage = JSON.parse(localStorage.getItem('match') ?? "{}")
+            if (!matchStorage) {
+                matchStorage = {address: matchAddress}
+            }
+            matchStorage['cards'] = newCleanCards
+            localStorage.setItem('match', JSON.stringify(matchStorage))
+        }
+
+    }, [myCards, deck, cardCodewords, selfPlayer.keyPairs, state, matchAddress])
+
+    useEffect(() => {
+        let matchStorage = JSON.parse(localStorage.getItem('match') ?? "{}")
+        if (matchStorage?.cards && matchStorage.cards.length > 0) {
+            setState(StateEnum.START_GAME)
+            setPlayingDeal(true)
+            setCleanCards(matchStorage.cards)
+        }
+    }, [])
+
+    const clearStatesAndCards = () => {
+        setState(StateEnum.WAITING_PLAYERS)
+        setCardCodewords([])
+        setDeck([] as Buffer[])
+        setCleanCards([])
+        setSharedCodewordFragments([])
+        setOpponents([])
+        setMyCards({} as AssignedCards)
+        setUsedCardsIndexes([])
+        setPlayingDeal(false)
+    }
 
 
     //<Chat
@@ -240,9 +302,9 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
         joined ?
         <div className="Dashboard-Grid">
             <div className="Chat-Column">
-                <p>Deck: {deck}</p>
-                <p>cardcodewords: {cardCodewords}</p>
-                <p>status: {state}</p>
+                <p className="text-gray-100">Shuffling status: {StateEnum[state]}</p>
+                <p className="text-gray-100">Peers: {peers.length}</p>
+                <p className="text-gray-100">Last nonce: {latestNonce}</p>
                 <button type="button" className={`Loading-GameState ${processingAction ? "animate-bounce bg-indigo-500 shadow-lg shadow-indigo-500/50" : "" }`} onClick={()=> { setProcessingAction(true); setTimeout(() => {setProcessingAction(false)}, 2000) }}>
                     {
                     processingAction ?
@@ -254,6 +316,8 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                     }
                 </button>
                 <GameState 
+                    shuffler={shuffler}
+                    setShuffler={setShuffler}
                     setPlayerTurn={setPlayerTurn}
                     playerTurn={playerTurn}
                     setJoined={setJoined}
@@ -268,6 +332,8 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                     setCurrentChallenge={setCurrentChallenge}
                     waitResponse={waitResponse}
                     setWaitResponse={setWaitResponse}
+                    setPlayingDeal={setPlayingDeal}
+
                 />
             </div>
             <div className="Game-View">
@@ -325,11 +391,22 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                                     <Resign playerTurn={playerTurn} currentChallenge={currentChallenge} match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                     </>
                                     :
-                                    matchStateValue === MatchStateEnum.WAITING_FOR_DEAL ?
-                                        <NewDeal match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} myAddress={address} />
+                                    matchStateValue === MatchStateEnum.WAITING_FOR_DEAL && state === StateEnum.START_GAME ?
+                                        <>
+                                            {
+                                                !playingDeal ?
+                                                <NewDeal match={matchAddress} playingDeal={playingDeal} setPlayingDeal={setPlayingDeal} setProcessingAction={setProcessingAction} processingAction={processingAction} myAddress={address} />
+                                                :
+                                                <ActionButton text="Clear for new deal" clickCallback={() => {clearStatesAndCards()}} />
+                                            }
+                                        </>
                                     :
                                     <>
+                                        {
+                                        shuffler === address && peers.length > 0?
                                         <InitCommunication signMessage={signMessage} latestNonce={latestNonce} state={state} self={selfPlayer} setState={setState} />
+                                        : ""
+                                        }
                                     </>
                                     : ""
                             }

@@ -26,7 +26,7 @@ export const DeployMatch = ({ processingAction, setProcessingAction, setMatchAdd
         functionName: "approve",
         args: [
             TRUCOMATCH_FACTORY, // match factory
-            betValue >= 0 ? betValue : 0
+            betValue && betValue > 0 ? betValue : 0
         ],
         onSuccess: (data: any) => {
             if (!inProgress) {
@@ -43,7 +43,7 @@ export const DeployMatch = ({ processingAction, setProcessingAction, setMatchAdd
         addressOrName: TRUCOMATCH_FACTORY, // match factory
         contractInterface: new Interface(["function newMatch(uint) public returns (address)"]),
         functionName: "newMatch",
-        args: [BigNumber.from(betValue >= 0 ? betValue.toString() : 0)],
+        args: [BigNumber.from(betValue && betValue > 0 ? betValue.toString() : 0)],
         overrides: {
             gasLimit: process.env.GAS_LIMIT_WRITE * 2
         },
@@ -144,7 +144,9 @@ export const DeployMatch = ({ processingAction, setProcessingAction, setMatchAdd
                 setMatchAddress(event[0])
                 finishProcess()
                 setEnableAction(false)
-                localStorage.setItem('latest_deployed_match', event[0])
+                let matchStorage = JSON.parse(localStorage.getItem('match') ?? "{}")
+                matchStorage.address = event[0]
+                localStorage.setItem('match', JSON.stringify(matchStorage))
                 toast.success(`🦄 Success: Contract deployed ${event[0]}`, {
                     position: "bottom-center",
                     autoClose: 5000,
@@ -181,6 +183,8 @@ export const DeployMatch = ({ processingAction, setProcessingAction, setMatchAdd
     useEffect(() => {
         if(betValue && betValue > 0) {
            setAvailableClick(true)
+        } else {
+            setAvailableClick(false)
         }
     }, [betValue])
 

@@ -24,7 +24,6 @@ export const MyCards = ({ match, cards, setCards, setProcessingAction, processin
            from: address
        },
        onSuccess: (data) => {
-           console.log('data from contract', data, data[0].length)
            if (data && data[0].length > 0) {
                setUsedContractCards(oldCards => [...data[0]])
            }
@@ -41,14 +40,15 @@ export const MyCards = ({ match, cards, setCards, setProcessingAction, processin
     return (
         <div className="flex flex-row">
             {
-                usedContractCards.map((card, index) => {
-                    if (card === 0) {
-                        return <Card key={index} onChangeAction={(e) => setCards((myCards: any) => { 
+                cards.map((card, index) => {
+                    
+                    if (usedContractCards.indexOf(card) === -1) {
+                        return <Card key={index} cleanCardIndexValue={card} onChangeAction={(e) => setCards((myCards: any) => { 
                             myCards[index] = getIndexCardFromEvent(e) 
                             return myCards
                         })} match={match} setProcessingAction={setProcessingAction} />
                     } else {
-                        return <GraphicCard cardIndex={card}/>
+                        return <GraphicCard key={index} cardIndex={card}/>
                     }
                 })
             }

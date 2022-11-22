@@ -13,11 +13,12 @@ export const GameState = ({
     setPlayerTurn, playerTurn,
     setProcessingAction, matchStateValue, setMatchStateValue,
     currentChallenge, setCurrentChallenge,
-    waitResponse, setWaitResponse
+    waitResponse, setWaitResponse,
+    shuffler, setShuffler,
+    setPlayingDeal
 }) => {
     //const [ betValue, setBetValue ] = useState(0)
     const {currentBetValue: betValue} = useCurrentBet(matchAddress)
-    const [ shuffler, setShuffler ] = useState(undefined)
     const [ teamPoints, setTeamPoints ] = useState([])
     const [ matchPoints, setMatchPoints ] = useState(0)
     const [ showPoints , setShowPoints ] = useState(false)
@@ -103,7 +104,6 @@ export const GameState = ({
         listener: (event) => {
             setProcessingAction(true)
             refetchState()
-            console.log('match start event, change', event)
             setProcessingAction(false)
         },
     })
@@ -116,7 +116,7 @@ export const GameState = ({
         eventName: 'NewDeal',
         listener: (event) => {
             setProcessingAction(true)
-            console.log('new deal event, change', event)
+            setPlayingDeal(true)
             refetchState()
             setProcessingAction(false)
         },
@@ -128,7 +128,6 @@ export const GameState = ({
         eventName: 'NewDealRequired',
         listener: (event) => {
             setProcessingAction(true)
-            console.log('new deal required -> New Shuffler event, change', event)
             //refetchState()
             setShuffler(event.newShuffler)
             setProcessingAction(false)

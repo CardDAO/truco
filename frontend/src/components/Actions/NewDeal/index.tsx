@@ -6,13 +6,12 @@ import { Interface } from "ethers/lib/utils"
 import { useContractRead, useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi"
 
 export const NewDeal = ({
-     match, processingAction, setProcessingAction, myAddress }: any
+     match, processingAction, setProcessingAction, myAddress, playingDeal, setPlayingDeal }: any
 ) => {
 
     const [ imShuffler, setImShuffler] = useState(false)
     const [ goToSpell, setGoToSpell] = useState(false)
     const [ enableAction, setEnableAction ] = useState(false)
-    console.log('deal')
 
     useContractRead({
         addressOrName: process.env.FRONT_MATCH_FACADE_ADDRESS as string,
@@ -20,9 +19,7 @@ export const NewDeal = ({
         functionName: 'getCurrentShuffler',
         args: [match],
         onSuccess: (data) => {
-            console.log('data current shuffler', data)
             if (data && myAddress === data) {
-                console.log('im shuffler')
                 setImShuffler(true)
                 
             }
@@ -43,7 +40,6 @@ export const NewDeal = ({
         onSuccess: (data) => {
             console.log(`can newDeal (TRUE)`, data)
             if (imShuffler) {
-                console.log('im shuffler, set enable')
                 setEnableAction(true)
             }
         },
@@ -59,6 +55,7 @@ export const NewDeal = ({
         hash: data?.hash,
         wait: data?.wait,
         onSuccess: (data) => {
+            setPlayingDeal(true)
             console.log('succes transaction newdeal', data)
         },
         onError: (err:Error) => {

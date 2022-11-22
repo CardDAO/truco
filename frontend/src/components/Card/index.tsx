@@ -8,9 +8,9 @@ import { GAS_LIMIT_WRITE } from "../Dashboard"
 import { toast } from 'react-toastify';
 import { GraphicCard } from "../GraphicCard"
 
-export const Card = ({ match, onChangeAction, setProcessingAction }) => {
+export const Card = ({ cleanCardIndexValue, match, onChangeAction, setProcessingAction }) => {
 
-    const [ cleanCardIndex, setCleanCardIndex ] = useState(-1)
+    const [ cleanCardIndex, setCleanCardIndex ] = useState(cleanCardIndexValue ?? -1)
     const [ signature, setSignature ] = useState("")
     const { address } : AccountType = useAccountInformation()
     const [ inProgress, setInProgress ] = useState(false)
@@ -32,6 +32,12 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
             setEnableAction(false)
         }
     }, [cleanCardIndex])
+
+    useEffect(() => {
+        if (cleanCardIndexValue && cleanCardIndexValue > 0) {
+            setCleanCardIndex(cleanCardIndexValue)
+        }
+    }, [cleanCardIndexValue])
 
     const { error: errorToSign, signMessage } = useSignMessage({
         onSuccess(signature: any, variables: any) {
@@ -80,7 +86,7 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
         contractInterface: new Interface(["function getCardProofToForSigning(address, uint8[]) public view returns (bytes32)"]),
         functionName: "getCardProofToForSigning",
         enabled: inProgress,
-        args: [address, [ BigNumber.from(cleanCardIndex)]],
+        args: [address, [ BigNumber.from(cleanCardIndex && cleanCardIndex > 0 ? cleanCardIndex : 0)]],
         overrides: {
             from: address as string
         },
@@ -105,7 +111,7 @@ export const Card = ({ match, onChangeAction, setProcessingAction }) => {
         contractInterface: new Interface(["function playCard(uint8, bytes) public"]),
         functionName: "playCard",
         enabled: goToSpell,
-        args: [ BigNumber.from(cleanCardIndex.toString()), signature],
+        args: [ BigNumber.from(cleanCardIndex && cleanCardIndex > 0 ? cleanCardIndex.toString() : 0), signature],
         overrides: {
             gasLimit: GAS_LIMIT_WRITE
         },
