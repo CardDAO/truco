@@ -22,7 +22,7 @@ Example:
 - Card ID 19 is Knight of Cups
 - Card ID 21 is Ace of Swords
 */
-contract CastillianDeck is ICardsDeck {
+contract CastilianDeck is ICardsDeck {
     uint8 public constant maskedCardId = 0;
 
     uint8 public constant numberOfCards = 40;

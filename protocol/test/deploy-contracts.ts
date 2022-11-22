@@ -8,7 +8,7 @@ import { deployTrucoResolverContract } from '../scripts/helpers/truco-resolver-d
 import { deployTrucoinContract } from '../scripts/helpers/trucoin-deploy'
 
 export async function deployDeckContract() {
-    const CardsDeck = await ethers.getContractFactory('CastillianDeck')
+    const CardsDeck = await ethers.getContractFactory('CastilianDeck')
     const cardsDeck = await CardsDeck.deploy()
 
     return { cardsDeck }

@@ -7,7 +7,7 @@ import GameStateStruct = IERC3333.GameStateStruct
 // Must replicate IERC3333.initialGameState() initial state
 export function basicGameState(): GameStateStruct {
     const defaultPlayerId = BigNumber.from(0)
-    const maskedCard = BigNumber.from(0) // see ICardsDeck impl:  CastillianDeck.sol
+    const maskedCard = BigNumber.from(0) // see ICardsDeck impl:  CastilianDeck.sol
 
     return {
         playerTurn: BigNumber.from(defaultPlayerId),

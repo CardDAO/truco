@@ -5,7 +5,7 @@ import { BigNumber } from 'ethers'
 
 describe('Deck logic', function () {
     async function deployContract() {
-        const CardsDeck = await ethers.getContractFactory('CastillianDeck')
+        const CardsDeck = await ethers.getContractFactory('CastilianDeck')
         const sut = await CardsDeck.deploy()
 
         return { sut }

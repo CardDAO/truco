@@ -417,7 +417,7 @@ contract TrucoResolver is Initializable, OwnableUpgradeable {
         return i;
     }
 
-    // @dev Card Hierarchy for Castillian Suited Card Deck, see CastillianDeck.sol (IDeck impl) for deck card definition
+    // @dev Card Hierarchy for Castillian Suited Card Deck, see CastilianDeck.sol (IDeck impl) for deck card definition
     function _getCardsHierarchy() internal pure returns (uint8[41] memory) {
         /*
         // Generation Code
