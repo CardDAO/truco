@@ -123,15 +123,18 @@ contract FrontMatchFacade {
         returns (address)
     {
         address[2] memory players = _contractMatch.getPlayers();
-        return players[_getCurrentGameState(_contractMatch).playerWhoShuffled ^ 1];
+        return
+            players[_getCurrentGameState(_contractMatch).playerWhoShuffled ^ 1];
     }
 
     function getOpponentInfo(TrucoMatch _contractMatch)
         public
         view
-        returns(uint8[3] memory, uint8)
+        returns (uint8[3] memory, uint8)
     {
-        IERC3333.GameState memory gameState = _getCurrentGameState(_contractMatch);
+        IERC3333.GameState memory gameState = _getCurrentGameState(
+            _contractMatch
+        );
         uint8 opponentIndex = _currentPlayerIdx(_contractMatch) ^ 1;
 
         return (
@@ -143,9 +146,11 @@ contract FrontMatchFacade {
     function getMyCardsInfo(TrucoMatch _contractMatch)
         public
         view
-        returns(uint8[3] memory, uint8)
+        returns (uint8[3] memory, uint8)
     {
-        IERC3333.GameState memory gameState = _getCurrentGameState(_contractMatch);
+        IERC3333.GameState memory gameState = _getCurrentGameState(
+            _contractMatch
+        );
         uint8 meIndex = _currentPlayerIdx(_contractMatch);
 
         return (
@@ -153,17 +158,16 @@ contract FrontMatchFacade {
             gameState.envido.playerCount[meIndex] // envido count
         );
     }
-    
+
     function getMatchPoints(TrucoMatch _contractMatch)
         public
         view
-        returns(uint8[] memory, uint8)
+        returns (uint8[] memory, uint8)
     {
-        IERC3333.GameState memory gameState = _getCurrentGameState(_contractMatch);
-        return(
-                gameState.teamPoints,
-                gameState.pointsToWin
+        IERC3333.GameState memory gameState = _getCurrentGameState(
+            _contractMatch
         );
+        return (gameState.teamPoints, gameState.pointsToWin);
     }
 
     function getMatchInfo(TrucoMatch _contractMatch)
@@ -178,16 +182,19 @@ contract FrontMatchFacade {
             uint256
         )
     {
-        (,TrucoMatch.MatchStateEnum state) = _contractMatch.matchState();
-        IERC3333.GameState memory gameState = _getCurrentGameState(_contractMatch);
+        (, TrucoMatch.MatchStateEnum state) = _contractMatch.matchState();
+        IERC3333.GameState memory gameState = _getCurrentGameState(
+            _contractMatch
+        );
         address[2] memory players = _contractMatch.getPlayers();
 
-        return (uint(state), // match state
-                uint(gameState.currentChallenge.challenge), // current challenge
-                bool(gameState.currentChallenge.waitingChallengeResponse),
-                address(players[gameState.playerWhoShuffled ^ 1]), // shuffler
-                address(players[gameState.playerTurn]), // playerTurn
-                getCurrentBet(_contractMatch) // bet amount
+        return (
+            uint256(state), // match state
+            uint256(gameState.currentChallenge.challenge), // current challenge
+            bool(gameState.currentChallenge.waitingChallengeResponse),
+            address(players[gameState.playerWhoShuffled ^ 1]), // shuffler
+            address(players[gameState.playerTurn]), // playerTurn
+            getCurrentBet(_contractMatch) // bet amount
         );
     }
 
