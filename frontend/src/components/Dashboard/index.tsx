@@ -218,7 +218,7 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                     }
                     break
             }
-        }, [state, address, signMessage, deck, cardCodewords, latestNonce, opponents, selfPlayer, messages ])
+        }, [state, address, signMessage, deck, cardCodewords, latestNonce, opponents, selfPlayer, messages, myCards, usedCardsIndexes])
     })
     // go to first shuffling
     useEffect(() => {
@@ -266,10 +266,13 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
 
     useEffect(() => {
         let matchStorage = JSON.parse(localStorage.getItem('match') ?? "{}")
-        if (matchStorage?.cards && matchStorage.cards.length > 0) {
+        if (matchStorage?.cards && matchStorage.cards.length > 0 && matchStateValue === MatchStateEnum.WAITING_FOR_PLAY) {
             setState(StateEnum.START_GAME)
             setPlayingDeal(true)
             setCleanCards(matchStorage.cards)
+        } else if (matchStorage?.cards && matchStorage.cards.length > 0) {
+            matchStorage.cards = []
+            localStorage.setItem('match', JSON.stringify(matchStorage))
         }
     }, [])
 
@@ -387,17 +390,13 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                                         <AcceptChallengeForRaising playerTurn={playerTurn} currentChallenge={currentChallenge} match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                         </>
                                     }
-                                    <RecalculateEnvido playerTurn={playerTurn} currentChallenge={currentChallenge} cards={cleanCards} setCurrentEnvido={setCurrentEnvido} />
                                     <Resign playerTurn={playerTurn} currentChallenge={currentChallenge} match={matchAddress} setProcessingAction={setProcessingAction} processingAction={processingAction} />
                                     </>
                                     :
                                     matchStateValue === MatchStateEnum.WAITING_FOR_DEAL && state === StateEnum.START_GAME ?
                                         <>
                                             {
-                                                !playingDeal ?
                                                 <NewDeal match={matchAddress} playingDeal={playingDeal} setPlayingDeal={setPlayingDeal} setProcessingAction={setProcessingAction} processingAction={processingAction} myAddress={address} />
-                                                :
-                                                <ActionButton text="Clear for new deal" clickCallback={() => {clearStatesAndCards()}} />
                                             }
                                         </>
                                     :
@@ -409,6 +408,12 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                                         }
                                     </>
                                     : ""
+                            }
+                            {
+                                matchStateValue === MatchStateEnum.WAITING_FOR_PLAY ?
+                                    <RecalculateEnvido playerTurn={playerTurn} currentChallenge={currentChallenge} cards={cleanCards} setCurrentEnvido={setCurrentEnvido} />
+                                    :
+                                    <ActionButton text="Clear for new deal" clickCallback={() => {clearStatesAndCards()}} />
                             }
                             </Actions>
                         </div>
