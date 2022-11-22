@@ -8,9 +8,14 @@ export const AcceptChallenge = ({match, processingAction, setProcessingAction}: 
     return (
         <CommonActionWrite
             match={match}
-            contractInterface={new Interface(["function acceptChallenge() public"])}
-            functionName={"acceptChallenge"}
-            args={[]}
+            writeSelectorInterface={new Interface(["function acceptChallenge() public"])}
+            writeFunctionName={"acceptChallenge"}
+            writeArgs={[]}
+            checkExecute={true}
+            canSelectorInterface={new Interface(["function canResponse(address) external view returns(bool)"])}
+            canFunctionName="canResponse"
+            canFunctionArgs={[match]}
+            canContractAddress={process.env.FRONT_MATCH_FACADE_ADDRESS}
             processingAction={processingAction}
             setProcessingAction={setProcessingAction}
             buttonText="AcceptChallenge!"

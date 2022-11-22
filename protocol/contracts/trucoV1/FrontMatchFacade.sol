@@ -108,6 +108,96 @@ contract FrontMatchFacade {
         revert('You are not a player in this match');
     }
 
+    function getCurrentBet(TrucoMatch _contractMatch)
+        public
+        view
+        returns (uint256)
+    {
+        (, uint256 bet) = _contractMatch.currentMatch();
+        return bet;
+    }
+
+    function getCurrentShuffler(TrucoMatch _contractMatch)
+        public
+        view
+        returns (address)
+    {
+        address[2] memory players = _contractMatch.getPlayers();
+        return
+            players[_getCurrentGameState(_contractMatch).playerWhoShuffled ^ 1];
+    }
+
+    function getOpponentInfo(TrucoMatch _contractMatch)
+        public
+        view
+        returns (uint8[3] memory, uint8)
+    {
+        IERC3333.GameState memory gameState = _getCurrentGameState(
+            _contractMatch
+        );
+        uint8 opponentIndex = _currentPlayerIdx(_contractMatch) ^ 1;
+
+        return (
+            gameState.revealedCardsByPlayer[opponentIndex], // revealed cards
+            gameState.envido.playerCount[opponentIndex] // envido count
+        );
+    }
+
+    function getMyCardsInfo(TrucoMatch _contractMatch)
+        public
+        view
+        returns (uint8[3] memory, uint8)
+    {
+        IERC3333.GameState memory gameState = _getCurrentGameState(
+            _contractMatch
+        );
+        uint8 meIndex = _currentPlayerIdx(_contractMatch);
+
+        return (
+            gameState.revealedCardsByPlayer[meIndex], // revealed cards
+            gameState.envido.playerCount[meIndex] // envido count
+        );
+    }
+
+    function getMatchPoints(TrucoMatch _contractMatch)
+        public
+        view
+        returns (uint8[] memory, uint8)
+    {
+        IERC3333.GameState memory gameState = _getCurrentGameState(
+            _contractMatch
+        );
+        return (gameState.teamPoints, gameState.pointsToWin);
+    }
+
+    function getMatchInfo(TrucoMatch _contractMatch)
+        public
+        view
+        returns (
+            uint256,
+            uint256,
+            bool,
+            address,
+            address,
+            uint256
+        )
+    {
+        (, TrucoMatch.MatchStateEnum state) = _contractMatch.matchState();
+        IERC3333.GameState memory gameState = _getCurrentGameState(
+            _contractMatch
+        );
+        address[2] memory players = _contractMatch.getPlayers();
+
+        return (
+            uint256(state), // match state
+            uint256(gameState.currentChallenge.challenge), // current challenge
+            bool(gameState.currentChallenge.waitingChallengeResponse),
+            address(players[gameState.playerWhoShuffled ^ 1]), // shuffler
+            address(players[gameState.playerTurn]), // playerTurn
+            getCurrentBet(_contractMatch) // bet amount
+        );
+    }
+
     function _prepareMove(IERC3333.Action _action, IERC3333.Challenge _param)
         internal
         pure

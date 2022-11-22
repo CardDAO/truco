@@ -7,8 +7,9 @@ import { StateEnum } from "../../../hooks/enums"
 
 export const initEncryptDeck = async (decks: any, deckShuffled: any, self: any, latestNonce: any, signMessage: any) => {
 
+    console.log("keypairs init locking", self.keyPairs[GAME_CONFIG.cardCount].privateKey)
     let deck = encryptDeck(
-        decryptDeck(deckShuffled, self.keyPairs[40].privateKey),
+        decryptDeck(deckShuffled, self.keyPairs[GAME_CONFIG.cardCount].privateKey),
         self.keyPairs.map(keyPair => keyPair.privateKey),
     );
 

@@ -3,13 +3,16 @@ import { Interface } from "ethers/lib/utils"
 import { useState, useEffect, useCallback } from "react"
 import { useContractEvent, useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi"
 import { ActionButton } from "../Actions/Button"
+import { toast } from 'react-toastify';
 
 const TRUCOMATCH_FACTORY: string = process.env.TRUCOMATCH_FACTORY_ADDRESS as string
 
 export const DeployMatch = ({ processingAction, setProcessingAction, setMatchAddress, matchAddress}) => {
     const [enableAction, setEnableAction] = useState(false)
+    const [availableClick, setAvailableClick] = useState(false)
     const [inProgress, setInProgress] = useState(false)
     const [error, setError] = useState("")
+    const [ betValue, setBetValue ] = useState(-1)
 
     const finishProcess = useCallback(() => {
         setProcessingAction(false)
@@ -23,18 +26,16 @@ export const DeployMatch = ({ processingAction, setProcessingAction, setMatchAdd
         functionName: "approve",
         args: [
             TRUCOMATCH_FACTORY, // match factory
-            10000
+            betValue && betValue > 0 ? betValue : 0
         ],
         onSuccess: (data: any) => {
             if (!inProgress) {
                 setError("")
                 setEnableAction(true)
             }
-            console.log('can approve trucoin', data)
         },
         onError: (error: Error) => {
-            console.log('cant approve trucoin', error)
-            setEnableAction(false)
+            setAvailableClick(false)
         }
     })
 
@@ -42,15 +43,13 @@ export const DeployMatch = ({ processingAction, setProcessingAction, setMatchAdd
         addressOrName: TRUCOMATCH_FACTORY, // match factory
         contractInterface: new Interface(["function newMatch(uint) public returns (address)"]),
         functionName: "newMatch",
-        args: [BigNumber.from(10000)],
+        args: [BigNumber.from(betValue && betValue > 0 ? betValue.toString() : 0)],
         overrides: {
             gasLimit: process.env.GAS_LIMIT_WRITE * 2
         },
         onSuccess: (data: any) => {
-            console.log('can deploy', data)
         },
         onError: (error: Error) => {
-            console.log('cant deploy', data)
             //console.log('deploy match calc', error)
         }
     })
@@ -78,12 +77,26 @@ export const DeployMatch = ({ processingAction, setProcessingAction, setMatchAdd
                     finishProcess()
                 }
             }
+            setAvailableClick(false)
+            setBetValue(0)
         },
         onError: (e: Error) => {
             if (inProgress) { 
                 setError("Transaction approve failed")
                 finishProcess()
             }
+            toast.error(`🦄 Error: ${e?.message}`, {
+                position: "bottom-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
+            setAvailableClick(false)
+            setBetValue(0)
         },
         wait: dataApprove?.wait
     })
@@ -97,13 +110,26 @@ export const DeployMatch = ({ processingAction, setProcessingAction, setMatchAdd
                 setError("TX: Deploy failed")
                 finishProcess()
             }
+            setAvailableClick(false)
+            setBetValue(0)
         },
         onError: (e: Error) => {
             if (inProgress) { 
                 setError("TX: deploy failed")
                 finishProcess()
             }
-            console.log("ERROR deploy")
+            toast.error(`🦄 Error: ${e?.message}`, {
+                position: "bottom-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
+            setAvailableClick(false)
+            setBetValue(0)
         },
         wait: dataDeploy?.wait
     })
@@ -118,20 +144,49 @@ export const DeployMatch = ({ processingAction, setProcessingAction, setMatchAdd
                 setMatchAddress(event[0])
                 finishProcess()
                 setEnableAction(false)
-                localStorage.setItem('latest_deployed_match', event[0])
+                let matchStorage = JSON.parse(localStorage.getItem('match') ?? "{}")
+                matchStorage.address = event[0]
+                localStorage.setItem('match', JSON.stringify(matchStorage))
+                toast.success(`🦄 Success: Contract deployed ${event[0]}`, {
+                    position: "bottom-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                });
             }
             setError("")
+            setAvailableClick(false)
+            setBetValue(-1)
         },
     })
 
     useEffect(() => {
         if (approveError || deployError) {
-            setError("Error TX")
+            toast.error(`🦄 Error: ${approveError ? approveError?.message : deployError?.message}`, {
+                position: "bottom-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
             finishProcess()
         }
-        console.log('approve or deploy error', approveError, deployError)
-
     }, [approveError, deployError])
+
+    useEffect(() => {
+        if(betValue && betValue > 0) {
+           setAvailableClick(true)
+        } else {
+            setAvailableClick(false)
+        }
+    }, [betValue])
 
     
     return (
@@ -151,15 +206,23 @@ export const DeployMatch = ({ processingAction, setProcessingAction, setMatchAdd
             }
             {
                 enableAction ?
-                    <ActionButton clickCallback={ () => {
-                    //setDeployClick(true)
-                    if (!inProgress) {
-                        setInProgress(true)
-                        approveTrucoins?.()
-                        setError("")
-                    }
-                    //contractDeploy?.()
-                }} text="Deploy new Match" />
+                    <>
+                        <input
+                            onChange={(event) => setBetValue(event.target.value)}
+                            type="number"
+                            placeholder="Bet value for the game (wei)"
+                            className="block p-2 pl-5 w-full text-sm rounded-lg border bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 my-2"
+                        />
+                        <ActionButton clickCallback={ () => {
+                            //setDeployClick(true)
+                            if (!inProgress && availableClick) {
+                                setInProgress(true)
+                                approveTrucoins?.()
+                                setError("")
+                            }
+                            //contractDeploy?.()
+                        }} text="Deploy new Match" enabled={availableClick} />
+                    </>
                 : ""
             }
             <p className="text-red-500 text-sm"> {error}</p>

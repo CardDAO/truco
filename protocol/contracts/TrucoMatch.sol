@@ -389,6 +389,7 @@ contract TrucoMatch {
         currentMatch.gameState = trucoEngine.transact(transaction);
     }
 
+    // TODO remove _? public function
     // This method should be called only from envido winner and if it's waiting for cards to be revealed
     function _revealCards(uint8[] memory _cards) public {
         require(
@@ -529,6 +530,7 @@ contract TrucoMatch {
     // Change state and emit event to signal for new shuffling requirement
     function _changeMatchStateToWaitingForDeal() internal {
         // Emit event
+        // TODO: change playerWhoShuffled ???
         address newShuffler = currentMatch.players[
             currentMatch.gameState.playerWhoShuffled ^ 1
         ];

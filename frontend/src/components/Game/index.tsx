@@ -1,9 +1,11 @@
 import { ethers } from "ethers"
 import { useEffect, useState } from 'react'
+import { useGetPlayers } from "../../hooks/match/GetPlayers"
 import {  useAccountInformation, AccountType } from '../../hooks/providers/Wagmi'
 import { Dashboard } from "../Dashboard"
 import { DeployMatch } from "../DeployMatch"
-import { Toast } from "../Toast"
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const BUTTON_STYLE = "text-white focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
 
@@ -16,19 +18,43 @@ export const Game = () => {
     const [ invalidAddress, setInvalidAddress ] = useState("")
     const [ processingAction, setProcessingAction] = useState(false)
 
-    const verifyAndSetMatchAddress = (e: any) => {
-        try {
-            if (e.target.value.length > 0) {
-                ethers.utils.getAddress(e.target.value)
+    const { players, error: getPlayersError } = useGetPlayers(matchAddress)
+
+    const goToJoin = () => {
+        if (invalidAddress.length === 0) {
+            setInSession(!inSession)
+            let matchStorage = JSON.parse(localStorage.getItem('match') ?? "{}")
+            if (!matchStorage.address || matchStorage.address !== matchAddress) {
+                matchStorage.address = matchAddress
+                matchStorage.cards = []
+                localStorage.setItem('match', JSON.stringify(matchStorage))
             }
-            setInvalidAddress("")
-            setMatchAddress(e.target.value)
+        }
+    }
+
+    const verifyAndSetMatchAddress = (value: any) => {
+        setMatchAddress(value)
+        try {
+            if (value.length === 0) {
+                setInvalidAddress("Complete for join")
+            } else if (getPlayersError.length > 0) {
+                setInvalidAddress(getPlayersError)
+            } else {
+                ethers.utils.getAddress(value)
+                setInvalidAddress("")
+            }
+            //0x8e80FFe6Dc044F4A766Afd6e5a8732Fe0977A493
         } catch {
             setInvalidAddress("Error, verifique el address del match")
         }
     }
+
     useEffect(() => {
-        const latestDeployedMatch = localStorage.getItem('latest_deployed_match')
+        verifyAndSetMatchAddress(matchAddress)
+    }, [players, getPlayersError])
+
+    useEffect(() => {
+        const latestDeployedMatch = JSON.parse(localStorage.getItem('match') ?? "{}" )?.address ?? ""
         if (latestDeployedMatch) {
             setMatchAddress(latestDeployedMatch)
         }
@@ -48,9 +74,9 @@ export const Game = () => {
                         !processingAction ?
                             <>
                                 <div>
-                                    <input placeholder="Match Addresss (empty to deploy)" value={matchAddress} type="text" onChange={verifyAndSetMatchAddress} className="block p-2 w-full rounded-lg border sm:text-xs bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 my-5" />
+                                    <input placeholder="Match Addresss (empty to deploy)" value={matchAddress} type="text" onChange={(e) => verifyAndSetMatchAddress(e.target.value)} className="block p-2 w-full rounded-lg border sm:text-xs bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 my-5" />
                                 </div>
-                                <button type="button" disabled={invalidAddress? true : false} className={ invalidAddress ? BUTTON_STYLE + " bg-gray-400" : BUTTON_STYLE + " bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl" } onClick={() => { setInSession(!inSession) }}>Join game</button>
+                                <button type="button" className={ invalidAddress ? BUTTON_STYLE + " bg-gray-400" : BUTTON_STYLE + " bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl" } onClick={goToJoin}>Join game</button>
                                 <p className="text-sm text-red-500">{invalidAddress ?? ""}</p>
                             </>
                             :""
@@ -69,7 +95,7 @@ export const Game = () => {
                     />
             }
 
-            <Toast />
+            <ToastContainer />
         </>
     )
 }

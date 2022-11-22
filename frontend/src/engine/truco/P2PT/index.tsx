@@ -4,13 +4,6 @@ import { verifyMessage } from 'ethers/lib/utils'
 import P2PT, { Peer } from "p2pt"
 
 
-const addToMessageList = (
-    messageSigned: MessageType,
-    setMessages: (currentMessages: any) => any,
-) => {
-    setMessages((currentMessages: MessageType[]) => [...currentMessages,messageSigned])
-    //setLastNonceReceived(messageSigned.message.nonce as number)
-}
 
 export const useP2PT = (inSession: Boolean, sessionKey : String) => {
     //console.log('go use p2pt')
@@ -24,12 +17,18 @@ export const useP2PT = (inSession: Boolean, sessionKey : String) => {
     const trackingConnection: any = useRef()
     const messageReceive: any = useRef()
 
+    const addToMessageList = (
+        messageSigned: MessageType,
+        setMessages: (currentMessages: any) => any,
+    ) => {
+        setMessages((currentMessages: MessageType[]) => [...currentMessages, messageSigned])
+        //setLastNonceReceived(messageSigned.message.nonce as number)
+    }
 
 
     // verificar antes de enviar
     const verifyAndAddMessage = useCallback((messageSigned: MessageType) => {
         //verify message nonce and exists signature
-        //console.log('verficando mensaje')
         
         if (messageSigned.signature !== undefined && messageSigned.message !== undefined && messageSigned.message.nonce > latestNonce) {
             //console.log('verificando con etherjs')
@@ -45,7 +44,7 @@ export const useP2PT = (inSession: Boolean, sessionKey : String) => {
                 setLatestNonce(messageSigned.message.nonce)
             }
         }
-    }, [messages])
+    }, [ latestNonce ])
     const sendToPeers = (address: any, signature:any, variables: any) => {
         const signer = verifyMessage(variables.message, signature)
         // comprobar address
@@ -116,7 +115,9 @@ export const useP2PT = (inSession: Boolean, sessionKey : String) => {
             p2pt.current.on('trackerconnect', callTrackingConnection)
             p2pt.current.on('msg', callMessageReceived)
             p2pt.current.start()
-            return () => { p2pt.current.destroy() }
+            return () => {
+                //p2pt.current.destroy() temporal disable
+            }
         }
     }, [inSession])
 

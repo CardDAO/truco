@@ -32,7 +32,7 @@ export const RecalculateEnvido = ({ cards, setCurrentEnvido }: any) => {
         <>
                 <ActionButton clickCallback={() => {
                     setGoToSpell(true) 
-                }} text="Recalculate Envido" isWrite={false} />
+                }} text="Recalculate Envido" enabled={false} />
         </>
     )
 }

@@ -12,7 +12,7 @@ declare global {
 
     type MentalPokerCard = {
         cardIndex: number,
-        keys: [any]
+        private_keys: [any]
     }
 
 

@@ -4,10 +4,10 @@ export const dealCards = (encryptedDeck: any, usedIndexCards: any, self: any, la
     // TODO check used cards < 40-3
     let dealIndexes = []
 
-    while (dealIndexes.length === 3) {
+    while (dealIndexes.length < 3) {
         // USE GAME CONFIG
         const randomIndex = parseInt(randomBytes(1).toString()) % 40
-        if (usedIndexCards.indexOf(randomIndex) === -1) {
+        if (usedIndexCards.indexOf(randomIndex) === -1 && dealIndexes.indexOf(randomIndex) === -1) {
             dealIndexes.push(
                 randomIndex
             )
@@ -18,10 +18,11 @@ export const dealCards = (encryptedDeck: any, usedIndexCards: any, self: any, la
     for (let i = 0; i < dealIndexes.length ; i++) {
         cardsToDeal.push({
             cardIndex: dealIndexes[i],
-            keys: [self.keyPairs[i].privateKey]
+            private_keys: [self.keyPairs[dealIndexes[i]].privateKey]
         })
 
     }
+    console.log('to send', cardsToDeal)
 
      signMessage({
         message: JSON.stringify({

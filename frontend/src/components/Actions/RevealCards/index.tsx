@@ -1,43 +1,20 @@
 import { BigNumber } from "ethers"
 import { arrayify, Interface } from "ethers/lib/utils"
 import { useCallback, useEffect, useState } from "react"
+import { toast } from "react-toastify"
 import { useContractRead, useContractWrite, usePrepareContractWrite, useSignMessage, useWaitForTransaction } from "wagmi"
-import { CASTILLAN_CARDS } from "../../assets/castillan-cards"
-import { AccountType, useAccountInformation } from "../../hooks/providers/Wagmi"
-import { GAS_LIMIT_WRITE } from "../Dashboard"
-import { toast } from 'react-toastify';
-import { GraphicCard } from "../GraphicCard"
+import { AccountType, useAccountInformation } from "../../../hooks/providers/Wagmi"
+import { GAS_LIMIT_WRITE } from "../../Dashboard"
+import { ActionButton } from "../Button"
 
-export const Card = ({ cleanCardIndexValue, match, onChangeAction, setProcessingAction }) => {
-
-    const [ cleanCardIndex, setCleanCardIndex ] = useState(cleanCardIndexValue ?? -1)
-    const [ signature, setSignature ] = useState("")
-    const { address } : AccountType = useAccountInformation()
+export const RevealCards = ({ match, setProcessingAction, cards, processingAction}: any) => {
+    const [enableAction, setEnableAction] = useState(false)
     const [ inProgress, setInProgress ] = useState(false)
+    const [ signature, setSignature ] = useState("")
+    const [ goToSpell, setGoToSpell ] = useState(false)
     const [ checkSuccess, setCheckSuccess ] = useState(false)
 
-    const changeAndCallback = (event: any) => {
-        setCleanCardIndex(parseInt(event.target.value) >=0 ? parseInt(event.target.value) : 0)
-        onChangeAction(event)
-    }
-
-    const [ goToSpell, setGoToSpell] = useState(false)
-    const [ enableAction, setEnableAction ] = useState(false)
-
-
-    const validateCard = useCallback(() => {
-        if (cleanCardIndex > 0 && cleanCardIndex <= 40) {
-            setEnableAction(true)
-        } else {
-            setEnableAction(false)
-        }
-    }, [cleanCardIndex])
-
-    useEffect(() => {
-        if (cleanCardIndexValue && cleanCardIndexValue > 0) {
-            setCleanCardIndex(cleanCardIndexValue)
-        }
-    }, [cleanCardIndexValue])
+    const { address } : AccountType = useAccountInformation()
 
     const { error: errorToSign, signMessage } = useSignMessage({
         onSuccess(signature: any, variables: any) {
@@ -55,11 +32,38 @@ export const Card = ({ cleanCardIndexValue, match, onChangeAction, setProcessing
                 progress: undefined,
                 theme: "dark",
             });
-            setProcessingAction(false)
-            setInProgress(false)
         }
     })
-    const onWrite = () => {
+
+    const { refetch: getHashToSign } = useContractRead({
+        addressOrName: match,
+        contractInterface: new Interface(["function getCardProofToForSigning(address, uint8[]) public view returns (bytes32)"]),
+        functionName: "getCardProofToForSigning",
+        enabled: inProgress,
+        args: [ address, cards.reduce((previous, current) => [...previous, BigNumber.from(current.toString())], []) ],
+        overrides: {
+            from: address as string
+        },
+        onSuccess: (data) => {
+
+        },
+        onError: (error: Error) => {
+            setProcessingAction(false)
+            setInProgress(false)
+            toast.error(`🦄 Error get message to sign: ${error?.message}`, {
+                position: "bottom-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+            });
+        }
+    })
+
+    const onReveal =  () => {
         getHashToSign().then((result) => {
             signMessage({
                 message: arrayify(result.data)
@@ -79,66 +83,52 @@ export const Card = ({ cleanCardIndexValue, match, onChangeAction, setProcessing
                 theme: "dark",
             });
         })
+        
     }
-
-    const { refetch: getHashToSign } = useContractRead({
-        addressOrName: match,
-        contractInterface: new Interface(["function getCardProofToForSigning(address, uint8[]) public view returns (bytes32)"]),
-        functionName: "getCardProofToForSigning",
-        enabled: inProgress,
-        args: [address, [ BigNumber.from(cleanCardIndex && cleanCardIndex > 0 ? cleanCardIndex : 0)]],
-        overrides: {
-            from: address as string
-        },
-        onSuccess: (data) => {
-        },
-        onError: (error: Error) => {
-            toast.error(`🦄 Error: ${error?.message}`, {
-                position: "bottom-center",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "dark",
-            });
-        }
-    })
-
     const { config } = usePrepareContractWrite({
         addressOrName: match, // match
-        contractInterface: new Interface(["function playCard(uint8, bytes) public"]),
-        functionName: "playCard",
+        contractInterface: new Interface(["function revealCards(uint8[] memory, bytes memory) public"]),
+        functionName: "revealCards",
         enabled: goToSpell,
-        args: [ BigNumber.from(cleanCardIndex && cleanCardIndex > 0 ? cleanCardIndex.toString() : 0), signature],
+        args: [ cards, signature],
         overrides: {
             gasLimit: GAS_LIMIT_WRITE
         },
         onSuccess: (data) => {
-            console.log(`can playCard (TRUE)`, data)
-            //validateCard()
             setCheckSuccess(true)
         },
         onError: (err: Error) => {
-            console.log(`can't playCard (FALSE)`, err)
             setEnableAction(false)
         }
     })
 
+    console.log('realcards', cards)
+    const validateCards = useCallback(() => {
+        console.log('validateCards', cards)
+        if (cards.length === 3) {
+            setEnableAction(true)
+        } else {
+            setEnableAction(false)
+        }
+    }, [cards, processingAction])
+
+    useEffect(() =>{
+        validateCards()
+    }, [processingAction, cards, validateCards])
+
     const { write, error, isLoading, data }= useContractWrite(config)
     useEffect(() => {
+        console.log('send reveal cards', checkSuccess, inProgress, cards, write)
         if (inProgress && checkSuccess && write) {
             write()
         }
-
     }, [checkSuccess, inProgress, write])
 
     useWaitForTransaction({
         hash: data?.hash,
         wait: data?.wait,
         onSuccess: (dataResult) => {
-            toast.success(`🦄 Success: PlayCard`, {
+            toast.success(`🦄 Success: revealed cards -> ${dataResult.toString()}`, {
                 position: "bottom-center",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -148,12 +138,14 @@ export const Card = ({ cleanCardIndexValue, match, onChangeAction, setProcessing
                 progress: undefined,
                 theme: "dark",
             });
-            setGoToSpell(false)
             setInProgress(false)
-            setProcessingAction(false)
             setCheckSuccess(false)
+            setProcessingAction(false)
         },
         onError: (error: Error) => {
+            setInProgress(false)
+            setCheckSuccess(false)
+            setProcessingAction(false)
             toast.error(`🦄 Error playcard: ${error}`, {
                 position: "bottom-center",
                 autoClose: 5000,
@@ -164,16 +156,9 @@ export const Card = ({ cleanCardIndexValue, match, onChangeAction, setProcessing
                 progress: undefined,
                 theme: "dark",
             });
-            setGoToSpell(false)
-            setInProgress(false)
-            setProcessingAction(false)
-            setCheckSuccess(false)
+
         }
     })
-
-    useEffect(() => {
-        validateCard()
-    }, [validateCard])
 
     useEffect(() => {
         console.log('error?', error, errorToSign)
@@ -196,19 +181,18 @@ export const Card = ({ cleanCardIndexValue, match, onChangeAction, setProcessing
     }, [ error, errorToSign, setProcessingAction ])
 
     return (
-        <div className="relative flex-nowrap">
-            {
-                cleanCardIndex > 0 ?
-                    <button onClick={() => {
-                        setProcessingAction(true)
-                        setInProgress(true)
-                        onWrite()
-                }} className={enableAction ? "hover:shadow-lg hover:shadow-cyan-500/50": ""}>
-                        <GraphicCard cardIndex={cleanCardIndex} />
-                    </button>
-                    :""
-            }
-            <input onChange={changeAndCallback} type="text" className="block p-2 pl-5 w-20 text-sm rounded-lg border bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500" />
-        </div>
+        <>
+        {
+            <ActionButton clickCallback={() => {
+                validateCards()
+                if (cards.length === 3) {
+                    setProcessingAction(true)
+                    setInProgress(true)
+                    onReveal()
+
+                }
+            }} text="Reveal Cards" />
+        }
+        </>
     )
 }

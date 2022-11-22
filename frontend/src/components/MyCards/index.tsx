@@ -1,21 +1,57 @@
-import { useState } from "react"
+import { Interface } from "ethers/lib/utils"
+import { useEffect, useState } from "react"
+import { useContractRead } from "wagmi"
+import { AccountType, useAccountInformation } from "../../hooks/providers/Wagmi"
+import { RevealCards } from "../Actions/RevealCards"
 import { Card } from "../Card"
+import { GraphicCard } from "../GraphicCard"
 
-export const MyCards = ({ match, cards, setCards, setProcessingAction }) => {
+const getIndexCardFromEvent = (event) => {
+    const value = parseInt(event.target.value)
+    return !isNaN(value) && value > 0 && value < 40 ? value : 0 
+}
+export const MyCards = ({ match, cards, setCards, setProcessingAction, processingAction, usedContractCards, setUsedContractCards}) => {
+
+    const { address } : AccountType = useAccountInformation()
+    const { refetch: fetchUsedCards } = useContractRead({
+       addressOrName: process.env.FRONT_MATCH_FACADE_ADDRESS as string,
+       contractInterface: new Interface([
+           "function getMyCardsInfo(address) public view returns (uint8[3] memory, uint8)"
+       ]),
+       functionName: 'getMyCardsInfo',
+       args: [match],
+       overrides: {
+           from: address
+       },
+       onSuccess: (data) => {
+           if (data && data[0].length > 0) {
+               setUsedContractCards(oldCards => [...data[0]])
+           }
+       },
+       onError: (err: Error) => {
+           console.log('get used contract cards',err)
+       }
+    })
+
+    useEffect(() => {
+        fetchUsedCards()
+    }, [cards, processingAction,fetchUsedCards])
+
     return (
-        <div>
-            <Card onChangeAction={(e) => setCards((myCards: any) => { 
-                myCards[0] = parseInt(e.target.value)
-                return myCards
-            })} match={match} setProcessingAction={setProcessingAction} />
-            <Card onChangeAction={(e) => setCards((myCards: any) => { 
-                myCards[1] = parseInt(e.target.value)
-                return myCards
-            })} match={match} setProcessingAction={setProcessingAction} />
-            <Card onChangeAction={(e) => setCards((myCards: any) => { 
-                myCards[2] = parseInt(e.target.value)
-                return myCards
-            })} match={match} setProcessingAction={setProcessingAction} />
+        <div className="flex flex-row">
+            {
+                cards.map((card, index) => {
+                    
+                    if (usedContractCards.indexOf(card) === -1) {
+                        return <Card key={index} cleanCardIndexValue={card} onChangeAction={(e) => setCards((myCards: any) => { 
+                            myCards[index] = getIndexCardFromEvent(e) 
+                            return myCards
+                        })} match={match} setProcessingAction={setProcessingAction} />
+                    } else {
+                        return <GraphicCard key={index} cardIndex={card}/>
+                    }
+                })
+            }
         </div>
     )
 }
