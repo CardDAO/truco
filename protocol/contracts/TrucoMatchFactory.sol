@@ -76,13 +76,12 @@ contract TrucoMatchFactory is Initializable, OwnableUpgradeable {
         return deployedMatch;
     }
 
-    // Method for getting all matches
-    function getMatches() public view returns (TrucoMatch[] memory) {
-        return matches;
+    function getMatchesNumber() public view returns (uint256) {
+        return matches.length;
     }
 
-    // Destroy match contract
-    function destroyMatch(address _matchAddress) public onlyOwner {
-        // TODO: Destroy match
+    function getMatch(uint256 _index) public view returns (TrucoMatch) {
+        return matches[_index];
     }
+
 }
