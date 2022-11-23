@@ -9,11 +9,12 @@ import TransactionStruct = IERC3333.TransactionStruct
 
 import { BigNumber } from 'ethers'
 import { ethers } from 'hardhat'
+import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 
 describe('Engine Main Logic', function () {
     describe('Turn handling', function () {
         it('Incorrect turn', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state = await engine.initialGameState()
 
@@ -36,7 +37,7 @@ describe('Engine Main Logic', function () {
 
     describe('Fee collection at Game start', function () {
         it('Account with funds, no allowance', async function () {
-            const { engine, trucoin } = await deployEngineContract()
+            const { engine, trucoin } = await loadFixture(deployEngineContract)
 
             let signer = await ethers.getSigner()
 
@@ -52,7 +53,7 @@ describe('Engine Main Logic', function () {
         })
 
         it('Account allowance, no funds', async function () {
-            const { engine, trucoin } = await deployEngineContract()
+            const { engine, trucoin } = await loadFixture(deployEngineContract)
 
             let signer = await ethers.getSigner()
 
@@ -69,7 +70,7 @@ describe('Engine Main Logic', function () {
         })
 
         it('Allowance ok, but minimum balance to cover fee not met', async function () {
-            const { engine, trucoin } = await deployEngineContract()
+            const { engine, trucoin } = await loadFixture(deployEngineContract)
 
             let signer = await ethers.getSigner()
 
@@ -89,7 +90,7 @@ describe('Engine Main Logic', function () {
         })
 
         it('Sufficient funds, but insufficient allowance', async function () {
-            const { engine, trucoin } = await deployEngineContract()
+            const { engine, trucoin } = await loadFixture(deployEngineContract)
 
             let signer = await ethers.getSigner()
 
@@ -109,7 +110,7 @@ describe('Engine Main Logic', function () {
         })
 
         it('Start game ok', async function () {
-            const { engine, trucoin } = await deployEngineContract()
+            const { engine, trucoin } = await loadFixture(deployEngineContract)
 
             let signer = await ethers.getSigner()
 
@@ -137,13 +138,13 @@ describe('Engine Main Logic', function () {
 
     describe('Transaction count', function () {
         it('Check zero transaction', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             expect(await engine.getTxCountForClient(engine.address)).to.equal(0)
         })
 
         it('Check transaction accountability', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state = await engine.initialGameState()
 

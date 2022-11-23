@@ -11,6 +11,7 @@ import { deployDeckContract, deployEngineContract } from '../deploy-contracts'
 import { basicGameState } from '../basic-game-state'
 
 import { BigNumber } from 'ethers'
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
 describe('Truco Resolver', function () {
     const currentPlayerIdx = BigNumber.from(0)
@@ -23,7 +24,7 @@ describe('Truco Resolver', function () {
      */
     describe('No previous challenge', function () {
         it('Spell Challenge: Truco', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameState()
 
@@ -66,7 +67,7 @@ describe('Truco Resolver', function () {
         })
 
         it('Spell Challenge: Retruco when no Truco was spelled', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameState()
 
@@ -85,7 +86,7 @@ describe('Truco Resolver', function () {
         })
 
         it('Spell Challenge: ValeCuatro when no Truco was spelled', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameState()
 
@@ -104,7 +105,7 @@ describe('Truco Resolver', function () {
         })
 
         it('Spell Challenge: ValeCuatro when no ReTruco was spelled', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameState()
 
@@ -155,7 +156,7 @@ describe('Truco Resolver', function () {
         }
 
         it("Invalid response: 'None' is not accepted as a challenge response", async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameStateWithTrucoSpellWaiting()
 
@@ -178,7 +179,7 @@ describe('Truco Resolver', function () {
         })
 
         it("Raising challenge shouldn't be allowed without a valid response first", async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameStateWithTrucoSpellWaiting()
 
@@ -197,7 +198,7 @@ describe('Truco Resolver', function () {
         })
 
         it("PlayCard shouldn't be allowed without a valid response first", async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameStateWithTrucoSpellWaiting()
 
@@ -216,7 +217,7 @@ describe('Truco Resolver', function () {
         })
 
         it("Truco casted by current player and it's not the one who should respond", async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameStateWithTrucoSpellWaiting()
             state.currentChallenge.challenger = BigNumber.from(currentPlayerIdx)
@@ -236,7 +237,7 @@ describe('Truco Resolver', function () {
         })
 
         it('Refuse challenge', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameStateWithTrucoSpellWaiting()
 
@@ -271,7 +272,7 @@ describe('Truco Resolver', function () {
 
         describe('Challenge Accepted: Points at stake changing on acceptance', function () {
             it('Accept: No challenge to Truco', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct =
                     basicGameStateWithTrucoSpellWaiting()
@@ -312,7 +313,7 @@ describe('Truco Resolver', function () {
             })
 
             it('Truco to ReTruco', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct =
                     basicGameStateWithTrucoSpellWaiting()
@@ -358,7 +359,7 @@ describe('Truco Resolver', function () {
             })
 
             it('Truco to ValeCuatro', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct =
                     basicGameStateWithTrucoSpellWaiting()
@@ -426,7 +427,7 @@ describe('Truco Resolver', function () {
             return state
         }
         it('No PlayCard should be spelled', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameStateWithTrucoSpellRefused()
 
@@ -447,7 +448,7 @@ describe('Truco Resolver', function () {
         })
 
         it('No raising challenge should be spelled', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameStateWithTrucoSpellRefused()
 
@@ -471,7 +472,7 @@ describe('Truco Resolver', function () {
         })
 
         it('No response should be spelled', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameStateWithTrucoSpellRefused()
 
@@ -520,7 +521,7 @@ describe('Truco Resolver', function () {
         }
         describe('Out of order moves', function () {
             it('Issue a response to an already accepted challenge', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct = basicGameStateWithTrucoSpelled()
 
@@ -544,7 +545,7 @@ describe('Truco Resolver', function () {
             })
 
             it("Can't PlayCard if it's not my turn", async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct = basicGameStateWithTrucoSpelled()
 
@@ -568,7 +569,7 @@ describe('Truco Resolver', function () {
 
         describe('Card play dynamic', function () {
             it('Invalid Card', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
                 const { cardsDeck } = await deployDeckContract()
 
                 let state: GameStateStruct = basicGameStateWithTrucoSpelled()
@@ -591,7 +592,7 @@ describe('Truco Resolver', function () {
             })
 
             it('Play a card, slot available', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct = basicGameStateWithTrucoSpelled()
 
@@ -621,7 +622,7 @@ describe('Truco Resolver', function () {
             })
 
             it('Play a card, slot unavailable', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct = basicGameStateWithTrucoSpelled()
 
@@ -651,7 +652,7 @@ describe('Truco Resolver', function () {
             })
 
             it('Play a card already played', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct = basicGameStateWithTrucoSpelled()
 
@@ -699,7 +700,7 @@ describe('Truco Resolver', function () {
             return state
         }
         it('Challenge is at a refusal state', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameStateWithTrucoSpellFinished()
 
@@ -716,7 +717,7 @@ describe('Truco Resolver', function () {
         })
 
         it('No cards where played', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameStateWithTrucoSpellFinished()
 
@@ -726,7 +727,7 @@ describe('Truco Resolver', function () {
         })
 
         it('Cards partially revealed at round 1 ', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameStateWithTrucoSpellFinished()
 
@@ -739,7 +740,7 @@ describe('Truco Resolver', function () {
         })
 
         it('Round 1 complete, no cards revealed at round 2 ', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameStateWithTrucoSpellFinished()
 
@@ -755,7 +756,7 @@ describe('Truco Resolver', function () {
         })
 
         it('Round 1 complete, cards partially revealed at round 2 ', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameStateWithTrucoSpellFinished()
 
@@ -771,7 +772,7 @@ describe('Truco Resolver', function () {
         })
 
         it('Round 1 and 2 complete, game has no winner and cards not revealed at round 3 ', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameStateWithTrucoSpellFinished()
 
@@ -791,7 +792,7 @@ describe('Truco Resolver', function () {
         })
 
         it('Round 1 and 2 complete, game has a winner', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameStateWithTrucoSpellFinished()
 
@@ -811,7 +812,7 @@ describe('Truco Resolver', function () {
         })
 
         it('Round 1 and 2 complete, , game has no winner and cards partially revealed at round 3', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameStateWithTrucoSpellFinished()
 
@@ -857,7 +858,7 @@ describe('Truco Resolver', function () {
 
         describe('Compute the winner', function () {
             it('Player1 wins 1st and 2nd rounds', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct =
                     basicGameStateWithTrucoSpellFinished()
@@ -881,7 +882,7 @@ describe('Truco Resolver', function () {
             })
 
             it('Player2 wins 1st and 2nd rounds', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct =
                     basicGameStateWithTrucoSpellFinished()
@@ -905,7 +906,7 @@ describe('Truco Resolver', function () {
             })
 
             it('Player1 wins on 2nd round after a tie in first', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct =
                     basicGameStateWithTrucoSpellFinished()
@@ -929,7 +930,7 @@ describe('Truco Resolver', function () {
             })
 
             it('Player1 wins on 3rd round after a tie in first and second', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct =
                     basicGameStateWithTrucoSpellFinished()
@@ -957,7 +958,7 @@ describe('Truco Resolver', function () {
             })
 
             it('Player1 wins on 3rd round after a tie in second round', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct =
                     basicGameStateWithTrucoSpellFinished()
