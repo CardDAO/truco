@@ -25,6 +25,6 @@ DAO's Truco On-Chain Protocol: EVM compatible contracts that supports DAOs missi
 
 Game Engine responsability is to ensure a valid game play and define a winner using an standard interface (ERC-3333) that matches can consume.
 
-This first implementation enable to bet on 2 player truco matches using Trucoins (ERC-20) and Sould Bound Token award for match winner.
+This first implementation enable to bet on 2 player truco matches using Trucoins (ERC-20) and Soul Bound Token award for match winner.
 
 Check the [documentation](/protocol) 
