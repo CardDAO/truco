@@ -11,7 +11,7 @@ import { deployEngineContract } from '../deploy-contracts'
 import { basicGameState } from '../basic-game-state'
 
 import { BigNumber } from 'ethers'
-const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
+const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers')
 
 describe('Envido Resolver', function () {
     const currentPlayerIdx = BigNumber.from(0)
