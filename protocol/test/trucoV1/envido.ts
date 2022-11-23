@@ -11,6 +11,7 @@ import { deployEngineContract } from '../deploy-contracts'
 import { basicGameState } from '../basic-game-state'
 
 import { BigNumber } from 'ethers'
+const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
 
 describe('Envido Resolver', function () {
     const currentPlayerIdx = BigNumber.from(0)
@@ -18,7 +19,7 @@ describe('Envido Resolver', function () {
 
     describe('Invalid moves', function () {
         it("Challenging any Truco derivatives while Envido was spelled shouldn't be allowed", async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameState()
 
@@ -64,7 +65,7 @@ describe('Envido Resolver', function () {
         })
 
         it("Challenging 'None' shouldn't be allowed", async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameState()
 
@@ -90,7 +91,7 @@ describe('Envido Resolver', function () {
         })
 
         it("Challenging any Envido type when first round of cards are revealed shouldn't be possible", async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameState()
 
@@ -124,7 +125,7 @@ describe('Envido Resolver', function () {
      */
     describe('No previous challenge', function () {
         it('Spell Challenge: Envido', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameState()
 
@@ -171,7 +172,7 @@ describe('Envido Resolver', function () {
         })
 
         it('Spell Challenge: FaltaEnvido', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameState()
             state.pointsToWin = BigNumber.from(30)
@@ -220,7 +221,7 @@ describe('Envido Resolver', function () {
         })
 
         it('Challenging Envido when first round is partially played should be possible (but not from himself)', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameState()
 
@@ -243,7 +244,7 @@ describe('Envido Resolver', function () {
         })
 
         it('Challenging Envido when first round is partially played should not be possible when challenger has already played a card', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameState()
 
@@ -291,7 +292,7 @@ describe('Envido Resolver', function () {
         }
 
         it("Invalid response: 'None' is not accepted as a challenge response", async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting()
 
@@ -314,7 +315,7 @@ describe('Envido Resolver', function () {
         })
 
         it("Spell envido count shouldn't be allowed without a valid response first", async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting()
 
@@ -333,7 +334,7 @@ describe('Envido Resolver', function () {
         })
 
         it("Envido casted by current player and it's not the one who should respond", async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting()
             state.currentChallenge.challenger = BigNumber.from(currentPlayerIdx)
@@ -353,7 +354,7 @@ describe('Envido Resolver', function () {
         })
 
         it('Refuse challenge', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameStateWithEnvidoSpellWaiting()
 
@@ -397,7 +398,7 @@ describe('Envido Resolver', function () {
 
         describe('Challenge Accepted: Points at stake changing on acceptance', function () {
             it('No challenge to Envido', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct =
                     basicGameStateWithEnvidoSpellWaiting()
@@ -440,7 +441,7 @@ describe('Envido Resolver', function () {
             })
 
             it('No challenge to RealEnvido', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct =
                     basicGameStateWithEnvidoSpellWaiting()
@@ -487,7 +488,7 @@ describe('Envido Resolver', function () {
             })
 
             it('No challenge to FaltaEnvido', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct =
                     basicGameStateWithEnvidoSpellWaiting()
@@ -534,7 +535,7 @@ describe('Envido Resolver', function () {
             })
 
             it('RealEnvido from None', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct =
                     basicGameStateWithEnvidoSpellWaiting()
@@ -581,7 +582,7 @@ describe('Envido Resolver', function () {
             })
 
             it('FaltaEnvido from None', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct =
                     basicGameStateWithEnvidoSpellWaiting()
@@ -628,7 +629,7 @@ describe('Envido Resolver', function () {
             })
 
             it('RealEnvido from Envido', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct =
                     basicGameStateWithEnvidoSpellWaiting()
@@ -676,7 +677,7 @@ describe('Envido Resolver', function () {
             })
 
             it('EnvidoEnvido from Envido', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct =
                     basicGameStateWithEnvidoSpellWaiting()
@@ -725,7 +726,7 @@ describe('Envido Resolver', function () {
             })
 
             it('FaltaEnvido from Envido', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct =
                     basicGameStateWithEnvidoSpellWaiting()
@@ -774,7 +775,7 @@ describe('Envido Resolver', function () {
             })
 
             it('RealEnvido from EnvidoEnvido', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct =
                     basicGameStateWithEnvidoSpellWaiting()
@@ -847,7 +848,7 @@ describe('Envido Resolver', function () {
         }
 
         it('No envido count should be spelled', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameStateWithEnvidoSpellRefused()
 
@@ -868,7 +869,7 @@ describe('Envido Resolver', function () {
         })
 
         it('No raising challenge should be spelled', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameStateWithEnvidoSpellRefused()
 
@@ -895,7 +896,7 @@ describe('Envido Resolver', function () {
         })
 
         it('No response should be spelled', async function () {
-            const { engine } = await deployEngineContract()
+            const { engine } = await loadFixture(deployEngineContract)
 
             let state: GameStateStruct = basicGameStateWithEnvidoSpellRefused()
 
@@ -945,7 +946,7 @@ describe('Envido Resolver', function () {
         }
         describe('Out of order moves', function () {
             it('Issue a response to an already accepted challenge', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct = gameStateWithEnvidoSpell()
 
@@ -971,7 +972,7 @@ describe('Envido Resolver', function () {
 
         describe('Raising the challenge', function () {
             it("Raise Envido shouldn't be possible when raiser is the challenger", async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct = gameStateWithEnvidoSpell()
 
@@ -991,7 +992,7 @@ describe('Envido Resolver', function () {
             })
 
             it("Raise EnvidoEnvido shouldn't be possible from RealEnvido", async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct = gameStateWithEnvidoSpell()
                 state.currentChallenge.challenge = BigNumber.from(
@@ -1014,7 +1015,7 @@ describe('Envido Resolver', function () {
             })
 
             it("Raise FaltaEnvido shouldn't be possible for any player", async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct = gameStateWithEnvidoSpell()
 
@@ -1040,7 +1041,7 @@ describe('Envido Resolver', function () {
             })
 
             it('Raise Envido going OK', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct = gameStateWithEnvidoSpell()
 
@@ -1081,7 +1082,7 @@ describe('Envido Resolver', function () {
             })
 
             it('Raise to Falta envido, check points', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct = gameStateWithEnvidoSpell()
 
@@ -1126,7 +1127,7 @@ describe('Envido Resolver', function () {
 
         describe('Points count stage', function () {
             it('Invalid envido count', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct = gameStateWithEnvidoSpell()
 
@@ -1153,7 +1154,7 @@ describe('Envido Resolver', function () {
             })
 
             it('Spell envido count being the player who shuffled deck - OK', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct = gameStateWithEnvidoSpell()
 
@@ -1186,7 +1187,7 @@ describe('Envido Resolver', function () {
             })
 
             it('Spell envido count being the player who shuffled the deck - Not OK', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct = gameStateWithEnvidoSpell()
 
@@ -1209,7 +1210,7 @@ describe('Envido Resolver', function () {
             })
 
             it("Spell envido count beign 'mano'", async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct = gameStateWithEnvidoSpell()
 
@@ -1250,7 +1251,7 @@ describe('Envido Resolver', function () {
             })
 
             it('Spell envido count being who shuffle the deck', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct = gameStateWithEnvidoSpell()
 
@@ -1318,7 +1319,7 @@ describe('Envido Resolver', function () {
 
         describe('Invalid moves', function () {
             it('Spell a new envido type challenge when challenge is in final state', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct = gameStateWithEnvidoSpellFinished()
 
@@ -1351,7 +1352,7 @@ describe('Envido Resolver', function () {
             })
 
             it('Spell an EnvidoCount on final state', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct = gameStateWithEnvidoSpellFinished()
 
@@ -1374,7 +1375,7 @@ describe('Envido Resolver', function () {
 
         describe('Compute the winner', function () {
             it('Envido refused, challenger is the winner', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct = gameStateWithEnvidoSpellFinished()
 
@@ -1401,7 +1402,7 @@ describe('Envido Resolver', function () {
             })
 
             it('Both player have same envido count, current player shuffled', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct = gameStateWithEnvidoSpellFinished()
 
@@ -1421,7 +1422,7 @@ describe('Envido Resolver', function () {
             })
 
             it('Both player have same envido count, other player shuffled', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct = gameStateWithEnvidoSpellFinished()
 
@@ -1441,7 +1442,7 @@ describe('Envido Resolver', function () {
             })
 
             it('One player has more points than other and vice-versa', async function () {
-                const { engine } = await deployEngineContract()
+                const { engine } = await loadFixture(deployEngineContract)
 
                 let state: GameStateStruct = gameStateWithEnvidoSpellFinished()
 
