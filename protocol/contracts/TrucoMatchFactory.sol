@@ -83,5 +83,4 @@ contract TrucoMatchFactory is Initializable, OwnableUpgradeable {
     function getMatch(uint256 _index) public view returns (TrucoMatch) {
         return matches[_index];
     }
-
 }
