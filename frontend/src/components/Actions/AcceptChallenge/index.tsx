@@ -1,5 +1,3 @@
-import { useState, useEffect } from "react"
-import { BigNumber } from "ethers"
 import { Interface } from "ethers/lib/utils"
 import { CommonActionWrite } from "../CommonActionWrite"
 

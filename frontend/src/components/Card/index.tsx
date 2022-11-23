@@ -117,7 +117,6 @@ export const Card = ({ cleanCardIndexValue, match, onChangeAction, setProcessing
         },
         onSuccess: (data) => {
             console.log(`can playCard (TRUE)`, data)
-            //validateCard()
             setCheckSuccess(true)
         },
         onError: (err: Error) => {
@@ -176,7 +175,6 @@ export const Card = ({ cleanCardIndexValue, match, onChangeAction, setProcessing
     }, [validateCard])
 
     useEffect(() => {
-        console.log('error?', error, errorToSign)
         if ((error || errorToSign)) {
             setGoToSpell(false)
             setInProgress(false)

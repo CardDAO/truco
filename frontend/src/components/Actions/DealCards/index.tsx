@@ -22,7 +22,6 @@ export const dealCards = (encryptedDeck: any, usedIndexCards: any, self: any, la
         })
 
     }
-    console.log('to send', cardsToDeal)
 
      signMessage({
         message: JSON.stringify({

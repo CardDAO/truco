@@ -31,7 +31,6 @@ export const SpellEnvidoCount = ({match, processingAction, setProcessingAction, 
     const { write, error, isLoading, data }= useContractWrite(config)
 
     useEffect(() => {
-        console.log('spell')
         if (error && goToSpell) {
             setGoToSpell(false)
             setProcessingAction(false)
@@ -50,7 +49,7 @@ export const SpellEnvidoCount = ({match, processingAction, setProcessingAction, 
                         setGoToSpell(true) 
                         setProcessingAction(true)
                         write?.()
-                    }} text="Spell Envido Count!" />
+                    }} text="Envido Count!" />
             : ""
         }
         </>

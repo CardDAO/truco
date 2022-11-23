@@ -6,7 +6,6 @@ import P2PT, { Peer } from "p2pt"
 
 
 export const useP2PT = (inSession: Boolean, sessionKey : String) => {
-    //console.log('go use p2pt')
     const p2pt: any = useRef()
     const [ peers, setPeers ] = useState([] as Peer[])
 
@@ -22,7 +21,6 @@ export const useP2PT = (inSession: Boolean, sessionKey : String) => {
         setMessages: (currentMessages: any) => any,
     ) => {
         setMessages((currentMessages: MessageType[]) => [...currentMessages, messageSigned])
-        //setLastNonceReceived(messageSigned.message.nonce as number)
     }
 
 
@@ -31,14 +29,12 @@ export const useP2PT = (inSession: Boolean, sessionKey : String) => {
         //verify message nonce and exists signature
         
         if (messageSigned.signature !== undefined && messageSigned.message !== undefined && messageSigned.message.nonce > latestNonce) {
-            //console.log('verificando con etherjs')
             const sourceAddress = verifyMessage(
                 JSON.stringify(messageSigned.message),
                 messageSigned.signature!!
             )
             const jsonMessage : Move = messageSigned.message
             if (sourceAddress !== undefined) {
-                //console.log("mensaje verificado desde address", sourceAddress, jsonMessage)
                 //processMessage(gameState, setGameState, jsonMessage.topic, jsonMessage.data) 
                 addToMessageList(messageSigned, setMessages)
                 setLatestNonce(messageSigned.message.nonce)
@@ -80,9 +76,9 @@ export const useP2PT = (inSession: Boolean, sessionKey : String) => {
     }, [])
 
     const trackingConnectionCallback = useCallback((tracker:any, stats:any) => {
-        //console.log('Connected to tracker : ' + tracker.announceUrl)
-        //console.log('Tracker stats : ' + JSON.stringify(stats))
-        //console.log('My identifier', p2pt.current._peerId)
+        console.log('Connected to tracker : ' + tracker.announceUrl)
+        console.log('Tracker stats : ' + JSON.stringify(stats))
+        console.log('My identifier', p2pt.current._peerId)
     }, [])
 
     // init refs (only refresh if change callback)
@@ -99,7 +95,6 @@ export const useP2PT = (inSession: Boolean, sessionKey : String) => {
             removePeer.current(peer)
         }
         function callAddPeer(peer:Peer) {
-            console.log('call new peer')
             addPeer.current(peer)
         }
         function callTrackingConnection(tracker: any, stats: any) {

@@ -29,13 +29,6 @@ const addToMessageList = (
     setLastNonceReceived(messageSigned.message.nonce as number)
 }
 
-//const sendToPeers = (p2pt: P2PT, peers: Peer[], messageSourceSigned: MessageType) => {
-//    peers.forEach((peer: Peer) => {
-//        console.log('enviando mensaje')
-//        p2pt.send(peer, messageSourceSigned)
-//    }) 
-//}
-
 /**
  * process for select shuffled cards to opponent
  */
@@ -60,7 +53,6 @@ const selectCardsForOpponent = (encryptedCards: Card[], myDictionary: BytesLike[
 
 const broadcastDeck = (deck: any) => {
     // TODO: send deck p2pt (MessageType)
-    console.log('encrypted deck', deck)
 }
 
 const broadcastCards = (cards: any) => {
@@ -80,42 +72,24 @@ const encryptAllOnePasswordDeck = (cards: Card[], password: string) => {
 }
 
 const processShufflingAllDeck = (cards: Card[], password: string) : Card[] => {
-    // deck shuffled
     const shuffled = utils.shuffled(cards)
-    console.log(shuffled)
-    // encrypt deck first shuffling
     return encryptAllOnePasswordDeck(shuffled, password);
-    //encryptedDeck = encryptDeck(shuffled, "0x01")
-    //send
-    //broadcastDeck(encryptedDeck) // broadcast to all statuses FIRST_SHUFFLING_WAITING_OTHERS
 }
 
 const initShuffling = (newGame:any, nonce: number): Move => {
-    // state is -> SHOULD_INIT_SHUFFLING
     const cardCodewords = createDeck(
         [newGame.self, ...newGame.opponent].map(player => player.cardCodewordFragment)
     )
-    //const encryptedDeck : Card[] = processShufflingAllDeck(cards, "01")
     const prepareMessage : Move = {
         topic: "first_shuffling" as String,
         data: cardCodewords,
         nonce
     }
     return prepareMessage
-    // set my state waiting SHOULD_INIT_SECOND_SHUFFLING_ROUND
 }
 
 const receiveAndEncryptDeck = (opponentCodewords: any[]): Move => {
-    // state is FIRST_SHUFFLING_WAITING_OTHERS
-    //const encryptedDeck: Card[] = processShufflingAllDeck(cards, "02") // broadcast to all statuses SHOULD_INIT_SECOND_SHUFFLING_ROUND
-    //const prepareMessage:Move = {
-    //    topic: "first_shuffling",
-    //    data: encryptedDeck,
-    //    nonce: 0
-    //}
-
     return prepareMessage
-    // set my state SECOND_SHUFFLING_WAITING_OTHERS
 }
 
 const receiveAndEncryptCards = (cards: Card[], oldPassword: string, newPassword: string) => {
@@ -198,7 +172,6 @@ export const useTruco = () => {
 
     // recibir mensaje
     const verifyAndAddMessage = useCallback((messageSigned: MessageType) => {
-        console.log('verify executed', messageSigned)
         //verify message nonce and exists signature
         if (messageSigned.signature !== undefined && messageSigned.message !== undefined && messageSigned.message.nonce > lastNonceReceived) {
             const sourceAddress = verifyMessage(
@@ -207,35 +180,11 @@ export const useTruco = () => {
             )
             const jsonMessage : Move = messageSigned.message
             if (sourceAddress !== undefined) {
-                console.log("mensaje verificado desde address", sourceAddress, jsonMessage)
                 processMessage(gameState, setGameState, jsonMessage.topic, jsonMessage.data) 
                 addToMessageList(messageSigned, setMessages, setLastNonceReceived)
             }
         }
     }, [])
-
-
-
-    // sesion p2p
-    //const {p2pt, peers, setPeers} = useP2PT(inSession, 'UNIQUE_KEY_GAME', verifyAndAddMessage)
-
-    // enviar mensaje
-    //const { data, error: errorSendMessage, isLoading, signMessage } = useSignMessage({
-    //    onSuccess(signature, variables) {
-    //        const signer = verifyMessage(variables.message, signature)
-    //        console.log('verified message', signature, variables, 'Address', address)
-    //        if (signer === address) {
-    //            const messageSourceSigned: MessageType = {
-    //                message: JSON.parse(variables.message as string),
-    //                signature: signature
-    //            }
-    //            addToMessageList(messageSourceSigned, setMessages, setLastNonceReceived)
-    //            sendToPeers(p2pt.current, peers, messageSourceSigned)
-    //            setState(gameState, setGameState, messageSourceSigned.message.topic, messageSourceSigned.message.data)
-    //            //processMessage(gameState.current, messageSourceSigned.message.topic, messageSourceSigned.message.data)
-    //        }
-    //    }
-    //})
 
     const requestPeers = () => {
         if (inSession) {
@@ -244,7 +193,6 @@ export const useTruco = () => {
     }
 
     const processMessage = (gameState: GameState, setGameState: any, topic: String, message?: Data) => {
-        console.log('state', gameState.state, 'topic',topic)
         switch(topic) {
             case "first_shuffling":
                 if (gameState.state === StateEnum.FIRST_SHUFFLING_WAITING_OTHERS) {
@@ -265,7 +213,6 @@ export const useTruco = () => {
                     sendMessageAll(sendSecondShuffled)
                     break;
                 }
-                console.log('none topic')
                 break;
 
             default:
@@ -273,20 +220,6 @@ export const useTruco = () => {
 
         }
     }
-
-    // enviar mensajes a todos
-    //const sendMessageAll = useCallback((message: Move) => {
-    //    //if (peers.length > 0) { // TODO: temporal commented
-    //    const currentNonce = lastNonceReceived + 1
-    //    setLastNonceSended(currentNonce)
-    //    message.nonce = currentNonce
-    //    //const sent = {
-    //    //    action: message,
-    //    //    nonce: currentNonce
-    //    //}
-    //    signMessage({ message: JSON.stringify(message) })
-    //    //}
-    //}, [signMessage, lastNonceReceived])
 
     // conectar a juego deprecated
     const clickConnectToGame = useCallback((playerNumber: number) => {
@@ -301,23 +234,6 @@ export const useTruco = () => {
         }
         
     }, [address, isConnected])
-
-    //useEffect(() => {
-    //    //if (p2pt.current && isConnected && inSession) {
-    //    //    console.log('go, p2p define')
-    //    //    p2pt.current.on('trackerconnect', (tracker, stats) => {
-    //    //        trackingConnection(tracker, stats)
-    //    //    })
-    //    //    p2pt.current.on('peerconnect', callAddPeer)
-    //    //    p2pt.current.on('peerclose', callRemovePeer)
-    //    //    p2pt.current.on('msg', (peer: Peer, message) => {
-    //    //        verifyAndAddMessage(message)
-    //    //    })
-    //    //    p2pt.current.start()
-    //    //}
-    //    //return () => { p2pt.current.destroy() }
-    //}, [p2pt, isConnected, inSession])
-
 
     return {
         address,

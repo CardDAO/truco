@@ -102,9 +102,7 @@ export const RevealCards = ({ match, setProcessingAction, cards, processingActio
         }
     })
 
-    console.log('realcards', cards)
     const validateCards = useCallback(() => {
-        console.log('validateCards', cards)
         if (cards.length === 3) {
             setEnableAction(true)
         } else {
@@ -118,7 +116,6 @@ export const RevealCards = ({ match, setProcessingAction, cards, processingActio
 
     const { write, error, isLoading, data }= useContractWrite(config)
     useEffect(() => {
-        console.log('send reveal cards', checkSuccess, inProgress, cards, write)
         if (inProgress && checkSuccess && write) {
             write()
         }
@@ -161,7 +158,6 @@ export const RevealCards = ({ match, setProcessingAction, cards, processingActio
     })
 
     useEffect(() => {
-        console.log('error?', error, errorToSign)
         if ((error || errorToSign)) {
             setGoToSpell(false)
             setInProgress(false)

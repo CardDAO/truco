@@ -5,15 +5,12 @@ export function encryptAllUsingOTP(
   key: string
 ): PromiseOrValue<BytesLike>[] {
 
-    console.log('key',key)
   const encryptedCards = [] as PromiseOrValue<BytesLike>[]
 
   for (let i = 0; i < cards.length; i++) {
     let card = cards[i]
-    console.log('get card', card)
 
     encryptedCards[i] = encryptCard(card, key)
-    console.log('status encrypted', encryptedCards)
   }
   return encryptedCards;
 }

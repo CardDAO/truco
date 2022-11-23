@@ -160,7 +160,6 @@ export const Dashboard = ({ address, inSession, matchAddress }: any) => {
                     break
                 case 'init_locking':
                     if (state === StateEnum.SECOND_SHUFFLING_WAITING_OTHERS) {
-                        console.log('deck before', deck)
                         const encryptedDeck = await initEncryptDeck(deck, arrayToBuffer(newMessage.message.data?.deck), selfPlayer, latestNonce, signMessage)
                         setDeck(encryptedDeck)
                         setState(StateEnum.WAITING_MY_CARDS)
