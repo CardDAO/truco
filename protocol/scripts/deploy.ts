@@ -81,14 +81,14 @@ async function main() {
         throw e
     }
 
-
-    console.log('-.-. .- .-. -.. -.. .- --- / - .-. ..- -.-. ---')
-    console.log('Frontend Environment')
+    console.log('\n-.-. .- .-. -.. -.. .- --- / - .-. ..- -.-. ---')
+    console.log('Frontend Environment:')
     console.log(`TRUCOMATCH_FACTORY_ADDRESS=${factory.address}`)
     console.log(`TRUCOIN_ADDRESS=${trucoin.address}`)
     console.log(`GAMESTATE_QUERIES_ADDRESS=${gameStateQueries.address}`)
     console.log(`TRUCOCHAMPIONS_TOKEN_ADDRESS=${trucoChampionsToken.address}`)
     console.log(`FRONT_MATCH_FACADE_ADDRESS=${frontMatchFacade.address}`)
+    console.log(`GAS_LIMIT_WRITE=3000000`)
     console.log('-.-. .- .-. -.. -.. .- --- / - .-. ..- -.-. ---')
 }
 
