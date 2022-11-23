@@ -33,11 +33,11 @@ npm run start
 8. Wait for receive yours cards from the opponent
 
 ## Play
-    - Wait your turn  or play
-    - Use red/gray buttons (Action Write) to spell (Truco, Retruco, Envido, Real Envido, etc.)
-    - Use Envido Count to spell "Tengo 33"
-    - If you play a higher card, remember that it is still your turn
-    - Use Accept Challenge For Raising button to spell ReTruco, ValeCuatro, Envido-Envido
+- Wait your turn  or play
+- Use red/gray buttons (Action Write) to spell (Truco, Retruco, Envido, Real Envido, etc.)
+- Use Envido Count to spell "Tengo 33"
+- If you play a higher card, remember that it is still your turn
+- Use Accept Challenge For Raising button to spell ReTruco, ValeCuatro, Envido-Envido
 
 
 ## New deal
@@ -47,5 +47,5 @@ npm run start
 4. If your turn -> click NewDeal Button after finish shuffling
 
 The frontend use:
-    - [P2PT](https://github.com/subins2000/p2pt)
-    - [Mental-Poker](https://github.com/kripod/mental-poker)
+- [P2PT](https://github.com/subins2000/p2pt)
+- [Mental-Poker](https://github.com/kripod/mental-poker)
