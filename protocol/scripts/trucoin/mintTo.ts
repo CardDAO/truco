@@ -6,11 +6,16 @@ export const mint = async (_, { ethers }) => {
     const trucoin = await Trucoin.attach(_.contract)
     const amount = _.amount
 
-    await trucoin.mint(beneficiaryAddress, amount)
-
-    console.log(
-        `Mint ${ethers.utils.formatEther(
-            amount
-        )} Trucoins to address: ${beneficiaryAddress}`
-    )
+    const tx = await trucoin.mint(beneficiaryAddress, amount)
+    const { events } = await tx.wait()
+    const event = events.find((e: { event: string }) => e.event === 'Transfer')
+    if (event) {
+        console.log(
+            `Mint ${ethers.utils.formatEther(
+                amount
+            )} Trucoins to address: ${beneficiaryAddress}`
+        )
+    } else {
+        throw Error(`No minted tokens`)
+    }
 }
