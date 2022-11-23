@@ -389,9 +389,8 @@ contract TrucoMatch {
         currentMatch.gameState = trucoEngine.transact(transaction);
     }
 
-    // TODO remove _? public function
     // This method should be called only from envido winner and if it's waiting for cards to be revealed
-    function _revealCards(uint8[] memory _cards) public {
+    function _revealCards(uint8[] memory _cards) internal {
         require(
             matchState.state == MatchStateEnum.WAITING_FOR_REVEAL,
             'State is not WAITING_FOR_REVEAL'
