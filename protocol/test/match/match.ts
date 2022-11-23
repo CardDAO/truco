@@ -1337,9 +1337,7 @@ describe('Truco Match', function () {
         }
 
         it('Check template generation for 1 card', async function () {
-            const { match, player1 } = await loadFixture(
-                deployMatchContract
-            )
+            const { match, player1 } = await loadFixture(deployMatchContract)
             const card = BigNumber.from(1)
 
             let packed = await getCardsEncodedForSig(player1, match, [card])
@@ -1351,9 +1349,7 @@ describe('Truco Match', function () {
         })
 
         it('Check template generation for 2 cards', async function () {
-            const { match, player1 } = await loadFixture(
-                deployMatchContract
-            )
+            const { match, player1 } = await loadFixture(deployMatchContract)
 
             const cards = [BigNumber.from(1), BigNumber.from(2)]
 
@@ -1366,9 +1362,7 @@ describe('Truco Match', function () {
         })
 
         it('Signature hash generation for invalid number of cards', async function () {
-            const { match, player1 } = await loadFixture(
-                deployMatchContract
-            )
+            const { match, player1 } = await loadFixture(deployMatchContract)
 
             // Empty cards
             await expect(
@@ -1407,9 +1401,7 @@ describe('Truco Match', function () {
         })
 
         it('Check correct hash for signature generation', async function () {
-            const { match, player1 } = await loadFixture(
-                deployMatchContract
-            )
+            const { match, player1 } = await loadFixture(deployMatchContract)
 
             const cards = [BigNumber.from(1), BigNumber.from(2)]
 
@@ -1429,9 +1421,7 @@ describe('Truco Match', function () {
         })
 
         it('Play a card', async function () {
-            const { match, player1 } = await loadFixture(
-                deployMatchContract
-            )
+            const { match, player1 } = await loadFixture(deployMatchContract)
 
             const cards = [BigNumber.from(1), BigNumber.from(2)]
 

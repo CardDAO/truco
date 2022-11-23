@@ -13,7 +13,9 @@ describe('Engine Queries', function () {
     describe('Envido', function () {
         describe('Envido Winner Revealing Cards Enforcement', function () {
             it('Envido was not played', async function () {
-                const { gameStateQueries } = await loadFixture(deployEngineContract)
+                const { gameStateQueries } = await loadFixture(
+                    deployEngineContract
+                )
 
                 let state: GameStateStruct = basicGameState()
 
@@ -23,7 +25,9 @@ describe('Engine Queries', function () {
             })
 
             it('Envido is pending acceptance', async function () {
-                const { gameStateQueries } = await loadFixture(deployEngineContract)
+                const { gameStateQueries } = await loadFixture(
+                    deployEngineContract
+                )
 
                 let state: GameStateStruct = basicGameState()
 
@@ -39,7 +43,9 @@ describe('Engine Queries', function () {
             })
 
             it('Envido accepted, no point count spelled', async function () {
-                const { gameStateQueries } = await loadFixture(deployEngineContract)
+                const { gameStateQueries } = await loadFixture(
+                    deployEngineContract
+                )
 
                 let state: GameStateStruct = basicGameState()
 
@@ -58,7 +64,9 @@ describe('Engine Queries', function () {
             })
 
             it('Envido refused', async function () {
-                const { gameStateQueries } = await loadFixture(deployEngineContract)
+                const { gameStateQueries } = await loadFixture(
+                    deployEngineContract
+                )
 
                 let state: GameStateStruct = basicGameState()
 
@@ -77,7 +85,9 @@ describe('Engine Queries', function () {
             })
 
             it('Envido accepted, points partially spelled', async function () {
-                const { gameStateQueries } = await loadFixture(deployEngineContract)
+                const { gameStateQueries } = await loadFixture(
+                    deployEngineContract
+                )
 
                 let state: GameStateStruct = basicGameState()
 
@@ -95,7 +105,9 @@ describe('Engine Queries', function () {
             })
 
             it('Envido finished, no cards were played by winner', async function () {
-                const { gameStateQueries } = await loadFixture(deployEngineContract)
+                const { gameStateQueries } = await loadFixture(
+                    deployEngineContract
+                )
 
                 let state: GameStateStruct = basicGameState()
 
@@ -115,8 +127,9 @@ describe('Engine Queries', function () {
             })
 
             it('Envido finished, not involved cards that sum envido were played', async function () {
-                const { gameStateQueries, cardsDeck } =
-                    await loadFixture(deployEngineContract)
+                const { gameStateQueries, cardsDeck } = await loadFixture(
+                    deployEngineContract
+                )
 
                 let state: GameStateStruct = basicGameState()
 
@@ -143,8 +156,9 @@ describe('Engine Queries', function () {
             })
 
             it('Envido finished, some cards that sum envido were played', async function () {
-                const { gameStateQueries, cardsDeck } =
-                    await loadFixture(deployEngineContract)
+                const { gameStateQueries, cardsDeck } = await loadFixture(
+                    deployEngineContract
+                )
 
                 let state: GameStateStruct = basicGameState()
 
@@ -171,8 +185,9 @@ describe('Engine Queries', function () {
             })
 
             it('Envido finished, all cards that sum envido were played', async function () {
-                const { gameStateQueries, cardsDeck } =
-                    await loadFixture(deployEngineContract)
+                const { gameStateQueries, cardsDeck } = await loadFixture(
+                    deployEngineContract
+                )
 
                 let state: GameStateStruct = basicGameState()
 
@@ -201,7 +216,9 @@ describe('Engine Queries', function () {
 
         describe('Points calculation', function () {
             it('Invalid cards', async function () {
-                const { gameStateQueries } = await loadFixture(deployEngineContract)
+                const { gameStateQueries } = await loadFixture(
+                    deployEngineContract
+                )
 
                 // One invalid card
                 let cards = [BigNumber.from(0)]
@@ -242,7 +259,9 @@ describe('Engine Queries', function () {
 
             describe('No suit match', function () {
                 it('One card only', async function () {
-                    const { gameStateQueries } = await loadFixture(deployEngineContract)
+                    const { gameStateQueries } = await loadFixture(
+                        deployEngineContract
+                    )
 
                     // Three cards of different suit
                     let cards = [BigNumber.from(11)]
@@ -253,7 +272,9 @@ describe('Engine Queries', function () {
                 })
 
                 it('One card only wich is a figure', async function () {
-                    const { gameStateQueries } = await loadFixture(deployEngineContract)
+                    const { gameStateQueries } = await loadFixture(
+                        deployEngineContract
+                    )
 
                     // Three cards of different suit
                     let cards = [BigNumber.from(10)]
@@ -264,7 +285,9 @@ describe('Engine Queries', function () {
                 })
 
                 it('Two cards, just figures', async function () {
-                    const { gameStateQueries } = await loadFixture(deployEngineContract)
+                    const { gameStateQueries } = await loadFixture(
+                        deployEngineContract
+                    )
 
                     // Three cards of different suit
                     let cards = [BigNumber.from(9), BigNumber.from(28)]
@@ -275,7 +298,9 @@ describe('Engine Queries', function () {
                 })
 
                 it('Two cards, one figure', async function () {
-                    const { gameStateQueries } = await loadFixture(deployEngineContract)
+                    const { gameStateQueries } = await loadFixture(
+                        deployEngineContract
+                    )
 
                     // Three cards of different suit
                     let cards = [BigNumber.from(1), BigNumber.from(19)]
@@ -286,7 +311,9 @@ describe('Engine Queries', function () {
                 })
 
                 it('One number and two figures', async function () {
-                    const { gameStateQueries } = await loadFixture(deployEngineContract)
+                    const { gameStateQueries } = await loadFixture(
+                        deployEngineContract
+                    )
 
                     // Three cards of different suit
                     let cards = [
@@ -301,7 +328,9 @@ describe('Engine Queries', function () {
                 })
 
                 it('Two numbers and one figure', async function () {
-                    const { gameStateQueries } = await loadFixture(deployEngineContract)
+                    const { gameStateQueries } = await loadFixture(
+                        deployEngineContract
+                    )
 
                     // Three cards of different suit
                     let cards = [
@@ -316,7 +345,9 @@ describe('Engine Queries', function () {
                 })
 
                 it('Two numbers and one figure, different order', async function () {
-                    const { gameStateQueries } = await loadFixture(deployEngineContract)
+                    const { gameStateQueries } = await loadFixture(
+                        deployEngineContract
+                    )
 
                     // Three cards of different suit
                     let cards = [
@@ -331,7 +362,9 @@ describe('Engine Queries', function () {
                 })
 
                 it('Three numbers', async function () {
-                    const { gameStateQueries } = await loadFixture(deployEngineContract)
+                    const { gameStateQueries } = await loadFixture(
+                        deployEngineContract
+                    )
 
                     // Three cards of different suit
                     let cards = [
@@ -349,8 +382,9 @@ describe('Engine Queries', function () {
             describe('Suit match', function () {
                 describe('Two cards query', function () {
                     it('Both figures same suit', async function () {
-                        const { gameStateQueries } =
-                            await loadFixture(deployEngineContract)
+                        const { gameStateQueries } = await loadFixture(
+                            deployEngineContract
+                        )
 
                         // Three cards of different suit
                         let cards = [BigNumber.from(8), BigNumber.from(9)]
@@ -363,8 +397,9 @@ describe('Engine Queries', function () {
                     })
 
                     it('One figure and one a number ', async function () {
-                        const { gameStateQueries } =
-                            await loadFixture(deployEngineContract)
+                        const { gameStateQueries } = await loadFixture(
+                            deployEngineContract
+                        )
 
                         // Three cards of different suit
                         let cards = [BigNumber.from(8), BigNumber.from(9)]
@@ -377,8 +412,9 @@ describe('Engine Queries', function () {
                     })
 
                     it('Two numbers ', async function () {
-                        const { gameStateQueries } =
-                            await loadFixture(deployEngineContract)
+                        const { gameStateQueries } = await loadFixture(
+                            deployEngineContract
+                        )
 
                         // Three cards of different suit
                         let cards = [BigNumber.from(2), BigNumber.from(3)]
@@ -393,8 +429,9 @@ describe('Engine Queries', function () {
 
                 describe('Three cards query', function () {
                     it('Two figures same suit, other not', async function () {
-                        const { gameStateQueries } =
-                            await loadFixture(deployEngineContract)
+                        const { gameStateQueries } = await loadFixture(
+                            deployEngineContract
+                        )
 
                         // Three cards of different suit
                         let cards = [
@@ -411,8 +448,9 @@ describe('Engine Queries', function () {
                     })
 
                     it('Two numbers same suit, a figure from a different one', async function () {
-                        const { gameStateQueries } =
-                            await loadFixture(deployEngineContract)
+                        const { gameStateQueries } = await loadFixture(
+                            deployEngineContract
+                        )
 
                         // Three cards of different suit
                         let cards = [
@@ -429,8 +467,9 @@ describe('Engine Queries', function () {
                     })
 
                     it('Two figures same suit, a number with a different one', async function () {
-                        const { gameStateQueries } =
-                            await loadFixture(deployEngineContract)
+                        const { gameStateQueries } = await loadFixture(
+                            deployEngineContract
+                        )
 
                         // Three cards of different suit
                         let cards = [
@@ -447,8 +486,9 @@ describe('Engine Queries', function () {
                     })
 
                     it('All three cards same suit, two figures', async function () {
-                        const { gameStateQueries } =
-                            await loadFixture(deployEngineContract)
+                        const { gameStateQueries } = await loadFixture(
+                            deployEngineContract
+                        )
 
                         // Three cards of different suit
                         let cards = [
@@ -465,8 +505,9 @@ describe('Engine Queries', function () {
                     })
 
                     it('All three cards same suit, one figure', async function () {
-                        const { gameStateQueries } =
-                            await loadFixture(deployEngineContract)
+                        const { gameStateQueries } = await loadFixture(
+                            deployEngineContract
+                        )
 
                         // Three cards of different suit
                         let cards = [
@@ -483,8 +524,9 @@ describe('Engine Queries', function () {
                     })
 
                     it('All three cards same suit, no figure', async function () {
-                        const { gameStateQueries } =
-                            await loadFixture(deployEngineContract)
+                        const { gameStateQueries } = await loadFixture(
+                            deployEngineContract
+                        )
 
                         // Three cards of different suit
                         let cards = [

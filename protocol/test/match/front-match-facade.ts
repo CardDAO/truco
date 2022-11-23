@@ -11,7 +11,6 @@ import { deployFrontMatchFacadeContract } from '../../scripts/helpers/front-matc
 import { GameStateQueries } from '../../typechain-types'
 
 describe('Front Match Facade', function () {
-
     async function deployContract() {
         // Contracts are deployed using the first signer/account by default
         const [player1, player2, invalid_player] = await ethers.getSigners()
