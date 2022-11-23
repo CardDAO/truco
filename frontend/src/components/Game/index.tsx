@@ -43,7 +43,6 @@ export const Game = () => {
                 ethers.utils.getAddress(value)
                 setInvalidAddress("")
             }
-            //0x8e80FFe6Dc044F4A766Afd6e5a8732Fe0977A493
         } catch {
             setInvalidAddress("Error, verifique el address del match")
         }

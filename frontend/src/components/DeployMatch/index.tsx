@@ -50,7 +50,6 @@ export const DeployMatch = ({ processingAction, setProcessingAction, setMatchAdd
         onSuccess: (data: any) => {
         },
         onError: (error: Error) => {
-            //console.log('deploy match calc', error)
         }
     })
 
@@ -105,7 +104,6 @@ export const DeployMatch = ({ processingAction, setProcessingAction, setMatchAdd
         hash: dataDeploy?.hash,
         onSuccess: async (data) => {
             if (data?.status === 1) {
-                console.log('data', data)
             } else {
                 setError("TX: Deploy failed")
                 finishProcess()

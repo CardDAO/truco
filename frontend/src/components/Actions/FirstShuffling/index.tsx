@@ -6,13 +6,10 @@ import { StateEnum } from "../../../hooks/enums"
 
 
 export const firstShuffling = async (decks: any, cardCodewords: any, self: any, latestNonce: any, signMessage: any) => {
-    console.log('inica el shuffling con', cardCodewords)
     let deck = cardCodewords
     const deckShuffled = shuffled(deck)
-    console.log('key pairs',self.keyPairs[GAME_CONFIG.cardCount].privateKey)
     deck = encryptDeck(deckShuffled, self.keyPairs[GAME_CONFIG.cardCount].privateKey)
 
-    console.log('el deck encriptado', deck)
 
     signMessage({
         message: JSON.stringify({

@@ -92,20 +92,15 @@ export const JoinMatch = ({match, processingAction, setProcessingAction, setJoin
         hash: transactionApproveTrucoins?.hash,
         onSuccess: async (data) => {
             if (data?.status === 1) {
-                console.log('data is 1', data)
                 const tryJoinResult = await refetchJoin({throwOnError: true, cancelRefetch: false})
-                console.log('try 1', tryJoinResult)
                 if (tryJoinResult.status === "success"){
-                    console.log('call joint')
                     joinToGame?.()
                 } else {
-                    console.log('try join is not success', tryJoinResult.status)
                     if (inProgress) { 
                         finishProcess()
                     }
                 }
             } else {
-                console.log('approve trucoins status wrong', data)
                 if (inProgress) { 
                     finishProcess()
                 }

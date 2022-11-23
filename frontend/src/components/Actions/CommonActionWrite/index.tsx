@@ -16,7 +16,6 @@ export const CommonActionWrite = ({
     const [ enableAction, setEnableAction ] = useState(false)
     const [ canActionSuccess, setCanActionSuccess ] = useState(false)
     const { address } = useAccountInformation()
-    //function canSpellTruco(TrucoMatch _contractMatch)
 
     useEffect(() => {
         setCanActionSuccess(!checkExecute)
@@ -32,7 +31,6 @@ export const CommonActionWrite = ({
            from: address as string
        },
        onSuccess: (data) => {
-           console.log('result call can',data)
            if (data) {
                setCanActionSuccess(true)
            }
@@ -59,7 +57,6 @@ export const CommonActionWrite = ({
         },
         onSuccess: (data) => {
             if (canActionSuccess) {
-                console.log(`can ${writeFunctionName} (TRUE)`, data)
                 setEnableAction(true)
             }
         },

@@ -7,11 +7,6 @@ export const Actions = (props) => {
         props.setProcessingAction(true)
         props.setProcessingAction(false)
     }, [props.playerTurn, props.currentChallenge])
-    //const goToShuffling = (newGame: any, setNewGame:any, initShuffling:any, sendMessageAll:any) => {
-    //    console.log('go to shuffle')
-    //    let message : Move = initShuffling(newGame, setNewGame)
-    //    sendMessageAll(message)
-    //}
 
     return (
         <>
