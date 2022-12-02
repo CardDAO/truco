@@ -33,6 +33,8 @@ Check the [documentation](/protocol)
 ### A short poem thanks to OpenAI Chatbot 
 
 ```
+> Make a poem about ethereum and the card game truco
+
 In the world of Truco,
 Ethereum reigns supreme,
 A decentralized platform,
