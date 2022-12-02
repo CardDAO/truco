@@ -32,6 +32,7 @@ Check the [documentation](/protocol)
 
 ### A short poem thanks to OpenAI Chatbot 
 
+```
 In the world of Truco,
 Ethereum reigns supreme,
 A decentralized platform,
@@ -51,3 +52,4 @@ So come and join the fun,
 And see what Ethereum can do,
 In the world of Truco,
 Where anything is possible too.
+```
